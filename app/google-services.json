@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "124079031509",
+    "firebase_url": "https://chatease2024-aa2e1-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "chatease2024-aa2e1",
+    "storage_bucket": "chatease2024-aa2e1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:124079031509:android:4e653f1c76c0debaa00e5c",
+        "android_client_info": {
+          "package_name": "com.example.chatease"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbsBp178I6K1khlYS5ftLD10mV2uAQbTI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:124079031509:android:e004ec4d6648e082a00e5c",
+        "android_client_info": {
+          "package_name": "com.example.firebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbsBp178I6K1khlYS5ftLD10mV2uAQbTI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:scrollbars="none"
+    android:overScrollMode="never"
+    android:padding="@dimen/_24sdp"
+    tools:context=".activities.SignUpActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_40sdp"
+            android:text="Create New Account"
+            android:textSize="@dimen/_15ssp"
+            android:textColor="@color/primaryText"
+            android:textStyle="bold"/>
+
+        <FrameLayout
+            android:id="@+id/frameLayoutDisplayImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_20sdp">
+
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/displayImage"
+                android:layout_width="@dimen/_80sdp"
+                android:layout_height="@dimen/_80sdp"
+                android:background="@drawable/background_display_image"
+                android:scaleType="centerCrop"
+                app:riv_oval="true"/>
+
+            <TextView
+                android:id="@+id/displayImageText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Add Image"
+                android:textColor="@color/secondaryText"
+                android:textSize="@dimen/_10sdp" />
+
+        </FrameLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/editLayoutDisplayName"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/_50sdp"
+            app:boxStrokeColor="@color/defaultColor"
+            app:boxStrokeErrorColor="@color/red"
+            app:boxStrokeWidth="2dp"
+            app:endIconMode="clear_text"
+            app:errorEnabled="false">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextDisplayName"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_35sdp"
+                android:hint="Display Name" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/editLayoutEmail"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/_16sdp"
+            app:boxStrokeColor="@color/defaultColor"
+            app:boxStrokeErrorColor="@color/red"
+            app:boxStrokeWidth="2dp"
+            app:endIconMode="clear_text"
+            app:errorEnabled="false">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextEmail"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_35sdp"
+                android:hint="Email" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/editLayoutPassword"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/_16sdp"
+            app:endIconMode="password_toggle"
+            app:boxStrokeWidth="2dp"
+            app:boxStrokeColor="@color/defaultColor"
+            app:boxStrokeErrorColor="@color/red">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextPassword"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_35sdp"
+                android:hint="Password"
+                android:inputType="textPassword"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/editLayoutConfirmPassword"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/_16sdp"
+            app:endIconMode="password_toggle"
+            app:boxStrokeWidth="2dp"
+            app:boxStrokeColor="@color/defaultColor"
+            app:boxStrokeErrorColor="@color/red">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextConfirmPassword"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_35sdp"
+                android:hint="Confirm Password"
+                android:inputType="textPassword"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_20sdp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonSignUp"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_40sdp"
+                app:cornerRadius="@dimen/_8sdp"
+                android:text="SIGN UP"
+                android:visibility="visible"
+                android:textSize="@dimen/_10sdp"
+                android:backgroundTint="@color/dark_blue"/>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_gravity="center"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/dodger_blue"
+                android:visibility="invisible"
+                />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/textViewSignIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:text="Already have an account? Sign in"
+            android:textSize="@dimen/_10ssp"
+            android:textColor="@color/secondaryText"/>
+
+        <!--        <com.google.android.material.button.MaterialButton-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="@dimen/_45sdp"-->
+        <!--            android:layout_marginTop="@dimen/_10sdp"-->
+        <!--            app:cornerRadius="@dimen/_8sdp"-->
+        <!--            android:text="SIGN UP"-->
+        <!--            android:textSize="@dimen/_13sdp">-->
+
+        <!--        </com.google.android.material.button.MaterialButton>-->
+    </LinearLayout>
+
+</ScrollView>
