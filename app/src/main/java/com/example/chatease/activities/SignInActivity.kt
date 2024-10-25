@@ -98,7 +98,6 @@ class SignInActivity : AppCompatActivity() {
             binding.progressBar.visibility = View.INVISIBLE
             binding.buttonSignIn.visibility = View.VISIBLE
         }
-
     }
 
     private fun signIn() {
