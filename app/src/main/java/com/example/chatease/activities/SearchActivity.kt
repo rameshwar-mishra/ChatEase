@@ -18,17 +18,17 @@ import com.example.chatease.SearchUserAdapter
 import com.example.chatease.SearchUserData
 import com.example.chatease.databinding.ActivitySearchBinding
 import com.google.firebase.Firebase
+import com.google.firebase.auth.ktx.userProfileChangeRequest
 import com.google.firebase.firestore.firestore
 
 class SearchActivity : AppCompatActivity() {
     val db = Firebase.firestore
-    lateinit var recyclerView : RecyclerView
+    lateinit var recyclerView: RecyclerView
     private val handler = Handler(Looper.getMainLooper())
     private val delay = 500L
     lateinit var binding: ActivitySearchBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -42,8 +42,10 @@ class SearchActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         recyclerView.layoutManager = LinearLayoutManager(this@SearchActivity)
-        val searchUserList  = mutableListOf<SearchUserData>()
-        binding.editTextSearch.addTextChangedListener(object : TextWatcher{
+        val searchUserList = mutableListOf<SearchUserData>()
+        val adapter = SearchUserAdapter(searchUserList)
+        recyclerView.adapter = adapter
+        binding.editTextSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -51,39 +53,47 @@ class SearchActivity : AppCompatActivity() {
             override fun afterTextChanged(text: Editable?) {
                 var query = text.toString()
                 handler.removeCallbacksAndMessages(null)
-                if(query.isNotEmpty()) {
+                if (query.isNotEmpty()) {
                     handler.postDelayed({
-                        if(binding.editTextSearch.text.toString().isNotEmpty()){
+                        if (binding.editTextSearch.text.toString().isNotEmpty()) {
                             binding.progressBar.visibility = View.VISIBLE
 
-                            if(query.startsWith("@"))
-                            {
+                            if (query.startsWith("@")) {
                                 //if the search is Global which is indicated by using @
                                 // e.g : @Goku
                                 query = query.split("@")[1]
-                               db.collection("users").whereEqualTo("username",query).get()
-                                   .addOnSuccessListener {   documents ->
-                                       for(document in documents){
-                                           val userID = document.id
-                                           val userName = document.getString("username")?:""
-                                           val userAvatar = document.getString("displayImage")?:""
-                                           val userProfile = SearchUserData(userName,userID,userAvatar)
-                                           searchUserList.add(userProfile)
-                                           Log.d("Test",userName)
-                                       }
-                                   }
+                                db.collection("users").whereEqualTo("username", query).get()
+                                    .addOnCompleteListener { search ->
+                                        if(search.result.size()==0){searchUserList.clear()}
+                                        else{
+                                        for (document in search.result) {
+                                            val userID = document.id
+                                            val userName = document.getString("username") ?: ""
+                                            val userAvatar =
+                                                document.getString("displayImage") ?: ""
+                                            val userProfile =
+                                                SearchUserData(userName, userID, userAvatar)
+                                            searchUserList.clear()
+                                            searchUserList.add(userProfile)
+
+                                        }
+                                        }
+                                        binding.progressBar.visibility = View.INVISIBLE
+//                                        searchUserList.clear()
+                                        adapter.notifyDataSetChanged()
+                                    }
+
                             } else {
                                 //if the search is Local which is indicated by not using @
                                 // e.g : Goku
 
                             }
                         }
-                    },delay)
+                    }, delay)
                 }
             }
         })
-        val adapter = SearchUserAdapter(searchUserList)
-        recyclerView.adapter = adapter
+
     }
 }
 
