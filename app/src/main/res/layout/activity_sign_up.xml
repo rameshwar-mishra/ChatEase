@@ -6,14 +6,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipToPadding="false"
-    android:scrollbars="none"
     android:overScrollMode="never"
-    android:padding="@dimen/_24sdp"
+    android:padding="@dimen/_10sdp"
+    android:scrollbars="none"
     tools:context=".activities.SignUpActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
         android:gravity="center_horizontal"
         android:orientation="vertical">
 
@@ -22,9 +23,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_40sdp"
             android:text="Create New Account"
-            android:textSize="@dimen/_15ssp"
             android:textColor="@color/primaryText"
-            android:textStyle="bold"/>
+            android:textSize="@dimen/_15ssp"
+            android:textStyle="bold" />
 
         <FrameLayout
             android:id="@+id/frameLayoutDisplayImage"
@@ -38,7 +39,7 @@
                 android:layout_height="@dimen/_80sdp"
                 android:background="@drawable/background_display_image"
                 android:scaleType="centerCrop"
-                app:riv_oval="true"/>
+                app:riv_oval="true" />
 
             <TextView
                 android:id="@+id/displayImageText"
@@ -65,7 +66,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editTextDisplayName"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/_35sdp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|center_vertical"
                 android:hint="Display Name" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -83,7 +85,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editTextEmail"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/_35sdp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|center_vertical"
                 android:hint="Email" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -92,17 +95,18 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="@dimen/_16sdp"
-            app:endIconMode="password_toggle"
-            app:boxStrokeWidth="2dp"
             app:boxStrokeColor="@color/defaultColor"
-            app:boxStrokeErrorColor="@color/red">
+            app:boxStrokeErrorColor="@color/red"
+            app:boxStrokeWidth="2dp"
+            app:endIconMode="password_toggle">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editTextPassword"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/_35sdp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|center_vertical"
                 android:hint="Password"
-                android:inputType="textPassword"/>
+                android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -110,17 +114,18 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="@dimen/_16sdp"
-            app:endIconMode="password_toggle"
-            app:boxStrokeWidth="2dp"
             app:boxStrokeColor="@color/defaultColor"
-            app:boxStrokeErrorColor="@color/red">
+            app:boxStrokeErrorColor="@color/red"
+            app:boxStrokeWidth="2dp"
+            app:endIconMode="password_toggle">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editTextConfirmPassword"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/_35sdp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|center_vertical"
                 android:hint="Confirm Password"
-                android:inputType="textPassword"/>
+                android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <FrameLayout
@@ -131,12 +136,13 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonSignUp"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/_40sdp"
-                app:cornerRadius="@dimen/_8sdp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|center_vertical"
+                android:backgroundTint="@color/dark_blue"
                 android:text="SIGN UP"
-                android:visibility="visible"
                 android:textSize="@dimen/_10sdp"
-                android:backgroundTint="@color/dark_blue"/>
+                android:visibility="visible"
+                app:cornerRadius="@dimen/_8sdp" />
 
             <ProgressBar
                 android:id="@+id/progressBar"
@@ -145,18 +151,18 @@
                 android:layout_gravity="center"
                 android:indeterminate="true"
                 android:indeterminateTint="@color/dodger_blue"
-                android:visibility="invisible"
-                />
+                android:visibility="invisible" />
         </FrameLayout>
 
         <TextView
             android:id="@+id/textViewSignIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center|center_vertical"
             android:layout_marginTop="@dimen/_10sdp"
             android:text="Already have an account? Sign in"
-            android:textSize="@dimen/_10ssp"
-            android:textColor="@color/secondaryText"/>
+            android:textColor="@color/secondaryText"
+            android:textSize="@dimen/_10ssp" />
 
         <!--        <com.google.android.material.button.MaterialButton-->
         <!--            android:layout_width="match_parent"-->
