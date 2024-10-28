@@ -51,7 +51,7 @@ class SearchActivity : AppCompatActivity() {
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
             override fun afterTextChanged(text: Editable?) {
-                var query = text.toString()
+                var query = text.toString().trim()
                 handler.removeCallbacksAndMessages(null)
                 if (query.isNotEmpty()) {
                     handler.postDelayed({
@@ -61,35 +61,48 @@ class SearchActivity : AppCompatActivity() {
                             if (query.startsWith("@")) {
                                 //if the search is Global which is indicated by using @
                                 // e.g : @Goku
-                                query = query.split("@")[1]
-                                db.collection("users").whereEqualTo("username", query).get()
-                                    .addOnCompleteListener { search ->
-                                        if(search.result.size()==0){searchUserList.clear()}
-                                        else{
-                                        for (document in search.result) {
-                                            val userID = document.id
-                                            val userName = document.getString("username") ?: ""
-                                            val userAvatar =
-                                                document.getString("displayImage") ?: ""
-                                            val userProfile =
-                                                SearchUserData(userName, userID, userAvatar)
+                                binding.progressBar.visibility = View.INVISIBLE
+                                query = query.split("@")[1].trim()
+                                val upperBoundQuery = query + "\uf8ff"
+                                if(query.isNotEmpty()) {
+                                    db.collection("users")
+                                        .whereGreaterThanOrEqualTo("username", query)
+                                        .whereLessThan("username", upperBoundQuery)
+                                        .get()
+                                        .addOnCompleteListener { search ->
                                             searchUserList.clear()
-                                            searchUserList.add(userProfile)
 
-                                        }
-                                        }
-                                        binding.progressBar.visibility = View.INVISIBLE
-//                                        searchUserList.clear()
-                                        adapter.notifyDataSetChanged()
-                                    }
+                                            if (search.isSuccessful && search.result.size() > 0) {
+                                                for (document in search.result) {
+                                                    val userID = document.id
+                                                    val userName = document.getString("username") ?: ""
+                                                    val userAvatar = document.getString("displayImage") ?: ""
+                                                    val userProfile = SearchUserData(userName, userID, userAvatar)
+                                                    searchUserList.add(userProfile)
+                                                }
+                                                adapter.updateSearchState(true)
 
+                                            } else {
+                                                adapter.updateSearchState(false)
+                                            }
+                                            adapter.notifyDataSetChanged()
+                                        }
+                                } else {
+                                    searchUserList.clear()
+                                    adapter.notifyDataSetChanged()
+                                }
                             } else {
                                 //if the search is Local which is indicated by not using @
                                 // e.g : Goku
+                                binding.progressBar.visibility = View.INVISIBLE
 
                             }
                         }
                     }, delay)
+                } else {
+                    searchUserList.clear()
+                    adapter.updateSearchState(false)
+                    adapter.notifyDataSetChanged()
                 }
             }
         })

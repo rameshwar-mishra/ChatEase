@@ -29,8 +29,9 @@
             app:endIconMode="clear_text"
             app:errorEnabled="false">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/editTextEmail"
+                android:maxLines="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|center_vertical"
@@ -47,7 +48,7 @@
             app:boxStrokeWidth="2dp"
             app:endIconMode="password_toggle">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/editTextPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

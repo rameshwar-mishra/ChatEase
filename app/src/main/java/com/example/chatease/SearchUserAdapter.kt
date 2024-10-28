@@ -15,8 +15,19 @@ class SearchUserAdapter(
         const val isFound = 1
         const val isNotFound = 0
     }
+
+    private var hasSearched = false
+
+    fun updateSearchState(hasResults: Boolean) {
+        hasSearched = true
+        if(!hasResults) {
+            userData.clear()
+        }
+        notifyDataSetChanged()
+    }
+
     override fun getItemViewType(position: Int): Int {
-        if(userData.isEmpty()){
+        if(userData.isEmpty() && hasSearched){
             return isNotFound
         }
         else
@@ -47,7 +58,7 @@ class SearchUserAdapter(
 
     }
     override fun getItemCount(): Int {
-        if(userData.isEmpty()){
+        if(userData.isEmpty() && hasSearched){
             return 1
         }
         else
