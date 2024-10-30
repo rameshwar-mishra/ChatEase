@@ -1,4 +1,4 @@
-package com.example.chatease
+package com.example.chatease.dataclass
 
 data class SearchUserData(
     val userName:String,

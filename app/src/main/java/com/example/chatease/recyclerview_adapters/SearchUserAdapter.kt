@@ -1,14 +1,20 @@
-package com.example.chatease
+package com.example.chatease.recyclerview_adapters
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.chatease.dataclass.SearchUserData
+import com.example.chatease.activities.ChatActivity
 import com.example.chatease.databinding.SearchContentBinding
 import com.example.chatease.databinding.SearchContentNotFoundBinding
 import com.squareup.picasso.Picasso
 
 // Adapter for displaying search results in a RecyclerView
 class SearchUserAdapter(
+    val context : Context,
     private val userData: MutableList<SearchUserData> // List holding search results
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -77,6 +83,19 @@ class SearchUserAdapter(
             // If holder is UserProfileViewHolder, bind user data
             holder.binding.textViewUserName.text = userData[position].userName
             Picasso.get().load(userData[position].userAvatar).into(holder.binding.roundedImageView) // Load profile image
+
+            holder.binding.searchUserLinearLayout.setOnClickListener {
+                val intent = Intent(context,ChatActivity::class.java)
+                intent.apply {
+                    putExtra("id",userData[position].userID)
+                    putExtra("username",userData[position].userName)
+                    putExtra("avatar",userData[position].userAvatar)
+                }
+                context.startActivity(intent)
+                if(context is Activity) {
+                    context.finish()
+                }
+            }
         } else {
             // No binding needed for UserNotFoundHolder as "No Match Found" Layout will be shown
         }

@@ -1,19 +1,13 @@
-package com.example.chatease
+package com.example.chatease.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.chatease.activities.SearchActivity
-import com.example.chatease.activities.SignInActivity
+import com.example.chatease.R
 import com.example.chatease.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
 
