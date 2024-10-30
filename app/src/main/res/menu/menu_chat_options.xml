@@ -4,9 +4,9 @@
 
     <item
         android:title="Search"
-        android:icon="@drawable/searchbtn"
         app:showAsAction=""
-         />
+        />
+
     <item
         android:title="Wallpaper"
         app:showAsAction="never"
@@ -17,3 +17,6 @@
         />
 
 </menu>
+
+
+    <!--        android:icon="@drawable/searchbtn"-->

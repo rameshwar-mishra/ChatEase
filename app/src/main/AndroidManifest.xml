@@ -18,14 +18,16 @@
         <activity
             android:name=".activities.ChatActivity"
             android:exported="false"
-            android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName=".activities.MainActivity"
             />
         <activity
             android:name=".activities.SearchActivity"
             android:exported="false"
-            android:parentActivityName=".MainActivity" />
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName=".activities.MainActivity" />
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:exported="false" />
         <activity
             android:name=".activities.SignUpActivity"
@@ -41,6 +43,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 
 </manifest>
+
