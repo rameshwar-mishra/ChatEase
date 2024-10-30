@@ -16,9 +16,14 @@
         android:theme="@style/Theme.ChatEase"
         tools:targetApi="31">
         <activity
+            android:name=".activities.ChatActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"
+            />
+        <activity
             android:name=".activities.SearchActivity"
             android:exported="false"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".MainActivity"
             android:exported="false" />

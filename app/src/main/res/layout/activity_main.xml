@@ -40,5 +40,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/icon_add" />
 
+    <Button
+        android:id="@+id/goToChat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="175dp"
+        android:layout_marginTop="259dp"
+        android:layout_marginEnd="145dp"
+        android:layout_marginBottom="360dp"
+        android:text="Go to Chat Activity"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

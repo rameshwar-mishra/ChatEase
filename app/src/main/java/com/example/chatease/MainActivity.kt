@@ -12,6 +12,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.chatease.activities.ChatActivity
 import com.example.chatease.activities.SearchActivity
 import com.example.chatease.activities.SignInActivity
 import com.example.chatease.databinding.ActivityMainBinding
@@ -40,6 +41,9 @@ class MainActivity : AppCompatActivity() {
         binding.floatingActionButtonSearch.setOnClickListener {
             startActivity(Intent(this@MainActivity, SearchActivity::class.java))
         }
+        binding.goToChat.setOnClickListener {
+            startActivity(Intent(this@MainActivity, ChatActivity::class.java))
+        }
     }
 
     //  Inflating 3 Dots Toolbar Menu Buttons
@@ -47,6 +51,7 @@ class MainActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.menu_signout, menu)
         return true
     }
+
 
     //  When one of the options get selected from the 3 Dots Toolbar Menu Buttons
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
