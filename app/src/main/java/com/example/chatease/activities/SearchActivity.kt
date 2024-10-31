@@ -5,20 +5,17 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chatease.R
-import com.example.chatease.SearchUserAdapter
-import com.example.chatease.SearchUserData
+import com.example.chatease.recyclerview_adapters.SearchUserAdapter
+import com.example.chatease.dataclass.SearchUserData
 import com.example.chatease.databinding.ActivitySearchBinding
 import com.google.firebase.Firebase
-import com.google.firebase.auth.ktx.userProfileChangeRequest
 import com.google.firebase.firestore.firestore
 
 class SearchActivity : AppCompatActivity() {
@@ -51,7 +48,7 @@ class SearchActivity : AppCompatActivity() {
 
         recyclerView.layoutManager = LinearLayoutManager(this@SearchActivity)
         val searchUserList = mutableListOf<SearchUserData>() // List to hold user search results
-        val adapter = SearchUserAdapter(searchUserList)
+        val adapter = SearchUserAdapter(this@SearchActivity,searchUserList)
         recyclerView.adapter = adapter
 
         // Add a text watcher to listen for changes in search input
@@ -112,8 +109,9 @@ class SearchActivity : AppCompatActivity() {
                                                 for (document in search.result) {
                                                     val userID = document.id
                                                     val userName = document.getString("username") ?: ""
+                                                    val displayName = document.getString("displayname") ?: ""
                                                     val userAvatar = document.getString("displayImage") ?: ""
-                                                    val userProfile = SearchUserData(userName, userID, userAvatar) // Creates a user object
+                                                    val userProfile = SearchUserData(userName, displayName,userID, userAvatar) // Creates a user object
                                                     searchUserList.add(userProfile) // adds the user object to the mutable list
                                                 }
                                                 adapter.updateSearchState(true) // Notify adapter that results are available
