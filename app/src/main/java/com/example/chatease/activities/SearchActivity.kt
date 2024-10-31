@@ -109,8 +109,9 @@ class SearchActivity : AppCompatActivity() {
                                                 for (document in search.result) {
                                                     val userID = document.id
                                                     val userName = document.getString("username") ?: ""
+                                                    val displayName = document.getString("displayname") ?: ""
                                                     val userAvatar = document.getString("displayImage") ?: ""
-                                                    val userProfile = SearchUserData(userName, userID, userAvatar) // Creates a user object
+                                                    val userProfile = SearchUserData(userName, displayName,userID, userAvatar) // Creates a user object
                                                     searchUserList.add(userProfile) // adds the user object to the mutable list
                                                 }
                                                 adapter.updateSearchState(true) // Notify adapter that results are available
