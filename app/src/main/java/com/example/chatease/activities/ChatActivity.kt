@@ -1,5 +1,6 @@
 package com.example.chatease.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -22,6 +23,7 @@ import com.squareup.picasso.Picasso
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 class ChatActivity : AppCompatActivity() {
 
@@ -55,42 +57,104 @@ class ChatActivity : AppCompatActivity() {
 
 
         val currentUserId = auth.currentUser?.uid
-        val conversationID = generateConversationID(currentUserId!!,intent.getStringExtra("id")!!)
+        val conversationID = generateConversationID(currentUserId!!, intent.getStringExtra("id")!!)
 
         binding.buttonSend.setOnClickListener {
             if (binding.editTextMessage.text.toString().trim().isNotEmpty()) {
+
+                val metaRef = db.collection("chats").document(conversationID)
+
+                val participants = listOf(auth.currentUser!!.uid, intent.getStringExtra("id")!!).sorted()
+
+                var userDisplayName = ""
+                var userAvatar = ""
+                val timestamp = FieldValue.serverTimestamp()
+
+                db.collection("users").document(auth.currentUser!!.uid)
+                    .get()
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            userDisplayName = task.result.getString("username") ?: ""
+                            userAvatar = task.result.getString("displayImage") ?: ""
+
+                            var user_1_details = mapOf<String, Any?>()
+                            var user_2_details = mapOf<String, Any?>()
+
+
+                            val lastMessage = binding.editTextMessage.text.toString().trim()
+
+
+                            if (participants[0] == intent.getStringExtra("id")) {
+                                user_1_details = mapOf(
+                                    "userid" to participants[0],
+                                    "displayname" to intent.getStringExtra("username"),
+                                    "avatar" to intent.getStringExtra("avatar")
+                                )
+
+                                user_2_details = mapOf(
+                                    "userid" to participants[1],
+                                    "displayname" to userDisplayName,
+                                    "avatar" to userAvatar
+                                )
+
+                            } else if (participants[1] == intent.getStringExtra("id")) {
+
+                                user_1_details = mapOf(
+                                    "userid" to participants[0],
+                                    "displayname" to userDisplayName,
+                                    "avatar" to userAvatar
+                                )
+
+                                user_2_details = mapOf(
+                                    "userid" to participants[1],
+                                    "displayname" to intent.getStringExtra("username"),
+                                    "avatar" to intent.getStringExtra("avatar")
+                                )
+                            }
+
+                            val userMetaData = hashMapOf(
+                                "participants" to participants,
+                                "lastmessage" to lastMessage,
+                                "lastmessagetimestamp" to timestamp,
+                                "user_1_details" to user_1_details,
+                                "user_2_details" to user_2_details
+                            )
+
+                            metaRef.set(userMetaData)
+                        }
+                    }
+
+
                 val messageRef = db.collection("chats").document(conversationID).collection("messages")
                 val newMessageId = messageRef.document().id // Firebase generates a random ID
 
                 val messageData = hashMapOf(
                     "sender" to auth.currentUser?.uid,
                     "content" to binding.editTextMessage.text.toString().trim(),
-                    "timestamp" to FieldValue.serverTimestamp()
+                    "timestamp" to timestamp
                 )
 
                 messageRef.document(newMessageId).set(messageData)
-                    .addOnCompleteListener{ task ->
-                        if(task.isSuccessful) {
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
                             binding.editTextMessage.text.clear()
                         }
 
                     }
                     .addOnFailureListener { exception ->
-                    Toast.makeText(this@ChatActivity, exception.toString(), Toast.LENGTH_LONG).show()
-                }
+                        Toast.makeText(this@ChatActivity, exception.toString(), Toast.LENGTH_LONG).show()
+                    }
             }
         }
 
         recyclerView = binding.recyclerViewCurrentChat
         recyclerView.layoutManager = LinearLayoutManager(this@ChatActivity)
-        val adapter = ChatAdapter(messagesList,currentUserId!!)
+        val adapter = ChatAdapter(messagesList, currentUserId!!)
         recyclerView.adapter = adapter
 
         db.collection("chats").document(conversationID).collection("messages")
             .orderBy("timestamp")
             .addSnapshotListener { snapshot, error ->
-                Log.d("test",snapshot.toString())
-                Log.e("test",error.toString())
                 if (error != null) {
                     Log.d("LoadMessages", error.toString())
                     return@addSnapshotListener
@@ -100,11 +164,11 @@ class ChatActivity : AppCompatActivity() {
                             DocumentChange.Type.ADDED -> {
                                 val sender = message.document.getString("sender") ?: ""
                                 val content = message.document.getString("content") ?: ""
-                                val timestamp = (message.document.get("timestamp") as? Date)?.time ?: 0L
-                                val date = Date(timestamp)
-                                val formatter = SimpleDateFormat("hh:mm a",Locale.getDefault())
-                                val formattedTimeStamp = formatter.format(date)
-                                val messageObject = MessageUserData(sender,content,formattedTimeStamp)
+                                val timestamp = message.document.getTimestamp("timestamp")?.toDate() ?: Date()
+                                val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
+                                formatter.timeZone = TimeZone.getTimeZone("Asia/Kolkata")
+                                val formattedTimeStamp = formatter.format(timestamp)
+                                val messageObject = MessageUserData(sender, content, formattedTimeStamp)
                                 messagesList.add(messageObject)
                                 adapter.notifyDataSetChanged()
                                 recyclerView.scrollToPosition(messagesList.size - 1)
@@ -122,14 +186,14 @@ class ChatActivity : AppCompatActivity() {
                 }
             }
 
-
-
-
+    binding.frameUserProfileClickable.setOnClickListener {
+        val intent = Intent(this@ChatActivity,UserProfile::class.java)
+        startActivity(intent)
+    }
     }
 
-
-    fun generateConversationID(user1: String,user2:String) : String {
-        val convoId = listOf(user1,user2).sorted()
+    fun generateConversationID(user1: String, user2: String): String {
+        val convoId = listOf(user1, user2).sorted()
         return convoId.joinToString("_")
     }
 

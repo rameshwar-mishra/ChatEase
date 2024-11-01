@@ -89,6 +89,7 @@ class SearchUserAdapter(
                 intent.apply {
                     putExtra("id",userData[position].userID)
                     putExtra("username",userData[position].userName)
+                    putExtra("displayname",userData[position].userName)
                     putExtra("avatar",userData[position].userAvatar)
                 }
                 context.startActivity(intent)
