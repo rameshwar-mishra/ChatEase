@@ -57,9 +57,15 @@ dependencies {
     implementation(libs.intuit.sdp)
     implementation(libs.intuit.ssp)
 
-    // Rounded ImageView
+    // Ramen's Rounded ImageView
     implementation(libs.makeramen.roundedimageview)
 
-     //Picasso
+    // Picasso (An easy image loading library)
     implementation("com.squareup.picasso:picasso:2.71828")
+
+    // Glide (Advanced Image Loading Library)
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    // Native version of uCrop (Image Cropping Library for Android) for enhanced image quality
+    implementation("com.github.yalantis:ucrop:2.2.8-native")
 }

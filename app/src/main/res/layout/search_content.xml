@@ -36,7 +36,6 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:text="Text View"
-                android:textColor="@color/black"
                 android:fontFamily="sans-serif"
                 android:textSize="@dimen/_15ssp"
                 app:layout_constraintStart_toEndOf="@+id/roundedImageView"
