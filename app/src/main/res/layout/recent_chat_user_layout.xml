@@ -9,7 +9,7 @@
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -18,19 +18,21 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="60dp">
 
 
             <com.makeramen.roundedimageview.RoundedImageView
                 android:id="@+id/userAvatar"
-                android:layout_width="@dimen/_40sdp"
-                android:layout_height="@dimen/_40sdp"
+                android:layout_width="46dp"
+                android:layout_height="46dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="4dp"
                 android:scaleType="centerCrop"
                 android:src="@color/black"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.5"
                 app:riv_oval="true" />
 
             <TextView
@@ -40,8 +42,8 @@
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="4dp"
                 android:text="Goku"
-                android:textStyle="bold"
                 android:textSize="19sp"
+                android:textStyle="bold"
                 app:layout_constraintLeft_toRightOf="@id/userAvatar"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -51,9 +53,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="6dp"
-                android:textSize="15sp"
-                android:textColor="#746C6C"
                 android:text="Last Message"
+                android:textColor="#746C6C"
+                android:textSize="15sp"
                 app:layout_constraintLeft_toRightOf="@id/userAvatar"
                 app:layout_constraintTop_toBottomOf="@id/userName" />
 

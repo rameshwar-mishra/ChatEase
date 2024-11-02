@@ -32,9 +32,8 @@
                 android:layout_margin="5sp"
                 android:layout_weight="1"
                 android:textSize="15sp"
-                android:text="This is received message gfffffffffffffffffffgfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfg"
-                android:textColor="#363A43"
-                android:textColorHint="#7A8089"
+                android:text="This is received message"
+
                 android:paddingTop="5sp"
                 android:paddingRight="5sp">
 
@@ -52,8 +51,7 @@
 
                 android:textSize="10sp"
                 android:text="09:46"
-                android:layout_gravity="bottom"
-                android:textColor="#363A43">
+                android:layout_gravity="bottom">
 
             </TextView>
 

@@ -2,14 +2,14 @@ package com.example.chatease.recyclerview_adapters
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.example.chatease.R
 import com.example.chatease.activities.ChatActivity
 import com.example.chatease.databinding.RecentChatUserLayoutBinding
 import com.example.chatease.dataclass.RecentChatData
-import com.squareup.picasso.Picasso
 
 class RecentChatAdapter(
     val context: Context, // Context for starting activities
@@ -27,7 +27,6 @@ class RecentChatAdapter(
 
     // Get the total number of items in the list
     override fun getItemCount(): Int {
-        Log.d("test", "COUNT : ${recentChatDataList.size}")
         return recentChatDataList.size
     }
 
@@ -39,10 +38,8 @@ class RecentChatAdapter(
             userLastMessageTimeStamp.text = recentChatDataList[position].lastMessageTimeStamp
 
             // Create a formatted string for the last message
-            val lastMessage = recentChatDataList[position].lastMessageSender + ": " + recentChatDataList[position].lastMessage
-            Log.e("LAST MESSAGE", lastMessage)
-            Log.e("SIZE", lastMessage.length.toString())
-            Log.e("CHECK", (lastMessage.length > 35).toString())
+            val lastMessage =
+                recentChatDataList[position].lastMessageSender + ": " + recentChatDataList[position].lastMessage
             // If the message is longer than 35 characters, truncate it
             if (lastMessage.length > 35) {
                 val subStr = lastMessage.substring(0, 35) + "..."
@@ -51,8 +48,12 @@ class RecentChatAdapter(
                 userLastMessage.text = lastMessage
             }
 
-            // Load the user's avatar image
-            Picasso.get().load(recentChatDataList[position].avatar).into(holder.binding.userAvatar)
+            Glide.with(holder.binding.userAvatar.context)
+                .load(recentChatDataList[position].avatar)
+                .placeholder(R.drawable.vector_default_user_avatar)
+                .into(holder.binding.userAvatar)
+
+//            Picasso.get().load(recentChatDataList[position].avatar).into(holder.binding.userAvatar)
 
             // Set click listener to open the chat activity with the selected user
             root.setOnClickListener {
