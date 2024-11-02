@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -22,34 +23,34 @@ class SearchActivity : AppCompatActivity() {
     // Initialize Firestore database instance
     val db = Firebase.firestore
     lateinit var recyclerView: RecyclerView
-    // Handler to delay search to improve performance and reduce redundant queries
+    // Handler to manage search delay to enhance performance and prevent redundant queries
     private val handler = Handler(Looper.getMainLooper())
-    private val delay = 500L // 500 milliseconds delay for search
+    private val delay = 500L // 500 milliseconds delay for search queries
     lateinit var binding: ActivitySearchBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Setup view binding
+        // Setup view binding to access layout views efficiently
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Enable padding to avoid overlapping with system bars
+        // Enable padding to prevent UI elements from overlapping with system bars
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        // Sets the custom toolbar
+        // Setup the RecyclerView for displaying search results
         recyclerView = findViewById(R.id.recyclerViewSearch)
         val toolbar = binding.toolbar
-        setSupportActionBar(toolbar)
+        setSupportActionBar(toolbar) // Set custom toolbar
         supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enable back button on toolbar
 
-        recyclerView.layoutManager = LinearLayoutManager(this@SearchActivity)
+        recyclerView.layoutManager = LinearLayoutManager(this@SearchActivity) // Set layout manager
         val searchUserList = mutableListOf<SearchUserData>() // List to hold user search results
-        val adapter = SearchUserAdapter(this@SearchActivity,searchUserList)
-        recyclerView.adapter = adapter
+        val adapter = SearchUserAdapter(this@SearchActivity, searchUserList) // Initialize adapter for RecyclerView
+        recyclerView.adapter = adapter // Set the adapter to RecyclerView
 
         // Add a text watcher to listen for changes in search input
         binding.editTextSearch.addTextChangedListener(object : TextWatcher {
@@ -59,84 +60,69 @@ class SearchActivity : AppCompatActivity() {
 
             // Handle input after the text has changed
             override fun afterTextChanged(text: Editable?) {
-                var query = text.toString().trim() // Get search query, trimmed of leading/trailing spaces
-                handler.removeCallbacksAndMessages(null) // Clear any previous search delay
+                var query = text.toString().trim() // Get trimmed search query
+                handler.removeCallbacksAndMessages(null) // Clear previous search delay to prevent spam
 
-                // Below a Delay/Timeout mechanism is implemented which is used to stop the spam API calls.
-
-                // Workflow of the mechanism (also explains, Why we need it) : (Suppose a user types)
-
-                // S                         (The Event Listener Invoked)
-                // So                        (The Event Listener Invoked)
-                // Sou                       (The Event Listener Invoked)
-                // Souv                      (The Event Listener Invoked)
-                // Souvi                     (The Event Listener Invoked)
-                // Souvic                    (The Event Listener Invoked)
-                // Souvick                   (The Event Listener Invoked)
-
-                // As we can see here, it will lead to api spam calls as each time the user types
-                // the event listener invokes, The search will happens.
-
-                // To prevent this, a timeout mechanism is implemented.
-                // When a user types a character the countDown starts. (Suppose its a 5 second countDown)
-                // as the user types a character within 5 seconds. The countDown resets
-                // if the countDown gets over then the query gets searched in the database
-
+                // Implement a delay mechanism to prevent excessive API calls when typing
+                // This helps in cases where users might type quickly, resetting the query timer each time
 
                 if (query.isNotEmpty()) {
+                    // Delay search execution to avoid rapid successive queries
                     handler.postDelayed({
-                        // Ensure search field still contains text before proceeding
+                        // Check if the search field still contains text
                         if (binding.editTextSearch.text.toString().isNotEmpty()) {
-                            binding.progressBar.visibility = View.VISIBLE // Show progress bar
+                            binding.progressBar.visibility = View.VISIBLE // Show loading indicator
 
                             if (query.startsWith("@")) {
-                                // Global search (indicated by '@' prefix), for example: "@Goku"
-                                binding.progressBar.visibility = View.INVISIBLE
-                                query = query.split("@")[1].trim() // Remove '@' symbol from query
-                                val upperBoundQuery = query + "\uf8ff" // Set upper bound for range query
+                                // Indicates a global search (e.g., "@Goku")
+                                query = query.split("@")[1].trim() // Remove '@' prefix from query
+                                val upperBoundQuery = query + "\uf8ff" // Define upper bound for query range
 
                                 if (query.isNotEmpty()) {
-                                    // Perform Firestore query to search for users by username range
+                                    // Perform Firestore query for user search
                                     db.collection("users")
                                         .whereGreaterThanOrEqualTo("username", query)
                                         .whereLessThan("username", upperBoundQuery)
                                         .get()
                                         .addOnCompleteListener { search ->
+                                            binding.progressBar.visibility = View.INVISIBLE // Hide loading indicator
+                                            Log.d("Visibility", "Search executed")
                                             searchUserList.clear() // Clear previous search results
 
                                             if (search.isSuccessful && search.result.size() > 0) {
-                                                // Loop through results and add to list if found
+                                                // Loop through results and add to the list if found
                                                 for (document in search.result) {
-                                                    val userID = document.id
-                                                    val userName = document.getString("username") ?: ""
-                                                    val displayName = document.getString("displayname") ?: ""
-                                                    val userAvatar = document.getString("displayImage") ?: ""
-                                                    val userProfile = SearchUserData(userName, displayName,userID, userAvatar) // Creates a user object
-                                                    searchUserList.add(userProfile) // adds the user object to the mutable list
+                                                    val userID = document.id // Get user ID
+                                                    val userName = document.getString("username") ?: "" // Get username
+                                                    val displayName = document.getString("displayname") ?: "" // Get display name
+                                                    val userAvatar = document.getString("avatar") ?: "" // Get user avatar
+                                                    val userProfile = SearchUserData(userName, displayName, userID, userAvatar) // Create user data object
+                                                    searchUserList.add(userProfile) // Add user object to results list
                                                 }
                                                 adapter.updateSearchState(true) // Notify adapter that results are available
                                             } else {
-                                                adapter.updateSearchState(false) // Notify adapter that no results were found
+                                                adapter.updateSearchState(false) // Notify adapter of no results found
                                             }
-                                            adapter.notifyDataSetChanged() // Update UI with results
+                                            adapter.notifyDataSetChanged() // Update UI with search results
                                         }
                                 } else {
-                                    // Clear list if query is empty after '@' and refresh adapter
-                                    searchUserList.clear()
-                                    adapter.notifyDataSetChanged()
+                                    // Clear results if query is empty after '@' and refresh adapter
+                                    binding.progressBar.visibility = View.INVISIBLE // Hide loading indicator
+                                    searchUserList.clear() // Clear results
+                                    adapter.notifyDataSetChanged() // Refresh UI
                                 }
                             } else {
-                                // Local search (does not use '@' prefix)
-                                binding.progressBar.visibility = View.INVISIBLE
+                                // Handle local search when '@' is not used
+                                binding.progressBar.visibility = View.INVISIBLE // Hide loading indicator
                                 // Implementation for local search can be added here
                             }
                         }
-                    }, delay) // Delay search to avoid excessive queries
+                    }, delay) // Delay to manage excessive queries
                 } else {
-                    // Clear search results if query is empty
-                    searchUserList.clear()
-                    adapter.updateSearchState(false) // Notify adapter that no results were found
-                    adapter.notifyDataSetChanged() // Update UI
+                    // Clear search results if the query is empty
+                    searchUserList.clear() // Clear results list
+                    adapter.updateSearchState(false) // Notify adapter of no results found
+                    adapter.notifyDataSetChanged() // Refresh UI
                 }
             }
         })

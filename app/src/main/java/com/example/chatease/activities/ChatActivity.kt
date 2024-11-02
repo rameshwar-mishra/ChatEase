@@ -1,5 +1,6 @@
 package com.example.chatease.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -9,16 +10,16 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.chatease.recyclerview_adapters.ChatAdapter
-import com.example.chatease.dataclass.MessageUserData
+import com.bumptech.glide.Glide
 import com.example.chatease.R
 import com.example.chatease.databinding.ActivityChatBinding
+import com.example.chatease.dataclass.MessageUserData
+import com.example.chatease.recyclerview_adapters.ChatAdapter
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
-import com.squareup.picasso.Picasso
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -29,14 +30,21 @@ class ChatActivity : AppCompatActivity() {
 
     // Firestore database instance
     private val db = Firebase.firestore
+
     // Firebase Authentication instance to handle user authentication
     private val auth = FirebaseAuth.getInstance()
+
     // View binding for the activity layout
     private lateinit var binding: ActivityChatBinding
+
     // RecyclerView for displaying messages
-    lateinit var recyclerView: RecyclerView
+    private lateinit var recyclerView: RecyclerView
+
     // List to hold message data
-    var messagesList = mutableListOf<MessageUserData>()
+    private var messagesList = mutableListOf<MessageUserData>()
+
+    private val token = 1 // Token for activity result
+    private var otherUserId: String? = "" // ID of the other user in the chat
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,16 +72,21 @@ class ChatActivity : AppCompatActivity() {
 
         // Setting the display name from intent extra
         binding.textViewDisplayName.text = intent.getStringExtra("username")
-        // Loading the user's avatar image using Picasso library
-        Picasso.get().load(intent.getStringExtra("avatar")).into(binding.roundedImageViewDisplayImage)
+        // Loading the user's avatar image using Glide library
+        Glide.with(this@ChatActivity)
+            .load(intent.getStringExtra("avatar"))
+            .placeholder(R.drawable.vector_default_user_avatar)
+            .into(binding.roundedImageViewDisplayImage)
 
         // Get the current user's ID
         val currentUserId = auth.currentUser?.uid
 
+        // Retrieve the other user's ID from the intent
         val otherUserId = intent.getStringExtra("id")
         if (otherUserId == null) {
+            // Show a Toast message if the user ID is missing
             Toast.makeText(this, "User ID is missing", Toast.LENGTH_SHORT).show()
-            finish()
+            finish() // Close the activity if ID is missing
             return
         }
 
@@ -90,9 +103,6 @@ class ChatActivity : AppCompatActivity() {
                 // List of participants sorted (current user and the other user)
                 val participants = listOf(auth.currentUser!!.uid, intent.getStringExtra("id")!!).sorted()
 
-                // Variables for user display name and avatar
-                var userDisplayName = ""
-                var userAvatar = ""
                 // Timestamp for the message
                 val timestamp = FieldValue.serverTimestamp()
                 // Last message content
@@ -138,9 +148,9 @@ class ChatActivity : AppCompatActivity() {
 
         // Setting up the RecyclerView for displaying messages
         recyclerView = binding.recyclerViewCurrentChat
-        recyclerView.layoutManager = LinearLayoutManager(this@ChatActivity)
-        val adapter = ChatAdapter(messagesList, currentUserId!!)
-        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(this@ChatActivity) // Setting layout manager
+        val adapter = ChatAdapter(messagesList, currentUserId!!) // Creating adapter for messages
+        recyclerView.adapter = adapter // Setting the adapter to the RecyclerView
 
         // Listening for changes in the messages collection
         db.collection("chats").document(conversationID).collection("messages")
@@ -160,13 +170,13 @@ class ChatActivity : AppCompatActivity() {
                                 val timestamp = message.document.getTimestamp("timestamp")?.toDate() ?: Date()
                                 // Formatting the timestamp to a readable string
                                 val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
-                                formatter.timeZone = TimeZone.getTimeZone("Asia/Kolkata")
+                                formatter.timeZone = TimeZone.getDefault()
                                 val formattedTimeStamp = formatter.format(timestamp)
                                 // Creating a MessageUserData object
                                 val messageObject = MessageUserData(sender, content, formattedTimeStamp)
                                 // Adding the message to the list and notifying the adapter
                                 messagesList.add(messageObject)
-                                adapter.notifyDataSetChanged()
+                                adapter.notifyDataSetChanged() // Notify adapter of data change
                                 // Scrolling to the bottom to show the latest message
                                 recyclerView.scrollToPosition(messagesList.size - 1)
                             }
@@ -182,10 +192,27 @@ class ChatActivity : AppCompatActivity() {
                     }
                 }
             }
+        // Click listener for user profile frame
+        binding.frameUserProfile.setOnClickListener {
+            val intent = Intent(this@ChatActivity, UserProfileActivity::class.java)
+            intent.apply {
+                putExtra("id", otherUserId) // Pass the other user's ID to the profile activity
+                putExtra("userFromChatActivity", true) // Flag indicating the source of the intent
+            }
+            startActivityForResult(intent, token) // Start UserProfileActivity with a request code
+        }
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data) // Call superclass method
+        if (requestCode == token && resultCode == RESULT_OK) {
+            otherUserId = data?.getStringExtra("id") // Get the updated user ID from the result
+        }
     }
 
     // Function to generate a unique conversation ID based on the participants
-    fun generateConversationID(user1: String, user2: String): String {
+    private fun generateConversationID(user1: String, user2: String): String {
         val convoId = listOf(user1, user2).sorted() // Sorting the user IDs to maintain consistency
         return convoId.joinToString("_") // Joining the sorted IDs to create a unique ID
     }
