@@ -3,9 +3,17 @@
     <style name="Base.Theme.ChatEase" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
 <!--         <item name="colorPrimary">@color/dark_blue</item>-->
-<!--        <item name="android:statusBarColor">@color/white</item>-->
-<!--        <item name="actionBarStyle">@style/myActionbar</item>-->
+        <item name="android:statusBarColor">@color/item_background</item>
+<!--        <item name="actionbarstyl">@style/myActionbar</item>-->
+        <item name="cardViewStyle">@style/StyleCard</item>
+        <item name="itemBackground">@color/black</item>
     </style>
+
+    <style name="StyleCard" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/white</item>
+
+    </style>
+
 
 <!--    <style name="myActionbar" parent="@style/Widget.AppCompat.ActionBar">-->
 <!--        <item name="background">@color/dark_blue</item>-->

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/recentChatUserLayout"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,7 +9,7 @@
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="63dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -18,19 +18,22 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="60dp">
 
 
             <com.makeramen.roundedimageview.RoundedImageView
                 android:id="@+id/userAvatar"
-                android:layout_width="@dimen/_40sdp"
-                android:layout_height="@dimen/_40sdp"
+                android:layout_width="48dp"
+                android:layout_height="50dp"
                 android:layout_marginLeft="16dp"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="10dp"
                 android:scaleType="centerCrop"
                 android:src="@color/black"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0"
                 app:riv_oval="true" />
 
             <TextView
@@ -40,6 +43,8 @@
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="4dp"
                 android:text="Goku"
+                android:textSize="19sp"
+                android:textStyle="bold"
                 app:layout_constraintLeft_toRightOf="@id/userAvatar"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -48,11 +53,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
-                android:layout_marginTop="12dp"
-                android:textSize="@dimen/_8ssp"
-                android:maxLines="1"
-                android:textColor="#746C6C"
+                android:layout_marginTop="6dp"
                 android:text="Last Message"
+                android:textColor="#746C6C"
+                android:textSize="15sp"
                 app:layout_constraintLeft_toRightOf="@id/userAvatar"
                 app:layout_constraintTop_toBottomOf="@id/userName" />
 
@@ -60,10 +64,10 @@
                 android:id="@+id/userLastMessageTimeStamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginRight="16dp"
                 android:text="12:00"
-                android:textSize="@dimen/_8ssp"
+                android:textSize="12sp"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>

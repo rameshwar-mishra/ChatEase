@@ -6,3 +6,4 @@ data class SearchUserData(
     val userID:String,
     val userAvatar:String
 )
+

@@ -11,8 +11,8 @@
         android:id="@+id/chatActivityToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
         android:background="@drawable/toolbarborderlayout"
+        android:layout_marginTop="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -20,8 +20,8 @@
 
 
         <FrameLayout
-            android:id="@+id/frameUserProfileClickable"
             android:layout_width="250dp"
+            android:id="@+id/frameUserProfile"
             android:layout_height="match_parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -167,4 +167,3 @@
 
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>
-

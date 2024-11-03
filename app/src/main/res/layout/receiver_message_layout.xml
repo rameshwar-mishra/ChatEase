@@ -18,9 +18,7 @@
         android:layout_marginLeft="20sp"
         android:layout_marginRight="80sp"
         android:layout_marginTop="7dp"
-        android:layout_marginBottom="7dp"
-        android:backgroundTint="#FAFBFA"
-        >
+        android:layout_marginBottom="7dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -29,33 +27,31 @@
 
             <TextView
                 android:id="@+id/textViewReceiverMessage"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5sp"
                 android:layout_weight="1"
-                android:textSize="@dimen/_13ssp"
-                android:text="This is received message gfffffffffffffffffffgfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfgfg"
-                android:textColor="#363A43"
-                android:fontFamily="@font/roboto"
-                android:textColorHint="#7A8089"
+                android:textSize="15sp"
+                android:text="This is received message"
                 android:paddingTop="5sp"
                 android:paddingRight="5sp">
-
-
 
             </TextView>
             <TextView
                 android:id="@+id/textViewTimeStamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+
                 android:paddingTop="0sp"
                 android:paddingRight="5sp"
                 android:paddingBottom="5sp"
+
                 android:layout_marginRight="5sp"
-                android:textSize="12sp"
+
+                android:textSize="10sp"
                 android:text="09:46"
                 android:layout_gravity="bottom"
-                android:textColor="#363A43">
+                >
 
             </TextView>
 
