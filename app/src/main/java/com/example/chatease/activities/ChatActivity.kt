@@ -2,8 +2,13 @@ package com.example.chatease.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.Menu
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -70,19 +75,12 @@ class ChatActivity : AppCompatActivity() {
         // Disabling the default app name display on the ActionBar
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        // Setting the display name from intent extra
-        binding.textViewDisplayName.text = intent.getStringExtra("username")
-        // Loading the user's avatar image using Glide library
-        Glide.with(this@ChatActivity)
-            .load(intent.getStringExtra("avatar"))
-            .placeholder(R.drawable.vector_default_user_avatar)
-            .into(binding.roundedImageViewDisplayImage)
-
         // Get the current user's ID
         val currentUserId = auth.currentUser?.uid
 
         // Retrieve the other user's ID from the intent
         val otherUserId = intent.getStringExtra("id")
+
         if (otherUserId == null) {
             // Show a Toast message if the user ID is missing
             Toast.makeText(this, "User ID is missing", Toast.LENGTH_SHORT).show()
@@ -90,8 +88,65 @@ class ChatActivity : AppCompatActivity() {
             return
         }
 
+        db.collection("users").document(otherUserId)
+            .addSnapshotListener { snapshot, error ->
+                if(error != null) {
+                    return@addSnapshotListener
+                }else if(snapshot != null && snapshot.exists()){
+
+                    // Setting the display name from intent extra
+                    binding.textViewDisplayName.text = snapshot.getString("username") ?: ""
+                    // Loading the user's avatar image using Glide library
+                    Glide.with(this@ChatActivity)
+                        .load(snapshot.getString("avatar"))
+                        .placeholder(R.drawable.vector_default_user_avatar)
+                        .into(binding.roundedImageViewDisplayImage)
+
+                    if(snapshot.getBoolean("typing") == true) {
+                        binding.textViewUserStatus.visibility = View.INVISIBLE
+                        binding.textViewTypingStatus.visibility = View.VISIBLE
+                    } else {
+                        binding.textViewUserStatus.visibility = View.VISIBLE
+                        binding.textViewTypingStatus.visibility = View.INVISIBLE
+                    }
+                }
+
+            }
+
+
         // Generate a unique conversation ID using the current user ID and the other user's ID
-        val conversationID = generateConversationID(currentUserId!!, intent.getStringExtra("id")!!)
+        val conversationID = generateConversationID(currentUserId!!, otherUserId)
+
+        var typing = false
+        var handler = Handler(Looper.getMainLooper())
+        var userDbRef = db.collection("users").document(currentUserId)
+        binding.editTextMessage.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (!typing) {
+                    typing = true
+                    val dataMap = hashMapOf<String, Any>(
+                        "typing" to typing
+                    )
+                    userDbRef.update(dataMap)
+                }
+
+                handler.removeCallbacksAndMessages(null)
+
+                handler.postDelayed({
+                    typing = false
+                    val dataMap = hashMapOf<String, Any>(
+                        "typing" to typing
+                    )
+                    userDbRef.update(dataMap)
+                }, 2000L)
+
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+
+        })
 
         // Setting up the send button click listener
         binding.buttonSend.setOnClickListener {
@@ -101,7 +156,7 @@ class ChatActivity : AppCompatActivity() {
                 val metaRef = db.collection("chats").document(conversationID)
 
                 // List of participants sorted (current user and the other user)
-                val participants = listOf(auth.currentUser!!.uid, intent.getStringExtra("id")!!).sorted()
+                val participants = listOf(auth.currentUser!!.uid, otherUserId).sorted()
 
                 // Timestamp for the message
                 val timestamp = FieldValue.serverTimestamp()
