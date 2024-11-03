@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultCallback
@@ -45,7 +46,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var userDisplayName: String // User's display name
     private lateinit var userBio: String // User's bio
     private lateinit var userId: String // User's unique ID
-    private lateinit var destinationUri : Uri // Destination URI for cropped image
+    private lateinit var destinationUri: Uri // Destination URI for cropped image
 
     override fun onCreate(savedInstanceState: Bundle?) {
         registerActivityResultLauncher() // Registering activity result launcher for image picking
@@ -68,17 +69,19 @@ class SettingsActivity : AppCompatActivity() {
         userId = auth.currentUser?.uid ?: "" // Getting the current user's ID
 
         // Setting destination URI for cropped image
-        destinationUri =Uri.fromFile(File(cacheDir,"temp_cropped_image.webp"))
+        destinationUri = Uri.fromFile(File(cacheDir, "temp_cropped_image.webp"))
 
         // Fetching user data from Firestore
-        db.collection("users").document(userId).get()
-            .addOnCompleteListener { task -> // Listener for Firestore query completion
-                if (task.isSuccessful) {
+        db.collection("users").document(userId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    return@addSnapshotListener
+                } else if (snapshot != null && snapshot.exists()) {
                     // Retrieving user data from Firestore
-                    userName = task.result.getString("username") ?: ""
-                    userAvatar = task.result.getString("avatar") ?: ""
-                    userDisplayName = task.result.getString("displayName") ?: "ChangeFromKotlin"
-                    userBio = task.result.getString("userBio") ?: "ChangeFromKotlin"
+                    userName = snapshot.getString("userName") ?: ""
+                    userAvatar = snapshot.getString("avatar") ?: ""
+                    userDisplayName = snapshot.getString("displayName") ?: ""
+                    userBio = snapshot.getString("userBio") ?: ""
 
                     // Loading user avatar into ImageView using Glide
                     Glide.with(this@SettingsActivity)
@@ -97,27 +100,48 @@ class SettingsActivity : AppCompatActivity() {
         binding.applyChangesButton.setOnClickListener {
             binding.applyButtonProgressBar.visibility = View.VISIBLE // Show progress bar while applying changes
             // Check if any field is not empty
-            if (binding.editTextUserBio.text.isNotEmpty()
-                && binding.editTextUserName.text.isNotEmpty()
-                && binding.editTextDisplayName.text.isNotEmpty()
-            ) {
+            if (binding.editTextUserName.text.isNotEmpty() && binding.editTextDisplayName.text.isNotEmpty()) {
                 var isChanged = false // Flag to check if any data has changed
+
                 // Checking if any user data has changed
-                if (binding.editTextDisplayName.text.toString() != userDisplayName) {
+                if (binding.editTextUserName.text.toString() != userName) {
+                    isChanged = true
+                } else if (binding.editTextDisplayName.text.toString() != userDisplayName) {
                     isChanged = true
                 } else if (binding.editTextUserBio.text.toString() != userBio) {
                     isChanged = true
-                } else if (binding.editTextUserName.text.toString() != userName) {
-                    isChanged = true
                 }
+
+                if (isChanged) {
+                    if (binding.editTextUserName.text.toString().length > 30) {
+                        //will be implemented
+                        Toast.makeText(this@SettingsActivity, "works", Toast.LENGTH_LONG).show()
+                        return@setOnClickListener
+                    } else if (!binding.editTextUserName.text.toString().all { it.isLowerCase() }) {
+                        //will be implemented
+                        Toast.makeText(this@SettingsActivity, "works", Toast.LENGTH_LONG).show()
+                        return@setOnClickListener
+                    } else if (binding.editTextDisplayName.text.toString().length > 30) {
+                        //will be implemented
+                        Toast.makeText(this@SettingsActivity, "works", Toast.LENGTH_LONG).show()
+                        return@setOnClickListener
+                    } else if (binding.editTextUserBio.text.toString().length > 100) {
+                        //will be implemented
+                        Toast.makeText(this@SettingsActivity, "works", Toast.LENGTH_LONG).show()
+                        return@setOnClickListener
+                    }
+                }
+
                 // If data has changed or a new image is selected, update the database
                 if (isChanged || (imageUri != null)) {
                     updateTheDataInTheDatabase() // Call to update user data in Firestore
+                } else {
+                    // Notify user if there are no changes to apply
+                    Toast.makeText(this@SettingsActivity, "Successfully Updated", Toast.LENGTH_LONG).show()
                 }
-
             } else {
-                // Notify user if there are no changes to apply
-                Toast.makeText(this, "Successfully Updated", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@SettingsActivity, "Please fill the username & display name field", Toast.LENGTH_LONG)
+                    .show()
             }
         }
 
@@ -198,7 +222,7 @@ class SettingsActivity : AppCompatActivity() {
 
                         imageUri?.let { uri ->
                             // Start cropping the selected image
-                            croppedImage(uri,destinationUri)
+                            croppedImage(uri, destinationUri)
                         }
                     }
                 })
@@ -207,7 +231,7 @@ class SettingsActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         // Handle the result of the image cropping
-        if(resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+        if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
             data?.let {
                 val cropped = UCrop.getOutput(it) // Get the cropped image URI
 
@@ -221,7 +245,7 @@ class SettingsActivity : AppCompatActivity() {
 
                     // Deleting the temporary file which was used to store the cropped image generated by Ucrop Library
                     val tempFile = File(uri.path)
-                    if(tempFile.exists()) {
+                    if (tempFile.exists()) {
                         tempFile.delete()
                     }
 
@@ -238,10 +262,10 @@ class SettingsActivity : AppCompatActivity() {
     }
 
 
-    private fun croppedImage(sourceUri : Uri, destinationUri: Uri) {
-        UCrop.of(sourceUri,destinationUri)
-            .withAspectRatio(1f,1f)
-            .withMaxResultSize(800,800)
+    private fun croppedImage(sourceUri: Uri, destinationUri: Uri) {
+        UCrop.of(sourceUri, destinationUri)
+            .withAspectRatio(1f, 1f)
+            .withMaxResultSize(800, 800)
             .start(this@SettingsActivity)
     }
 
@@ -267,37 +291,48 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun updateTheDataInTheDatabase() {
-
         if (compressedImageAsByteArray != null) {
             val imageRef = storage.child("avatar/$userId")
-            imageRef.putBytes(compressedImageAsByteArray!!).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    imageRef.downloadUrl.addOnCompleteListener { task1 ->
-                        if (task1.isSuccessful) {
-                            userAvatar = task1.result.toString()
+            imageRef.putBytes(compressedImageAsByteArray!!)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        imageRef.downloadUrl.addOnCompleteListener { task1 ->
+                            if (task1.isSuccessful) {
+                                userAvatar = task1.result.toString()
+                                // Proceed to update Firestore with user data after image is uploaded
+                                updateUserDataInFirestore()
+                            } else {
+                                // Handle failure to get download URL
+                                Toast.makeText(this, "Failed to retrieve image URL", Toast.LENGTH_SHORT).show()
+                            }
                         }
+                    } else {
+                        // Handle upload failure
+                        Toast.makeText(this, "Image upload failed", Toast.LENGTH_SHORT).show()
                     }
                 }
-            }
+        } else {
+            // No new image, just update user data in Firestore
+            updateUserDataInFirestore()
         }
+    }
 
+    private fun updateUserDataInFirestore() {
         val userDataObject = UserDataSettings(
-            username = binding.editTextUserName.text.toString(),
+            userName = binding.editTextUserName.text.toString(),
             displayName = binding.editTextDisplayName.text.toString(),
             userBio = binding.editTextUserBio.text.toString(),
             avatar = userAvatar
         )
 
-        db.collection("users").document(userId)
-            .set(userDataObject)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    binding.applyButtonProgressBar.visibility = View.GONE
-                    Toast.makeText(this, "Successfully Updated", Toast.LENGTH_SHORT).show()
-                } else {
-                    binding.applyButtonProgressBar.visibility = View.GONE
-                    Toast.makeText(this, "Failed To Update Data", Toast.LENGTH_SHORT).show()
-                }
+        db.collection("users").document(userId).set(userDataObject)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Successfully Updated", Toast.LENGTH_LONG).show()
+                // Update UI with new data if necessary
+            }.addOnFailureListener { e ->
+                // Handle failure to update Firestore
+                Toast.makeText(this, "Update failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
 }

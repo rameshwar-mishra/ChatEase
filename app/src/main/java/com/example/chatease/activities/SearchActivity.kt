@@ -81,19 +81,18 @@ class SearchActivity : AppCompatActivity() {
                                 if (query.isNotEmpty()) {
                                     // Perform Firestore query for user search
                                     db.collection("users")
-                                        .whereGreaterThanOrEqualTo("username", query)
-                                        .whereLessThan("username", upperBoundQuery)
+                                        .whereGreaterThanOrEqualTo("userName", query)
+                                        .whereLessThan("userName", upperBoundQuery)
                                         .get()
                                         .addOnCompleteListener { search ->
                                             binding.progressBar.visibility = View.INVISIBLE // Hide loading indicator
-                                            Log.d("Visibility", "Search executed")
                                             searchUserList.clear() // Clear previous search results
 
                                             if (search.isSuccessful && search.result.size() > 0) {
                                                 // Loop through results and add to the list if found
                                                 for (document in search.result) {
                                                     val userID = document.id // Get user ID
-                                                    val userName = document.getString("username") ?: "" // Get username
+                                                    val userName = document.getString("userName") ?: "" // Get username
                                                     val displayName = document.getString("displayname") ?: "" // Get display name
                                                     val userAvatar = document.getString("avatar") ?: "" // Get user avatar
                                                     val userProfile = SearchUserData(userName, displayName, userID, userAvatar) // Create user data object

@@ -1,5 +1,6 @@
 package com.example.chatease.activities
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -15,9 +16,10 @@ import com.google.firebase.firestore.firestore
 
 class UserProfileActivity : AppCompatActivity() {
     private val db = Firebase.firestore // Initialize Firestore database instance
-    var userId: String = "" // Variable to store the user ID
+    private var userId: String = "" // Variable to store the user ID
     private lateinit var binding: ActivityUserProfileBinding // View binding for UserProfileActivity layout
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityUserProfileBinding.inflate(layoutInflater) // Inflate the layout using view binding
         super.onCreate(savedInstanceState)
@@ -41,8 +43,8 @@ class UserProfileActivity : AppCompatActivity() {
         db.collection("users").document(userId).get()
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) { // Check if Firestore data retrieval was successful
-                    val userName = task.result.getString("username") ?: "" // Get username from Firestore document
-                    val displayName = task.result.getString("displayName") ?: "Souvick" // Get display name with default value
+                    val userName = task.result.getString("userName") ?: "" // Get username from Firestore document
+                    val displayName = task.result.getString("displayName") ?: "" // Get display name with default value
                     val userAvatar = task.result.getString("avatar") ?: "" // Get avatar URL from Firestore
                     val userBio = task.result.getString("userBio") ?: "" // Get user bio from Firestore
 
@@ -52,7 +54,7 @@ class UserProfileActivity : AppCompatActivity() {
                         .placeholder(R.drawable.vector_default_user_avatar)
                         .into(binding.userProfilePic)
 
-                    binding.userName.text = userName // Set username text in UI
+                    binding.userName.text = "@$userName" // Set username text in UI
                     binding.displayName.text = displayName // Set display name text in UI
                     binding.textViewBioText.text = userBio // Set user bio text in UI
                 }
