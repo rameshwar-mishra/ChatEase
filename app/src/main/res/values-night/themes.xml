@@ -5,6 +5,9 @@
         <item name="android:statusBarColor">@color/item_background</item>
         <item name="cardViewStyle">@style/StyleCard</item>
         <item name="itemBackground">@color/white</item>
+        <item name="icon_background">@color/icon_color</item>
+        <item name="textColors">@color/textColors</item>
+        <item name="colorCard">@color/signUpCardView</item>
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
     </style>
     <!--    <style name="textViewDesign" parent="Widget.AppCompat.TextView">-->

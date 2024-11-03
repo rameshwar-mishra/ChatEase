@@ -140,16 +140,16 @@ class MainActivity : AppCompatActivity() {
 
                 // Determine the actual last message sender's username
                 if (lastMessageSender == otherParticipant) {
-                    actualLastMessageSender = otherUserDetails.getString("username") ?: "" // Get username of other participant
+                    actualLastMessageSender = otherUserDetails.getString("displayName") ?: "" // Get username of other participant
                 } else {
                     currentUserDetails = userDetailsTasks[1].result // Get current user details
-                    actualLastMessageSender = currentUserDetails.getString("username") ?: "" // Get username of current user
+                    actualLastMessageSender = currentUserDetails.getString("displayName") ?: "" // Get username of current user
                 }
 
                 // Fetch display name and avatar of the other participant
                 val displayName = otherUserDetails.getString("displayName") ?: ""
                 val avatar = otherUserDetails.getString("avatar") ?: ""
-                val userName = otherUserDetails.getString("username") ?: ""
+                val userName = otherUserDetails.getString("displayName") ?: ""
 
                 // Create a RecentChatData object with the fetched data for the chat
                 val recentChatData = RecentChatData(
@@ -159,20 +159,23 @@ class MainActivity : AppCompatActivity() {
                     avatar = avatar,
                     lastMessage = lastMessage,
                     lastMessageSender = actualLastMessageSender,
-                    lastMessageTimeStamp = formattedTimestamp
+                    lastMessageTimeStamp = formattedTimestamp,
+                    timestamp = lastMessageTimestamp
                 )
 
                 // Update the recent chat data list based on the type of document change
                 when (change.type) {
                     DocumentChange.Type.ADDED -> {
                         // Add new chat data to the beginning of the list
-                        recentChatDataList.add(0, recentChatData)
-                        Log.e("type", "ADDED: $recentChatDataList") // Log the updated list for debugging
-                        Log.e("type", "ADDED SIZE: ${recentChatDataList.size}") // Log the size of the list
+                        recentChatDataList.add(recentChatData)
                     }
 
                     DocumentChange.Type.MODIFIED -> {
                         // Store modified chat data to update later
+                        val index = recentChatDataList.indexOfFirst { it.id == recentChatData.id }
+                        if(index != -1) {
+                            recentChatDataList[index] = recentChatData
+                        }
                         modifiedChatData = recentChatData
                     }
 
@@ -181,18 +184,8 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
-                // If there is modified chat data, update the list accordingly
-                if (modifiedChatData != null) {
-                    for (i in recentChatDataList.indices) {
-                        // Remove the old chat data from the list
-                        if (recentChatDataList[i].id == modifiedChatData!!.id) {
-                            recentChatDataList.removeAt(i)
-                            break
-                        }
-                    }
-                    // Add the modified chat data to the beginning of the list
-                    recentChatDataList.add(0, modifiedChatData!!)
-                }
+                recentChatDataList.sortByDescending { it.timestamp }
+
                 // Notify the adapter that the data has changed to update the RecyclerView
                 recyclerView.adapter?.notifyDataSetChanged()
             } else {

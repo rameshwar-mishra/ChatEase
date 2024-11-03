@@ -6,7 +6,10 @@
         <item name="android:statusBarColor">@color/item_background</item>
         <!--        <item name="actionbarstyl">@style/myActionbar</item>-->
         <item name="cardViewStyle">@style/StyleCard</item>
+        <item name="icon_background">@color/icon_color</item>
         <item name="itemBackground">@color/black</item>
+        <item name="textColors">@color/textColors</item>
+        <item name="colorCard">@color/signUpCardView</item>
     </style>
 
     <style name="StyleCard" parent="Widget.MaterialComponents.CardView">

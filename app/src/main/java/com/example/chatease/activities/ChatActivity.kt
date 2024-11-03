@@ -90,24 +90,26 @@ class ChatActivity : AppCompatActivity() {
 
         db.collection("users").document(otherUserId)
             .addSnapshotListener { snapshot, error ->
-                if(error != null) {
+                if (error != null) {
                     return@addSnapshotListener
-                }else if(snapshot != null && snapshot.exists()){
+                } else if (snapshot != null && snapshot.exists()) {
 
                     // Setting the display name from intent extra
-                    binding.textViewDisplayName.text = snapshot.getString("username") ?: ""
+                    binding.textViewDisplayName.text = snapshot.getString("displayName") ?: ""
                     // Loading the user's avatar image using Glide library
                     Glide.with(this@ChatActivity)
                         .load(snapshot.getString("avatar"))
                         .placeholder(R.drawable.vector_default_user_avatar)
                         .into(binding.roundedImageViewDisplayImage)
 
-                    if(snapshot.getBoolean("typing") == true) {
-                        binding.textViewUserStatus.visibility = View.INVISIBLE
-                        binding.textViewTypingStatus.visibility = View.VISIBLE
-                    } else {
-                        binding.textViewUserStatus.visibility = View.VISIBLE
-                        binding.textViewTypingStatus.visibility = View.INVISIBLE
+                    if (otherUserId != currentUserId) {
+                        if (snapshot.getBoolean("typing") == true) {
+                            binding.textViewUserStatus.visibility = View.INVISIBLE
+                            binding.textViewTypingStatus.visibility = View.VISIBLE
+                        } else {
+                            binding.textViewUserStatus.visibility = View.VISIBLE
+                            binding.textViewTypingStatus.visibility = View.INVISIBLE
+                        }
                     }
                 }
 
