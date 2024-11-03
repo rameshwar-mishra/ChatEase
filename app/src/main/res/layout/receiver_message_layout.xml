@@ -27,13 +27,13 @@
 
             <TextView
                 android:id="@+id/textViewReceiverMessage"
-                android:layout_width="wrap_content"
-                android:minWidth="@dimen/_160sdp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="5sp"
                 android:layout_weight="1"
                 android:textSize="15sp"
                 android:text="This is received message"
+
                 android:paddingTop="5sp"
                 android:paddingRight="5sp">
 
@@ -51,8 +51,7 @@
 
                 android:textSize="10sp"
                 android:text="09:46"
-                android:layout_gravity="bottom"
-                >
+                android:layout_gravity="bottom">
 
             </TextView>
 

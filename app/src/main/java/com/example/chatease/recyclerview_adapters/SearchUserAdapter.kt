@@ -6,11 +6,12 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.chatease.dataclass.SearchUserData
+import com.bumptech.glide.Glide
+import com.example.chatease.R
 import com.example.chatease.activities.ChatActivity
 import com.example.chatease.databinding.SearchContentBinding
 import com.example.chatease.databinding.SearchContentNotFoundBinding
-import com.squareup.picasso.Picasso
+import com.example.chatease.dataclass.SearchUserData
 
 // Adapter for displaying search results in a RecyclerView
 class SearchUserAdapter(
@@ -80,9 +81,17 @@ class SearchUserAdapter(
     // Binds data to the view holder based on its type
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is UserProfileViewHolder) {
+
             // If holder is UserProfileViewHolder, bind user data
+            // Load profile image
             holder.binding.textViewUserName.text = userData[position].userName
-            Picasso.get().load(userData[position].userAvatar).into(holder.binding.roundedImageView) // Load profile image
+
+            Glide.with(holder.binding.roundedImageView.context)
+                .load(userData[position].userAvatar)
+                .placeholder(R.drawable.vector_default_user_avatar)
+                .into(holder.binding.roundedImageView)
+
+//            Picasso.get().load(userData[position].userAvatar).into(holder.binding.roundedImageView)
 
             holder.binding.searchUserLinearLayout.setOnClickListener {
                 val intent = Intent(context,ChatActivity::class.java)

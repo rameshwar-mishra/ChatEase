@@ -40,7 +40,7 @@
         android:background="@drawable/shape_circle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/icon_add" />
+        app:srcCompat="@drawable/vector_icon_add" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

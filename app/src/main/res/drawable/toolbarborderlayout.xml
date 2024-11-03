@@ -2,7 +2,7 @@
     <item android:gravity="bottom"
         android:height=".8dp">
         <shape android:shape="rectangle">
-            <solid android:color="@color/toolbarColor"/>
+            <solid android:color="#9F9797"/>
         </shape>
     </item>
 </layer-list>

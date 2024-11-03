@@ -42,7 +42,7 @@ class UserProfile : AppCompatActivity() {
         db.collection("users").document(userId).get()
             .addOnCompleteListener { task ->
                 if(task.isSuccessful){
-                    val userName = task.result.getString("username")?:""
+                    val userName = task.result.getString("userName")?:""
                     val displayName = task.result.getString("displayName")?:"Souvicks"
                     val userAvatar = task.result.getString("displayImage")?:""
                     val userBio = task.result.getString("userBio")?:""

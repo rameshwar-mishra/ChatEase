@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.UserProfile">
+    tools:context=".activities.UserProfileActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/userProfileActivityToolbar"
@@ -23,7 +23,7 @@
         android:layout_width="@dimen/_100sdp"
         android:layout_height="@dimen/_100sdp"
         android:layout_marginTop="32dp"
-        android:scaleType="centerCrop"
+
         android:src="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -112,4 +112,3 @@
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

@@ -67,6 +67,19 @@
                     app:layout_constraintStart_toEndOf="@+id/roundedImageViewDisplayImage"
                     app:layout_constraintTop_toBottomOf="@+id/textViewDisplayName"
                     app:layout_constraintVertical_bias="0.5" />
+
+                <TextView
+                    android:id="@+id/textViewTypingStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="11dp"
+                    android:text="Typing . . . ."
+                    android:visibility="invisible"
+                    android:textSize="@dimen/_8ssp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/roundedImageViewDisplayImage"
+                    app:layout_constraintTop_toBottomOf="@+id/textViewDisplayName"
+                    app:layout_constraintVertical_bias="0.5" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </FrameLayout>
 
@@ -126,7 +139,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:src="@drawable/sendvector" />
+                    android:src="@drawable/vector_icon_send" />
             </FrameLayout>
 
             <FrameLayout
@@ -143,7 +156,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:src="@drawable/attachfile" />
+                    android:src="@drawable/vector_icon_attachfile" />
             </FrameLayout>
 
             <FrameLayout
@@ -161,7 +174,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:src="@drawable/emojiicon" />
+                    android:src="@drawable/vector_icon_emoji" />
             </FrameLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 

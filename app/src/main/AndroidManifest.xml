@@ -2,8 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- For accessing storage in API 29 and below -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- For accessing images from storage in API 33 and above -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
         android:allowBackup="true"
@@ -16,10 +17,12 @@
         android:theme="@style/Theme.ChatEase"
         tools:targetApi="31">
         <activity
-            android:name=".activities.UserProfile"
-            android:exported="false"
-            android:parentActivityName=".activities.ChatActivity"
-            />
+            android:name=".activities.UserProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".activities.SettingsActivity"
             android:exported="false"

@@ -12,8 +12,8 @@
         android:id="@+id/userProfileActivityToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/toolbarborderlayout"
         android:layout_marginTop="4dp"
+        android:background="@drawable/toolbarborderlayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,7 +23,7 @@
         android:id="@+id/frameUserAvatar"
         android:layout_width="@dimen/_70sdp"
         android:layout_height="@dimen/_70sdp"
-        android:layout_marginTop="@dimen/_70sdp"
+        android:layout_marginTop="@dimen/_60sdp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -74,12 +74,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextUserName" />
 
-
     <FrameLayout
-        android:id="@+id/frameApplyChangesButton"
-        android:layout_width="@dimen/_120sdp"
+        android:id="@+id/frameLayoutApplyButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="75dp"
+        android:layout_marginTop="65dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -87,7 +86,7 @@
 
         <Button
             android:id="@+id/applyChangesButton"
-            android:layout_width="match_parent"
+            android:layout_width="@dimen/_120sdp"
             android:layout_height="wrap_content"
             android:backgroundTint="#2AA545"
             android:text="Apply Changes"
@@ -101,9 +100,10 @@
             android:layout_gravity="center"
             android:indeterminate="true"
             android:indeterminateTint="@color/dodger_blue"
-            android:visibility="invisible" />
+            android:visibility="gone" />
 
     </FrameLayout>
+
 
     <Button
         android:id="@+id/signOutButton"
@@ -115,9 +115,8 @@
         android:textColor="@color/white"
         app:cornerRadius="0dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/frameApplyChangesButton" />
+        app:layout_constraintTop_toBottomOf="@+id/frameLayoutApplyButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

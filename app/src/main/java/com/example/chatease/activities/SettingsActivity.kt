@@ -2,8 +2,13 @@ package com.example.chatease.activities
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultCallback
@@ -14,6 +19,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.bumptech.glide.Glide
 import com.example.chatease.R
 import com.example.chatease.databinding.ActivitySettingsBinding
 import com.example.chatease.dataclass.UserDataSettings
@@ -22,136 +28,162 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
 import com.squareup.picasso.Picasso
+import com.yalantis.ucrop.UCrop
+import java.io.ByteArrayOutputStream
+import java.io.File
 
 class SettingsActivity : AppCompatActivity() {
-    lateinit var binding: ActivitySettingsBinding
-    private val db = Firebase.firestore
-    private val auth = FirebaseAuth.getInstance()
-    private val storage = FirebaseStorage.getInstance().reference
-    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
-    private var imageUri: Uri? = null
+    private lateinit var binding: ActivitySettingsBinding // View binding for accessing UI elements
+    private val db = Firebase.firestore // Firestore database reference
+    private val auth = FirebaseAuth.getInstance() // Firebase Authentication instance
+    private val storage = FirebaseStorage.getInstance().reference // Firebase Storage reference
+    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent> // Activity result launcher for image picking
+    private var imageUri: Uri? = null // Uri for the selected image
+    private lateinit var bitmap: Bitmap // Bitmap representation of the image
+    private var compressedImageAsByteArray: ByteArray? = null // Compressed image as byte array for upload
+    private lateinit var userName: String // User's username
+    private lateinit var userAvatar: String // User's avatar URL
+    private lateinit var userDisplayName: String // User's display name
+    private lateinit var userBio: String // User's bio
+    private lateinit var userId: String // User's unique ID
+    private lateinit var destinationUri: Uri // Destination URI for cropped image
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        registerActivityResultLauncher()
-        binding = ActivitySettingsBinding.inflate(layoutInflater)
+        registerActivityResultLauncher() // Registering activity result launcher for image picking
+        binding = ActivitySettingsBinding.inflate(layoutInflater) // Initializing view binding
         super.onCreate(savedInstanceState)
-        setContentView(binding.root)
+        setContentView(binding.root) // Setting content view to the binding root
+
+        // Adjusting padding for system UI (like status bar and navigation bar)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        val toolbar = binding.userProfileActivityToolbar
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Settings"
 
-        var userName = ""
-        var userAvatar = ""
-        var userDisplayName = ""
-        var userBio = ""
+        val toolbar = binding.userProfileActivityToolbar // Setting up the toolbar
+        setSupportActionBar(toolbar) // Setting the toolbar as the app bar
+        supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enabling the back button
+        supportActionBar?.title = "Settings" // Setting title for the toolbar
 
-        val userId = auth.currentUser?.uid ?: ""
+        userId = auth.currentUser?.uid ?: "" // Getting the current user's ID
 
-        db.collection("users").document(userId).get()
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    userName = task.result.getString("username") ?: ""
-                    userAvatar = task.result.getString("displayImage") ?: ""
-                    userDisplayName = task.result.getString("displayName") ?: "ChangeFromKotlin"
-                    userBio = task.result.getString("userBio") ?: "ChangeFromKotlin"
+        // Setting destination URI for cropped image
+        destinationUri = Uri.fromFile(File(cacheDir, "temp_cropped_image.webp"))
 
-                    Picasso.get().load(userAvatar).into(binding.userAvatar)
+        // Fetching user data from Firestore
+        db.collection("users").document(userId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    return@addSnapshotListener
+                } else if (snapshot != null && snapshot.exists()) {
+                    // Retrieving user data from Firestore
+                    userName = snapshot.getString("userName") ?: ""
+                    userAvatar = snapshot.getString("avatar") ?: ""
+                    userDisplayName = snapshot.getString("displayName") ?: ""
+                    userBio = snapshot.getString("userBio") ?: ""
+
+                    // Loading user avatar into ImageView using Glide
+                    Glide.with(this@SettingsActivity)
+                        .load(userAvatar)
+                        .placeholder(R.drawable.vector_default_user_avatar) // Placeholder image while loading
+                        .into(binding.userAvatar)
+
+                    // Setting text fields with user data
                     binding.editTextUserName.setText(userName)
                     binding.editTextDisplayName.setText(userDisplayName)
                     binding.editTextUserBio.setText(userBio)
-
-
                 }
             }
 
+        // Setting onClickListener for apply changes button
         binding.applyChangesButton.setOnClickListener {
-            binding.applyButtonProgressBar.visibility = View.VISIBLE
-            if (binding.editTextUserBio.text.isNotEmpty()
-                && binding.editTextUserName.text.isNotEmpty()
-                && binding.editTextDisplayName.text.isNotEmpty()
-            ) {
-                var isChanged = false
-                if (binding.editTextDisplayName.text.toString() != userDisplayName) {
+            binding.applyButtonProgressBar.visibility = View.VISIBLE // Show progress bar while applying changes
+            // Check if any field is not empty
+            if (binding.editTextUserName.text.isNotEmpty() && binding.editTextDisplayName.text.isNotEmpty()) {
+                var isChanged = false // Flag to check if any data has changed
+
+                // Checking if any user data has changed
+                if (binding.editTextUserName.text.toString() != userName) {
+                    isChanged = true
+                } else if (binding.editTextDisplayName.text.toString() != userDisplayName) {
                     isChanged = true
                 } else if (binding.editTextUserBio.text.toString() != userBio) {
                     isChanged = true
-                } else if (binding.editTextUserName.text.toString() != userName) {
-                    isChanged = true
                 }
 
-                if (isChanged || imageUri != null) {
-                    if(imageUri!=null) {
-                        val imageRef = storage.child("displayImage/$userId")
-                        imageRef.putFile(imageUri!!).addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                imageRef.downloadUrl.addOnCompleteListener { task1 ->
-                                    if (task1.isSuccessful) {
-                                        userAvatar = task1.result.toString()
-                                    }
-                                }
-                            }
-                        }
-
+                if (isChanged) {
+                    if (binding.editTextUserName.text.toString().length > 30) {
+                        //will be implemented
+                        Toast.makeText(this@SettingsActivity, "works", Toast.LENGTH_LONG).show()
+                        return@setOnClickListener
+                    } else if (!binding.editTextUserName.text.toString().all { it.isLowerCase() }) {
+                        //will be implemented
+                        Toast.makeText(this@SettingsActivity, "works", Toast.LENGTH_LONG).show()
+                        return@setOnClickListener
+                    } else if (binding.editTextDisplayName.text.toString().length > 30) {
+                        //will be implemented
+                        Toast.makeText(this@SettingsActivity, "works", Toast.LENGTH_LONG).show()
+                        return@setOnClickListener
+                    } else if (binding.editTextUserBio.text.toString().length > 100) {
+                        //will be implemented
+                        Toast.makeText(this@SettingsActivity, "works", Toast.LENGTH_LONG).show()
+                        return@setOnClickListener
                     }
-
-                    val userDataObject = UserDataSettings(
-                        username = binding.editTextUserName.text.toString(),
-                        displayName = binding.editTextDisplayName.text.toString(),
-                        userBio = binding.editTextUserBio.text.toString(),
-                        displayImage = userAvatar
-                    )
-
-                    db.collection("users").document(userId)
-                        .set(userDataObject)
-                        .addOnCompleteListener { task ->
-                            if(task.isSuccessful){
-                                binding.applyButtonProgressBar.visibility = View.GONE
-                                Toast.makeText(this,"Successfully Updated",Toast.LENGTH_SHORT).show()
-                            }
-                            else{
-                                binding.applyButtonProgressBar.visibility = View.GONE
-                                Toast.makeText(this,"Failed To Update Data",Toast.LENGTH_SHORT).show()
-                            }
-                        }
                 }
+
+                // If data has changed or a new image is selected, update the database
+                if (isChanged || (imageUri != null)) {
+                    updateTheDataInTheDatabase() // Call to update user data in Firestore
+                } else {
+                    // Notify user if there are no changes to apply
+                    Toast.makeText(this@SettingsActivity, "Successfully Updated", Toast.LENGTH_LONG).show()
+                }
+            } else {
+                Toast.makeText(this@SettingsActivity, "Please fill the username & display name field", Toast.LENGTH_LONG)
+                    .show()
             }
         }
 
+        // Setting onClickListener for sign out button
         binding.signOutButton.setOnClickListener {
-            auth.signOut()
-            startActivity(Intent(this@SettingsActivity, SignInActivity::class.java))
+            auth.signOut() // Signing out the user
+            startActivity(Intent(this@SettingsActivity, SignInActivity::class.java)) // Navigating to SignInActivity
         }
 
+        // Setting onClickListener for avatar frame to choose an image
         binding.frameUserAvatar.setOnClickListener {
-            chooseImage()
+            chooseImage() // Call to choose image from gallery
         }
     }
 
     private fun chooseImage() {
-        if (ContextCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE
-            )
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE),
-                1
-            )
+        // Determine the appropriate permission needed based on the Android version
+        val permissionNeeded = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Android 13 (API level 33) and above require READ_MEDIA_IMAGES for images
+            android.Manifest.permission.READ_MEDIA_IMAGES
         } else {
-            val intent = Intent().apply {
-                type = "image/*"
-                action = Intent.ACTION_GET_CONTENT
-            }
-            activityResultLauncher.launch(intent)
+            // Android 12 (API level 31) and below use READ_EXTERNAL_STORAGE for media access
+            android.Manifest.permission.READ_EXTERNAL_STORAGE
         }
 
+        // Check if permission is granted
+        if (ContextCompat.checkSelfPermission(this, permissionNeeded) != PackageManager.PERMISSION_GRANTED) {
+            // Request permission if not granted
+            ActivityCompat.requestPermissions(this, arrayOf(permissionNeeded), 1)
+        } else {
+            // Open image picker if permission is granted
+            imagePicker()
+        }
+    }
+
+    private fun imagePicker() {
+        // Creating an intent to pick an image from the gallery
+        val intent = Intent().apply {
+            type = "image/*" // Setting the type to image
+            action = Intent.ACTION_GET_CONTENT // Action to get content
+        }
+        activityResultLauncher.launch(intent) // Launch the image picker
     }
 
     override fun onRequestPermissionsResult(
@@ -160,35 +192,147 @@ class SettingsActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 1) {
+        if (requestCode == 1) { // Check if it's our permission request
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, call chooseImage again
                 chooseImage()
             } else {
+                // Show settings screen if permission is denied
                 val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                 intent.apply {
-                    data = Uri.parse("package:$packageName")
+                    data = Uri.parse("package:$packageName") // Open app settings
                 }
                 Toast.makeText(
                     this,
-                    "Storage Permission is Required for Updating Avatar",
+                    "Storage Permission is Required for Updating Avatar", // Notify user
                     Toast.LENGTH_SHORT
                 ).show()
-                startActivity(intent)
+                startActivity(intent) // Start settings intent
+            }
+        }
+    }
+
+    private fun registerActivityResultLauncher() {
+        // Registering the activity result launcher to handle image crop result
+        activityResultLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult(),
+                ActivityResultCallback { result -> // Callback for result
+                    if (result.resultCode == RESULT_OK && result.data != null) {
+                        imageUri = result.data?.data // Get the selected image URI
+
+                        imageUri?.let { uri ->
+                            // Start cropping the selected image
+                            croppedImage(uri, destinationUri)
+                        }
+                    }
+                })
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        // Handle the result of the image cropping
+        if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+            data?.let {
+                val cropped = UCrop.getOutput(it) // Get the cropped image URI
+
+                cropped?.let { uri ->
+                    // Decode the image based on Android version
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, uri))
+                    } else {
+                        bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
+                    }
+
+                    // Deleting the temporary file which was used to store the cropped image generated by Ucrop Library
+                    val tempFile = File(uri.path)
+                    if (tempFile.exists()) {
+                        tempFile.delete()
+                    }
+
+                    compressedImageAsByteArray = compressedImage(bitmap, 80)
+
+                    Glide.with(this@SettingsActivity)
+                        .asBitmap()
+                        .load(compressedImageAsByteArray)
+                        .placeholder(R.drawable.vector_default_user_avatar)
+                        .into(binding.userAvatar)
+                }
             }
         }
     }
 
 
-    fun registerActivityResultLauncher() {
-        activityResultLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult(),
-                ActivityResultCallback { result ->
-                    if (result.resultCode == RESULT_OK && result.data != null) {
-                        imageUri = result.data?.data
-                    }
-                    imageUri?.let {
-                        Picasso.get().load(it).into(binding.userAvatar)
-                    }
-                })
+    private fun croppedImage(sourceUri: Uri, destinationUri: Uri) {
+        UCrop.of(sourceUri, destinationUri)
+            .withAspectRatio(1f, 1f)
+            .withMaxResultSize(800, 800)
+            .start(this@SettingsActivity)
     }
+
+//    private fun resizeBitmap(image: Bitmap,prefferedWidth: Int,prefferedHeight: Int) : Bitmap {
+//        val originalWidth = image.width
+//        val originalHeight = image.height
+//        val scaleFactor = Math.min(prefferedWidth/originalWidth.toFloat(), prefferedHeight/originalHeight.toFloat())
+//        return Bitmap.createScaledBitmap(image,(originalWidth*scaleFactor).toInt(),(originalHeight*scaleFactor).toInt(),true)
+//    }
+
+    private fun compressedImage(image: Bitmap, quality: Int): ByteArray {
+//        val resizeImageBitmap = resizeBitmap(image,800,800)
+        val outputStream = ByteArrayOutputStream()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // For Android 11 (API 30) and above
+            image.compress(Bitmap.CompressFormat.WEBP_LOSSLESS, quality, outputStream)
+        } else {
+            // For Android 10 (API 29) and below
+            image.compress(Bitmap.CompressFormat.WEBP, quality, outputStream)
+        }
+
+        return outputStream.toByteArray()
+    }
+
+    private fun updateTheDataInTheDatabase() {
+        if (compressedImageAsByteArray != null) {
+            val imageRef = storage.child("avatar/$userId")
+            imageRef.putBytes(compressedImageAsByteArray!!)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        imageRef.downloadUrl.addOnCompleteListener { task1 ->
+                            if (task1.isSuccessful) {
+                                userAvatar = task1.result.toString()
+                                // Proceed to update Firestore with user data after image is uploaded
+                                updateUserDataInFirestore()
+                            } else {
+                                // Handle failure to get download URL
+                                Toast.makeText(this, "Failed to retrieve image URL", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    } else {
+                        // Handle upload failure
+                        Toast.makeText(this, "Image upload failed", Toast.LENGTH_SHORT).show()
+                    }
+                }
+        } else {
+            // No new image, just update user data in Firestore
+            updateUserDataInFirestore()
+        }
+    }
+
+    private fun updateUserDataInFirestore() {
+        val userDataObject = UserDataSettings(
+            userName = binding.editTextUserName.text.toString(),
+            displayName = binding.editTextDisplayName.text.toString(),
+            userBio = binding.editTextUserBio.text.toString(),
+            avatar = userAvatar
+        )
+
+        db.collection("users").document(userId).set(userDataObject)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Successfully Updated", Toast.LENGTH_LONG).show()
+                // Update UI with new data if necessary
+            }.addOnFailureListener { e ->
+                // Handle failure to update Firestore
+                Toast.makeText(this, "Update failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
 }
