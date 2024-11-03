@@ -90,12 +90,14 @@ class ChatActivity : AppCompatActivity() {
 
         db.collection("users").document(otherUserId)
             .addSnapshotListener { snapshot, error ->
+
                 if (error != null) {
                     return@addSnapshotListener
                 } else if (snapshot != null && snapshot.exists()) {
 
                     // Setting the display name from intent extra
                     binding.textViewDisplayName.text = snapshot.getString("displayName") ?: ""
+
                     // Loading the user's avatar image using Glide library
                     Glide.with(this@ChatActivity)
                         .load(snapshot.getString("avatar"))
@@ -110,6 +112,7 @@ class ChatActivity : AppCompatActivity() {
                             binding.textViewUserStatus.visibility = View.VISIBLE
                             binding.textViewTypingStatus.visibility = View.INVISIBLE
                         }
+
                     }
                 }
 
