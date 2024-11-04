@@ -4,13 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-<<<<<<< HEAD
-
         <DropdownSelection timestamp="2024-11-03T16:57:22.686460Z">
-
-=======
-        <DropdownSelection timestamp="2024-11-04T18:07:04.471327200Z">
->>>>>>> 47c9b73 (Fixed the username conditions ( REGEX ) in SignUp Activity)
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=4bb9ddc04e15" />
