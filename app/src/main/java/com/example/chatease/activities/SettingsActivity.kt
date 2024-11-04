@@ -84,14 +84,19 @@ class SettingsActivity : AppCompatActivity() {
                     userBio = snapshot.getString("userBio") ?: ""
 
                     // Loading user avatar into ImageView using Glide
-                    Glide.with(this@SettingsActivity)
-                        .load(userAvatar)
-                        .placeholder(R.drawable.vector_default_user_avatar) // Placeholder image while loading
-                        .into(binding.userAvatar)
+                    if(!isFinishing && !isDestroyed) {
+                        Glide.with(this@SettingsActivity)
+                            .load(userAvatar)
+                            .placeholder(R.drawable.vector_default_user_avatar) // Placeholder image while loading
+                            .into(binding.userAvatar)
+
+                    }
 
                     // Setting text fields with user data
                     binding.editTextUserName.setText(userName)
+                    Log.d("Username",userName)
                     binding.editTextDisplayName.setText(userDisplayName)
+                    Log.d("Username",userDisplayName)
                     binding.editTextUserBio.setText(userBio)
                 }
             }

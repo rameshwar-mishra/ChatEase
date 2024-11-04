@@ -36,7 +36,8 @@
             android:id="@+id/frameLayoutDisplayImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_10sdp">
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/_35sdp">
 
             <com.makeramen.roundedimageview.RoundedImageView
                 android:id="@+id/avatar"
@@ -57,20 +58,24 @@
 
         </FrameLayout>
         <androidx.cardview.widget.CardView
-            android:layout_margin="15dp"
+            android:layout_marginTop="@dimen/_35sdp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="15dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:cardBackgroundColor="?attr/colorCard"
-            app:cardCornerRadius="70dp"
+            app:cardCornerRadius="20dp"
             app:cardElevation="25dp"
             >
-            <!--        android:background="@drawable/coustom_edittext"-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_gravity="center_horizontal"
                 android:padding="24dp">
+
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -83,8 +88,7 @@
                     app:boxCornerRadiusBottomStart="20dp"
                     app:boxCornerRadiusTopEnd="20dp"
                     app:boxCornerRadiusTopStart="20dp"
-                    app:counterEnabled="true"
-                    app:counterMaxLength="30"
+                    app:errorTextAppearance="@dimen/_100ssp"
                     app:errorEnabled="false">
 
                     <EditText
@@ -111,8 +115,6 @@
                     app:boxCornerRadiusBottomStart="20dp"
                     app:boxCornerRadiusTopEnd="20dp"
                     app:boxCornerRadiusTopStart="20dp"
-                    app:counterEnabled="true"
-                    app:counterMaxLength="30"
                     app:errorEnabled="false">
 
                     <EditText
@@ -211,18 +213,30 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
 
-
-                <Button
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:id="@+id/buttonSignUp"
-                    android:textColor="@color/white"
-                    android:text="SIGN UP"
-                    android:textSize="18sp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="30dp"
-                    android:backgroundTint="@color/purple"
-                    app:cornerRadius = "20dp"/>
-
+                    >
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:id="@+id/buttonSignUp"
+                        android:textColor="@color/white"
+                        android:text="SIGN UP"
+                        android:textSize="18sp"
+                        android:backgroundTint="@color/purple"
+                        app:cornerRadius = "20dp"/>
+                    <ProgressBar
+                        android:id="@+id/progressBar"
+                        android:layout_width="@dimen/_30sdp"
+                        android:layout_height="@dimen/_30sdp"
+                        android:layout_gravity="center"
+                        android:indeterminate="true"
+                        android:indeterminateTint="@color/dodger_blue"
+                        android:visibility="invisible"
+                        />
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/textViewSignIn"
@@ -234,15 +248,7 @@
                     android:textSize="15dp"
                     android:layout_marginTop="15dp"
                     />
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    android:layout_width="@dimen/_30sdp"
-                    android:layout_height="@dimen/_30sdp"
-                    android:layout_gravity="center"
-                    android:indeterminate="true"
-                    android:indeterminateTint="@color/dodger_blue"
-                    android:visibility="invisible"
-                    android:layout_marginTop="10dp"/>
+
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>

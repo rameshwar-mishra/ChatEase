@@ -39,8 +39,13 @@ class MainActivity : AppCompatActivity() {
 
     // Variable to hold modified chat data temporarily
     private var modifiedChatData: RecentChatData? = null
+
     // Mutable list to hold recent chat data
     private var recentChatDataList = mutableListOf<RecentChatData>()
+
+    private lateinit var chatUserIDs: MutableSet<String>
+
+    private lateinit var adapter : RecentChatAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,9 +70,24 @@ class MainActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         // Initialize the adapter for the RecyclerView with the recent chat data list
-        val adapter = RecentChatAdapter(this, recentChatDataList)
+        adapter = RecentChatAdapter(this, recentChatDataList)
         recyclerView.adapter = adapter
 
+
+        chatUserIDs = mutableSetOf()
+
+        // Set up a Firestore listener to fetch chats for the current user
+        listenForChatUpdates()
+
+        listenForUserProfileUpdates()
+
+        // Set up the search button click listener to start the SearchActivity
+        binding.floatingActionButtonSearch.setOnClickListener {
+            startActivity(Intent(this, SearchActivity::class.java))
+        }
+    }
+
+    private fun listenForChatUpdates() {
         // Set up a Firestore listener to fetch chats for the current user
         db.collection("chats")
             .whereArrayContains("participants", auth.currentUser!!.uid)
@@ -82,21 +102,48 @@ class MainActivity : AppCompatActivity() {
                 if (snapshot != null) {
                     for (change in snapshot.documentChanges) {
                         // Check the type of document change and update recent chat data accordingly
-                        when (change.type) {
-                            DocumentChange.Type.ADDED -> updateRecentChatData(change)  // New chat added
-                            DocumentChange.Type.MODIFIED -> updateRecentChatData(change)  // Existing chat modified
-                            DocumentChange.Type.REMOVED -> {
-                                // Handle chat removal if needed (currently not implemented)
-                            }
-                        }
+                        updateRecentChatData(change)
+
+                        updateChatIDs(change.document)
                     }
                 }
             }
+    }
 
-        // Set up the search button click listener to start the SearchActivity
-        binding.floatingActionButtonSearch.setOnClickListener {
-            startActivity(Intent(this, SearchActivity::class.java))
+    private fun updateChatIDs(document: DocumentSnapshot) {
+        val participants = document.get("participants") as List<String>
+        if (participants != null) {
+            chatUserIDs.addAll(participants) // This should work
+        } else {
+            Log.d("MainActivity", "Participants list is null or not of type List<String>")
         }
+    }
+
+    private fun listenForUserProfileUpdates() {
+        for (user in chatUserIDs) {
+            db.collection("users").document(user)
+                .addSnapshotListener { documentSnapshot, error ->
+                    if (error != null) {
+                        return@addSnapshotListener
+                    } else if (documentSnapshot != null && !documentSnapshot.exists()) {
+                        updateRecentChatsForUser(
+                            userID = documentSnapshot.id,
+                            userAvatar = documentSnapshot.getString("avatar") ?: "",
+                            userDisplayName = documentSnapshot.getString("displayName") ?: ""
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun updateRecentChatsForUser(userID: String, userAvatar: String, userDisplayName: String) {
+        for(chat in recentChatDataList) {
+            if(chat.id == userID) {
+                chat.avatar = userAvatar
+                chat.displayName= userDisplayName
+            }
+        }
+        adapter.notifyDataSetChanged()
     }
 
     // Update the recent chat data based on the changes in Firestore documents
@@ -120,7 +167,8 @@ class MainActivity : AppCompatActivity() {
         var userDetailsTasks: List<Any>
         if (lastMessageSender == otherParticipant) {
             userDetailsTasks = listOf(
-                db.collection("users").document(otherParticipant).get()  // Get only other participant details if they sent the last message
+                db.collection("users").document(otherParticipant)
+                    .get()  // Get only other participant details if they sent the last message
             )
         } else {
             // Get details for both participants if the current user sent the last message
@@ -140,10 +188,12 @@ class MainActivity : AppCompatActivity() {
 
                 // Determine the actual last message sender's username
                 if (lastMessageSender == otherParticipant) {
-                    actualLastMessageSender = otherUserDetails.getString("displayName") ?: "" // Get username of other participant
+                    actualLastMessageSender =
+                        otherUserDetails.getString("displayName") ?: "" // Get username of other participant
                 } else {
                     currentUserDetails = userDetailsTasks[1].result // Get current user details
-                    actualLastMessageSender = currentUserDetails.getString("displayName") ?: "" // Get username of current user
+                    actualLastMessageSender =
+                        currentUserDetails.getString("displayName") ?: "" // Get username of current user
                 }
 
                 // Fetch display name and avatar of the other participant
@@ -173,7 +223,7 @@ class MainActivity : AppCompatActivity() {
                     DocumentChange.Type.MODIFIED -> {
                         // Store modified chat data to update later
                         val index = recentChatDataList.indexOfFirst { it.id == recentChatData.id }
-                        if(index != -1) {
+                        if (index != -1) {
                             recentChatDataList[index] = recentChatData
                         }
                         modifiedChatData = recentChatData
@@ -225,10 +275,12 @@ class MainActivity : AppCompatActivity() {
                 // Return formatted date if it's not the current year
                 dateFormatter.format(calendar.time)
             }
+
             calendar.get(Calendar.DAY_OF_YEAR) != today.get(Calendar.DAY_OF_YEAR) -> {
                 // Return formatted date if it's not today
                 dateFormatter.format(calendar.time)
             }
+
             else -> {
                 // Return formatted time if it's today
                 timeFormatter.format(calendar.time)
@@ -236,3 +288,4 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
+

@@ -88,6 +88,8 @@ class ChatActivity : AppCompatActivity() {
             return
         }
 
+        var avatarAlreadyLoadedForTheFirstTime = false
+        var previousAvatarUrl: String? = null
         db.collection("users").document(otherUserId)
             .addSnapshotListener { snapshot, error ->
 
@@ -99,10 +101,19 @@ class ChatActivity : AppCompatActivity() {
                     binding.textViewDisplayName.text = snapshot.getString("displayName") ?: ""
 
                     // Loading the user's avatar image using Glide library
-                    Glide.with(this@ChatActivity)
-                        .load(snapshot.getString("avatar"))
-                        .placeholder(R.drawable.vector_default_user_avatar)
-                        .into(binding.roundedImageViewDisplayImage)
+                    val avatar = snapshot.getString("avatar")
+
+                    if (!avatarAlreadyLoadedForTheFirstTime || avatar != previousAvatarUrl) {
+                        avatarAlreadyLoadedForTheFirstTime = true
+                        previousAvatarUrl = avatar
+
+                        if (!isFinishing && !isDestroyed) {
+                            Glide.with(this@ChatActivity)
+                                .load(snapshot.getString("avatar"))
+                                .placeholder(R.drawable.vector_default_user_avatar)
+                                .into(binding.roundedImageViewDisplayImage)
+                        }
+                    }
 
                     if (otherUserId != currentUserId) {
                         if (snapshot.getBoolean("typing") == true) {
