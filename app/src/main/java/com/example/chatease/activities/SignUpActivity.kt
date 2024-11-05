@@ -82,10 +82,8 @@ class SignUpActivity : AppCompatActivity() {
         binding.editTextUserName.setOnFocusChangeListener { v, hasFocus ->
             if (!hasFocus) {
                 if (binding.editTextUserName.text.isNotEmpty()) {
-                    if (!binding.editTextUserName.text.toString().all {
-                            it.isLowerCase()
-                        }) {
-                        binding.editLayoutUserName.error = "Username must be in lowercase"
+                    if (!binding.editTextUserName.text.toString().matches(Regex("^[a-z0-9._]+$"))) {
+                        binding.editLayoutUserName.error = "Username only contains a-z,0-9, . and _"
                     } else {
                         isUsernameUnique(binding.editTextUserName.text.toString().trim()) { task ->
                             if (!task) {
@@ -116,10 +114,8 @@ class SignUpActivity : AppCompatActivity() {
             if (!isValidSignUp()) { // Validate signup input
                 return@setOnClickListener
             } else {
-                if (!binding.editTextUserName.text.toString().all {
-                        it.isLowerCase()
-                    }) {
-                    binding.editLayoutUserName.error = "Username must be in lowercase"
+                if (!binding.editTextUserName.text.toString().trim().matches(Regex("^[a-z0-9._]+$"))) {
+                    binding.editLayoutUserName.error = "Username only contains a-z,0-9, . and _"
                     isLoading(false)
                 } else {
                     isUsernameUnique(binding.editTextUserName.text.toString().trim()) { task ->
@@ -437,7 +433,7 @@ class SignUpActivity : AppCompatActivity() {
                     } else {
                         //Creating a hashmap of the userdata to store it in the Firebase Firestore
                         val userDetails = hashMapOf(
-                            "userName" to binding.editTextDisplayName.text.toString(),
+                            "userName" to binding.editTextUserName.text.toString(),
                             "email" to binding.editTextEmail.text.toString(),
                             "avatar" to ""
                         )
@@ -470,15 +466,15 @@ class SignUpActivity : AppCompatActivity() {
                     if (authTask.exception is FirebaseAuthException) {
                         when ((authTask.exception as FirebaseAuthException).errorCode) {
                             "ERROR_EMAIL_ALREADY_IN_USE" -> {
-                                showToast("Authentication failed: Email is Already In Use")
+                                binding.editLayoutEmail.error="Email is Already In Use"
                             }
 
                             "ERROR_WEAK_PASSWORD" -> {
-                                showToast("Authentication failed: Email is Already In Use")
+                                binding.editLayoutPassword.error = "Weak Password, Use Another"
                             }
 
                             "ERROR_INVALID_EMAIL" -> {
-                                showToast("Authentication failed: Email is Already In Use")
+                                binding.editLayoutEmail.error="Invalid Email"
                             }
 
                             else -> {

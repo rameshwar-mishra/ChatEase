@@ -66,6 +66,7 @@
                 android:id="@+id/buttonSignIn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/white"
                 android:layout_gravity="center|center_vertical"
                 android:backgroundTint="@color/dark_blue"
                 android:text="SIGN IN"
@@ -84,6 +85,15 @@
         </FrameLayout>
 
         <TextView
+            android:id="@+id/textViewForgetPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|center_vertical"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:text="Forget Password"
+            android:textColor="@color/secondaryText"
+            android:textSize="@dimen/_12ssp" />
+        <TextView
             android:id="@+id/textViewSignUp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -91,7 +101,7 @@
             android:layout_marginTop="@dimen/_10sdp"
             android:text="Don't have an account? Sign up"
             android:textColor="@color/secondaryText"
-            android:textSize="@dimen/_10ssp" />
+            android:textSize="@dimen/_12ssp" />
 
         <!--        <com.google.android.material.button.MaterialButton-->
         <!--            android:layout_width="match_parent"-->

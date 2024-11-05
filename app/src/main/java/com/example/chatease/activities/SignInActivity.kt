@@ -12,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.chatease.R
 import com.example.chatease.databinding.ActivitySignInBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
 
 class SignInActivity : AppCompatActivity() {
     lateinit var binding : ActivitySignInBinding
@@ -46,7 +47,10 @@ class SignInActivity : AppCompatActivity() {
             }
             signIn()
         }
-
+        //starting Forget Password Activity
+        binding.textViewForgetPassword.setOnClickListener {
+            startActivity(Intent(this@SignInActivity,ForgetPasswordActivity::class.java))
+        }
         //A textView of "Don't have an Account? Sign Up" using as a Button
         binding.textViewSignUp.setOnClickListener {
             Log.d("test","test")
@@ -108,8 +112,26 @@ class SignInActivity : AppCompatActivity() {
                     finish()
                 } else {
                     isLoading(false)
-                    showToast("Login failed")
-                    Log.d("SignIpError",task.exception.toString())
+                    if(task.exception is FirebaseAuthException){
+                        when((task.exception as FirebaseAuthException).errorCode){
+                            "ERROR_USER_NOT_FOUND" -> {
+                                binding.editLayoutEmail.error = "Invalid Sign In"
+                                binding.editLayoutPassword.error = "Invalid Sign In"
+                            }
+                            "ERROR_INVALID_CREDENTIAL" -> {
+                                binding.editLayoutPassword.error = "Invalid Credentials"
+                            }
+                            "ERROR_NETWORK_REQUEST_FAILED" ->{
+                                binding.editLayoutEmail.error = "No Internet Connection"
+                                binding.editLayoutPassword.error = "No Internet Connection"
+                            }
+                            "ERROR_TOO_MANY_REQUESTS" ->{
+                                binding.editLayoutEmail.error = "Slow Down"
+                                binding.editLayoutPassword.error = "Slow Down"
+                            }
+                        }
+                    }
+
                 }
             }
     }

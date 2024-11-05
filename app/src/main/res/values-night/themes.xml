@@ -8,6 +8,7 @@
         <item name="icon_background">@color/icon_color</item>
         <item name="textColors">@color/textColors</item>
         <item name="colorCard">@color/signUpCardView</item>
+        <item name="textAppearanceCaption">@style/TextInputErrorMessage</item>
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
     </style>
     <!--    <style name="textViewDesign" parent="Widget.AppCompat.TextView">-->
