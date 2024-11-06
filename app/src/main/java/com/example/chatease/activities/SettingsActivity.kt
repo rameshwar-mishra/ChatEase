@@ -1,5 +1,6 @@
 package com.example.chatease.activities
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -9,13 +10,17 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.app.DialogCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -84,10 +89,13 @@ class SettingsActivity : AppCompatActivity() {
                     userBio = snapshot.getString("userBio") ?: ""
 
                     // Loading user avatar into ImageView using Glide
-                    Glide.with(this@SettingsActivity)
-                        .load(userAvatar)
-                        .placeholder(R.drawable.vector_default_user_avatar) // Placeholder image while loading
-                        .into(binding.userAvatar)
+
+                  if(!isFinishing && !isDestroyed){
+                      Glide.with(this@SettingsActivity)
+                          .load(userAvatar)
+                          .placeholder(R.drawable.vector_default_user_avatar) // Placeholder image while loading
+                          .into(binding.userAvatar)
+                  }
 
                     // Setting text fields with user data
                     binding.editTextUserName.setText(userName)
@@ -100,7 +108,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.applyChangesButton.setOnClickListener {
             binding.applyButtonProgressBar.visibility = View.VISIBLE // Show progress bar while applying changes
             // Check if any field is not empty
-            if (binding.editTextUserName.text.isNotEmpty() && binding.editTextDisplayName.text.isNotEmpty()) {
+            if (binding.editTextUserName.text!!.isNotEmpty() && binding.editTextDisplayName.text!!.isNotEmpty()) {
                 var isChanged = false // Flag to check if any data has changed
 
                 // Checking if any user data has changed
@@ -115,19 +123,19 @@ class SettingsActivity : AppCompatActivity() {
                 if (isChanged) {
                     if (binding.editTextUserName.text.toString().length > 30) {
                         //will be implemented
-                        Toast.makeText(this@SettingsActivity, "works", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@SettingsActivity, "works1", Toast.LENGTH_LONG).show()
                         return@setOnClickListener
-                    } else if (!binding.editTextUserName.text.toString().all { it.isLowerCase() }) {
+                    } else if (!binding.editTextUserName.text.toString().matches(Regex("^[a-z0-9._]+$"))) {
                         //will be implemented
-                        Toast.makeText(this@SettingsActivity, "works", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@SettingsActivity, "works2", Toast.LENGTH_LONG).show()
                         return@setOnClickListener
                     } else if (binding.editTextDisplayName.text.toString().length > 30) {
                         //will be implemented
-                        Toast.makeText(this@SettingsActivity, "works", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@SettingsActivity, "works3", Toast.LENGTH_LONG).show()
                         return@setOnClickListener
                     } else if (binding.editTextUserBio.text.toString().length > 100) {
                         //will be implemented
-                        Toast.makeText(this@SettingsActivity, "works", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@SettingsActivity, "works4", Toast.LENGTH_LONG).show()
                         return@setOnClickListener
                     }
                 }
@@ -135,9 +143,11 @@ class SettingsActivity : AppCompatActivity() {
                 // If data has changed or a new image is selected, update the database
                 if (isChanged || (imageUri != null)) {
                     updateTheDataInTheDatabase() // Call to update user data in Firestore
+
                 } else {
                     // Notify user if there are no changes to apply
                     Toast.makeText(this@SettingsActivity, "Successfully Updated", Toast.LENGTH_LONG).show()
+
                 }
             } else {
                 Toast.makeText(this@SettingsActivity, "Please fill the username & display name field", Toast.LENGTH_LONG)
@@ -146,16 +156,52 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         // Setting onClickListener for sign out button
-        binding.signOutButton.setOnClickListener {
-            auth.signOut() // Signing out the user
-            startActivity(Intent(this@SettingsActivity, SignInActivity::class.java)) // Navigating to SignInActivity
-        }
+//        binding.signOutButton.setOnClickListener {
+//            auth.signOut() // Signing out the user
+//            startActivity(Intent(this@SettingsActivity, SignInActivity::class.java)) // Navigating to SignInActivity
+//        }
 
         // Setting onClickListener for avatar frame to choose an image
         binding.frameUserAvatar.setOnClickListener {
             chooseImage() // Call to choose image from gallery
         }
+        binding.changePasswordButton.setOnClickListener {
+            startActivity(Intent(this@SettingsActivity,UpdatePasswordActivity::class.java))
+        }
     }
+
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.settings_signout,menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+      return when(item.itemId){
+          R.id.settingsIcon -> {
+              val alertDialog = AlertDialog.Builder(this)
+            .setTitle("Sign Out")
+            .setMessage("Do you want to Sign Out From the App?")
+            .setIcon(R.drawable.vector_icon_warning)
+            .setCancelable(false)
+            .setNegativeButton("No", DialogInterface.OnClickListener { dialog, which ->
+                dialog.cancel()
+            })
+            .setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, which ->
+                auth.signOut()
+                startActivity(Intent(this@SettingsActivity,SignInActivity::class.java))
+                finish()
+            })
+        alertDialog.show()
+              true
+          }
+          else -> return super.onOptionsItemSelected(item)
+        }
+//
+
+    }
+
 
     private fun chooseImage() {
         // Determine the appropriate permission needed based on the Android version
@@ -328,6 +374,7 @@ class SettingsActivity : AppCompatActivity() {
         db.collection("users").document(userId).set(userDataObject)
             .addOnSuccessListener {
                 Toast.makeText(this, "Successfully Updated", Toast.LENGTH_LONG).show()
+                binding.applyButtonProgressBar.visibility = View.GONE
                 // Update UI with new data if necessary
             }.addOnFailureListener { e ->
                 // Handle failure to update Firestore

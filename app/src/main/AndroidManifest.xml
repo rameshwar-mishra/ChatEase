@@ -17,8 +17,14 @@
         android:theme="@style/Theme.ChatEase"
         tools:targetApi="31">
         <activity
+            android:name=".activities.UpdatePasswordActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.SettingsActivity"/>
+        <activity
             android:name=".activities.ForgetPasswordActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".activities.SignInActivity"
+            />
         <activity
             android:name=".activities.UserProfileActivity"
             android:exported="false" />
