@@ -20,7 +20,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.app.DialogCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -30,9 +29,13 @@ import com.example.chatease.databinding.ActivitySettingsBinding
 import com.example.chatease.dataclass.UserDataSettings
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ServerValue
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
-import com.squareup.picasso.Picasso
 import com.yalantis.ucrop.UCrop
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -40,12 +43,15 @@ import java.io.File
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding // View binding for accessing UI elements
     private val db = Firebase.firestore // Firestore database reference
+    private val rtDB =
+        FirebaseDatabase.getInstance() // Firebase Realtime Database database reference
     private val auth = FirebaseAuth.getInstance() // Firebase Authentication instance
     private val storage = FirebaseStorage.getInstance().reference // Firebase Storage reference
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent> // Activity result launcher for image picking
     private var imageUri: Uri? = null // Uri for the selected image
     private lateinit var bitmap: Bitmap // Bitmap representation of the image
-    private var compressedImageAsByteArray: ByteArray? = null // Compressed image as byte array for upload
+    private var compressedImageAsByteArray: ByteArray? =
+        null // Compressed image as byte array for upload
     private lateinit var userName: String // User's username
     private lateinit var userAvatar: String // User's avatar URL
     private lateinit var userDisplayName: String // User's display name
@@ -77,36 +83,46 @@ class SettingsActivity : AppCompatActivity() {
         destinationUri = Uri.fromFile(File(cacheDir, "temp_cropped_image.webp"))
 
         // Fetching user data from Firestore
-        db.collection("users").document(userId)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    return@addSnapshotListener
-                } else if (snapshot != null && snapshot.exists()) {
+        rtDB.getReference("users").child(userId).addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
                     // Retrieving user data from Firestore
-                    userName = snapshot.getString("userName") ?: ""
-                    userAvatar = snapshot.getString("avatar") ?: ""
-                    userDisplayName = snapshot.getString("displayName") ?: ""
-                    userBio = snapshot.getString("userBio") ?: ""
+                    userName = snapshot.child("userName").getValue(String::class.java) ?: ""
+                    userAvatar = snapshot.child("avatar").getValue(String::class.java) ?: ""
+                    userDisplayName =
+                        snapshot.child("displayName").getValue(String::class.java) ?: ""
+                    userBio = snapshot.child("userBio").getValue(String::class.java) ?: ""
 
                     // Loading user avatar into ImageView using Glide
+                    if (!isFinishing && !isDestroyed) {
+                        Glide.with(this@SettingsActivity)
+                            .load(userAvatar)
+                            .placeholder(R.drawable.vector_default_user_avatar) // Placeholder image while loading
+                            .into(binding.userAvatar)
 
-                  if(!isFinishing && !isDestroyed){
-                      Glide.with(this@SettingsActivity)
-                          .load(userAvatar)
-                          .placeholder(R.drawable.vector_default_user_avatar) // Placeholder image while loading
-                          .into(binding.userAvatar)
-                  }
+                    }
 
                     // Setting text fields with user data
                     binding.editTextUserName.setText(userName)
+                    Log.d("Username", userName)
                     binding.editTextDisplayName.setText(userDisplayName)
+                    Log.d("Username", userDisplayName)
                     binding.editTextUserBio.setText(userBio)
                 }
             }
 
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+        })
+
+
         // Setting onClickListener for apply changes button
         binding.applyChangesButton.setOnClickListener {
-            binding.applyButtonProgressBar.visibility = View.VISIBLE // Show progress bar while applying changes
+            binding.applyButtonProgressBar.visibility =
+                View.VISIBLE // Show progress bar while applying changes
+            binding.applyChangesButton.visibility = View.INVISIBLE
             // Check if any field is not empty
             if (binding.editTextUserName.text!!.isNotEmpty() && binding.editTextDisplayName.text!!.isNotEmpty()) {
                 var isChanged = false // Flag to check if any data has changed
@@ -122,20 +138,28 @@ class SettingsActivity : AppCompatActivity() {
 
                 if (isChanged) {
                     if (binding.editTextUserName.text.toString().length > 30) {
-                        //will be implemented
-                        Toast.makeText(this@SettingsActivity, "works1", Toast.LENGTH_LONG).show()
+                        binding.textInputLayoutUserName.error =
+                            "Username Must Be Within 30 Characters"
+                        binding.applyButtonProgressBar.visibility = View.INVISIBLE
+                        binding.applyChangesButton.visibility = View.VISIBLE
                         return@setOnClickListener
-                    } else if (!binding.editTextUserName.text.toString().matches(Regex("^[a-z0-9._]+$"))) {
-                        //will be implemented
-                        Toast.makeText(this@SettingsActivity, "works2", Toast.LENGTH_LONG).show()
+                    } else if (!binding.editTextUserName.text.toString()
+                            .matches(Regex("^[a-z0-9_.]+$"))
+                    ) {
+                        binding.textInputLayoutUserName.error = "Username Must be in Lowercase"
+                        binding.applyButtonProgressBar.visibility = View.INVISIBLE
+                        binding.applyChangesButton.visibility = View.VISIBLE
                         return@setOnClickListener
                     } else if (binding.editTextDisplayName.text.toString().length > 30) {
-                        //will be implemented
-                        Toast.makeText(this@SettingsActivity, "works3", Toast.LENGTH_LONG).show()
+                        binding.textInputLayoutDisplayName.error =
+                            "Display Name Must Be Within 30 Characters"
+                        binding.applyButtonProgressBar.visibility = View.INVISIBLE
+                        binding.applyChangesButton.visibility = View.VISIBLE
                         return@setOnClickListener
                     } else if (binding.editTextUserBio.text.toString().length > 100) {
-                        //will be implemented
-                        Toast.makeText(this@SettingsActivity, "works4", Toast.LENGTH_LONG).show()
+                        binding.textInputLayoutUserBio.error = "Bio Must Be Within 100 Characters"
+                        binding.applyButtonProgressBar.visibility = View.INVISIBLE
+                        binding.applyChangesButton.visibility = View.VISIBLE
                         return@setOnClickListener
                     }
                 }
@@ -143,22 +167,41 @@ class SettingsActivity : AppCompatActivity() {
                 // If data has changed or a new image is selected, update the database
                 if (isChanged || (imageUri != null)) {
                     updateTheDataInTheDatabase() // Call to update user data in Firestore
-
                 } else {
                     // Notify user if there are no changes to apply
-                    Toast.makeText(this@SettingsActivity, "Successfully Updated", Toast.LENGTH_LONG).show()
-
+                    Toast.makeText(this@SettingsActivity, "Successfully Updated", Toast.LENGTH_LONG)
+                        .show()
+                    binding.applyButtonProgressBar.visibility = View.INVISIBLE
+                    binding.applyChangesButton.visibility = View.VISIBLE
                 }
             } else {
-                Toast.makeText(this@SettingsActivity, "Please fill the username & display name field", Toast.LENGTH_LONG)
+                Toast.makeText(
+                    this@SettingsActivity,
+                    "Please fill the username & display name field",
+                    Toast.LENGTH_LONG
+                )
                     .show()
             }
         }
 
         // Setting onClickListener for sign out button
 //        binding.signOutButton.setOnClickListener {
-//            auth.signOut() // Signing out the user
-//            startActivity(Intent(this@SettingsActivity, SignInActivity::class.java)) // Navigating to SignInActivity
+//            // Signing out the user
+//            rtDB.getReference("users/${auth.currentUser!!.uid}")
+//                .updateChildren(
+//                mapOf(
+//                    "status" to "Offline",
+//                    "lastHeartBeat" to ServerValue.TIMESTAMP
+//                )
+//            ).addOnSuccessListener {
+//                auth.signOut()
+//                startActivity(Intent(this@SettingsActivity, SignInActivity::class.java)) // Navigating to SignInActivity
+//                finish()
+//            }.addOnFailureListener { e ->
+//                Toast.makeText(this@SettingsActivity, "Failed to update status. Please try again.", Toast.LENGTH_LONG).show()
+//                Log.e("StatusUpdateError", e.toString())
+//            }
+//
 //        }
 
         // Setting onClickListener for avatar frame to choose an image
@@ -166,37 +209,42 @@ class SettingsActivity : AppCompatActivity() {
             chooseImage() // Call to choose image from gallery
         }
         binding.changePasswordButton.setOnClickListener {
-            startActivity(Intent(this@SettingsActivity,UpdatePasswordActivity::class.java))
+            startActivity(Intent(this@SettingsActivity, UpdatePasswordActivity::class.java))
         }
     }
 
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.settings_signout,menu)
+        menuInflater.inflate(R.menu.settings_signout, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-      return when(item.itemId){
-          R.id.settingsIcon -> {
-              val alertDialog = AlertDialog.Builder(this)
-            .setTitle("Sign Out")
-            .setMessage("Do you want to Sign Out From the App?")
-            .setIcon(R.drawable.vector_icon_warning)
-            .setCancelable(false)
-            .setNegativeButton("No", DialogInterface.OnClickListener { dialog, which ->
-                dialog.cancel()
-            })
-            .setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, which ->
-                auth.signOut()
-                startActivity(Intent(this@SettingsActivity,SignInActivity::class.java))
-                finish()
-            })
-        alertDialog.show()
-              true
-          }
-          else -> return super.onOptionsItemSelected(item)
+        return when (item.itemId) {
+            R.id.settingsIcon -> {
+                val alertDialog = AlertDialog.Builder(this)
+                    .setTitle("Sign Out")
+                    .setMessage("Do you want to Sign Out From the App?")
+                    .setIcon(R.drawable.vector_icon_warning)
+                    .setCancelable(false)
+                    .setNegativeButton("No", DialogInterface.OnClickListener { dialog, which ->
+                        dialog.cancel()
+                    })
+                    .setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, which ->
+                        rtDB.getReference("users").child(userId).updateChildren(mapOf(
+                            "status" to "Offline",
+                            "lastHeartBeat" to ServerValue.TIMESTAMP
+                        ))
+                        auth.signOut()
+                        startActivity(Intent(this@SettingsActivity, SignInActivity::class.java))
+                        finish()
+                    })
+                alertDialog.show()
+                true
+            }
+
+            else -> return super.onOptionsItemSelected(item)
         }
 //
 
@@ -214,7 +262,11 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         // Check if permission is granted
-        if (ContextCompat.checkSelfPermission(this, permissionNeeded) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                permissionNeeded
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             // Request permission if not granted
             ActivityCompat.requestPermissions(this, arrayOf(permissionNeeded), 1)
         } else {
@@ -284,7 +336,12 @@ class SettingsActivity : AppCompatActivity() {
                 cropped?.let { uri ->
                     // Decode the image based on Android version
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, uri))
+                        bitmap = ImageDecoder.decodeBitmap(
+                            ImageDecoder.createSource(
+                                contentResolver,
+                                uri
+                            )
+                        )
                     } else {
                         bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
                     }
@@ -315,13 +372,6 @@ class SettingsActivity : AppCompatActivity() {
             .start(this@SettingsActivity)
     }
 
-//    private fun resizeBitmap(image: Bitmap,prefferedWidth: Int,prefferedHeight: Int) : Bitmap {
-//        val originalWidth = image.width
-//        val originalHeight = image.height
-//        val scaleFactor = Math.min(prefferedWidth/originalWidth.toFloat(), prefferedHeight/originalHeight.toFloat())
-//        return Bitmap.createScaledBitmap(image,(originalWidth*scaleFactor).toInt(),(originalHeight*scaleFactor).toInt(),true)
-//    }
-
     private fun compressedImage(image: Bitmap, quality: Int): ByteArray {
 //        val resizeImageBitmap = resizeBitmap(image,800,800)
         val outputStream = ByteArrayOutputStream()
@@ -349,7 +399,11 @@ class SettingsActivity : AppCompatActivity() {
                                 updateUserDataInFirestore()
                             } else {
                                 // Handle failure to get download URL
-                                Toast.makeText(this, "Failed to retrieve image URL", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this,
+                                    "Failed to retrieve image URL",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                     } else {
@@ -371,15 +425,19 @@ class SettingsActivity : AppCompatActivity() {
             avatar = userAvatar
         )
 
-        db.collection("users").document(userId).set(userDataObject)
+        rtDB.getReference("users").child(userId).setValue(userDataObject)
             .addOnSuccessListener {
                 Toast.makeText(this, "Successfully Updated", Toast.LENGTH_LONG).show()
-                binding.applyButtonProgressBar.visibility = View.GONE
+                binding.applyButtonProgressBar.visibility = View.INVISIBLE
+                binding.applyChangesButton.visibility = View.VISIBLE
                 // Update UI with new data if necessary
             }.addOnFailureListener { e ->
                 // Handle failure to update Firestore
                 Toast.makeText(this, "Update failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                binding.applyButtonProgressBar.visibility = View.INVISIBLE
+                binding.applyChangesButton.visibility = View.VISIBLE
             }
+
     }
 
 }

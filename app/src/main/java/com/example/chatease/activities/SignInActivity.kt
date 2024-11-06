@@ -11,12 +11,17 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.chatease.R
 import com.example.chatease.databinding.ActivitySignInBinding
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.firestore
 
 class SignInActivity : AppCompatActivity() {
-    lateinit var binding : ActivitySignInBinding
+    lateinit var binding: ActivitySignInBinding
     val auth = FirebaseAuth.getInstance()
+    val db = Firebase.firestore
+    private val rtDB = FirebaseDatabase.getInstance()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        enableEdgeToEdge()
@@ -30,30 +35,27 @@ class SignInActivity : AppCompatActivity() {
         }
 
         //To be able Check if the user is coming from the SignUpActivity
-        val fromSignUp = intent.getBooleanExtra("fromSignUp",false)
+        val fromSignUp = intent.getBooleanExtra("fromSignUp", false)
 
         //Checking if the user is already logged in AND is not coming from the SignUpActivity
         //Open the MainActivity and close the SignInActivity
-        if(auth.currentUser != null && !fromSignUp) {
+        if (auth.currentUser != null && !fromSignUp) {
             startActivity(Intent(this@SignInActivity, MainActivity::class.java))
             finish()
         }
 
         //SignIn Button
-        binding.buttonSignIn.setOnClickListener{
+        binding.buttonSignIn.setOnClickListener {
             isLoading(true)
-            if(!isValidSignUp()) {
+            if (!isValidSignUp()) {
                 return@setOnClickListener
             }
             signIn()
         }
-        //starting Forget Password Activity
-        binding.textViewForgetPassword.setOnClickListener {
-            startActivity(Intent(this@SignInActivity,ForgetPasswordActivity::class.java))
-        }
+
         //A textView of "Don't have an Account? Sign Up" using as a Button
         binding.textViewSignUp.setOnClickListener {
-            Log.d("test","test")
+            Log.d("test", "test")
             val intent = Intent(this@SignInActivity, SignUpActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
             startActivity(intent)
@@ -93,7 +95,7 @@ class SignInActivity : AppCompatActivity() {
 
     private fun isLoading(bool: Boolean) {
         //This is a Rounded progressBar
-        if(bool) {
+        if (bool) {
             binding.progressBar.visibility = View.VISIBLE
             binding.buttonSignIn.visibility = View.INVISIBLE
         } else {
@@ -104,34 +106,33 @@ class SignInActivity : AppCompatActivity() {
 
     private fun signIn() {
         //Trying to Authenticate the user by creating the id
-        auth.signInWithEmailAndPassword(binding.editTextEmail.text.toString().trim(), binding.editTextPassword.text.toString().trim())
+        auth.signInWithEmailAndPassword(
+            binding.editTextEmail.text.toString().trim(),
+            binding.editTextPassword.text.toString().trim()
+        )
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    isLoading(false)
-                    startActivity(Intent(this@SignInActivity, MainActivity::class.java))
-                    finish()
+                    rtDB.getReference("users/${auth.currentUser!!.uid}")
+                        .updateChildren(mapOf(
+                                "status" to "Online",
+//                                "lastHeartBeat" to FieldValue.serverTimestamp()
+                            )
+                        )
+                        .addOnSuccessListener {
+                            isLoading(false)
+                            startActivity(Intent(this@SignInActivity, MainActivity::class.java))
+                            finish()
+                        }
+                        .addOnFailureListener { e ->
+                            isLoading(false)
+                            showToast("Failed to update status. Please try again.")
+                            Log.e("StatusUpdateError", e.toString())
+                        }
+
                 } else {
                     isLoading(false)
-                    if(task.exception is FirebaseAuthException){
-                        when((task.exception as FirebaseAuthException).errorCode){
-                            "ERROR_USER_NOT_FOUND" -> {
-                                binding.editLayoutEmail.error = "Invalid Sign In"
-                                binding.editLayoutPassword.error = "Invalid Sign In"
-                            }
-                            "ERROR_INVALID_CREDENTIAL" -> {
-                                binding.editLayoutPassword.error = "Invalid Credentials"
-                            }
-                            "ERROR_NETWORK_REQUEST_FAILED" ->{
-                                binding.editLayoutEmail.error = "No Internet Connection"
-                                binding.editLayoutPassword.error = "No Internet Connection"
-                            }
-                            "ERROR_TOO_MANY_REQUESTS" ->{
-                                binding.editLayoutEmail.error = "Slow Down"
-                                binding.editLayoutPassword.error = "Slow Down"
-                            }
-                        }
-                    }
-
+                    showToast("Login failed")
+                    Log.d("SignIpError", task.exception.toString())
                 }
             }
     }

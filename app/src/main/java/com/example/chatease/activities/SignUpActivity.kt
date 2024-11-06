@@ -27,6 +27,7 @@ import com.example.chatease.databinding.ActivitySignUpBinding
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
 import com.yalantis.ucrop.UCrop
@@ -45,6 +46,9 @@ class SignUpActivity : AppCompatActivity() {
 
     // Firestore instance for storing user details
     private val db = Firebase.firestore
+
+    // Firebase RealTime Database instance for storing user details
+    private val rtDB = FirebaseDatabase.getInstance()
 
     // Firebase Storage reference for storing images
     private val storage = FirebaseStorage.getInstance().reference
@@ -342,15 +346,6 @@ class SignUpActivity : AppCompatActivity() {
             binding.editTextConfirmPassword.error = "Password doesn't matches"
             return false
         }
-//        else if (imageUri == null) {
-//            //if Rounded ImageView is empty / If image is not added
-//            isLoading(false)
-//            binding.editLayoutEmail.error = null
-//            binding.editLayoutPassword.error = null
-//            binding.editTextConfirmPassword.error = null
-//            binding.avatarAddImageText.setTextColor(getColor(R.color.red))
-//            return false
-//        }
         return true
     }
 
@@ -389,14 +384,17 @@ class SignUpActivity : AppCompatActivity() {
                                                 "userName" to binding.editTextUserName.text.toString(),
                                                 "displayName" to binding.editTextDisplayName.text.toString(),
                                                 "email" to binding.editTextEmail.text.toString(),
-                                                "avatar" to urlTask.result.toString()
+                                                "avatar" to urlTask.result.toString(),
+                                                "typing" to false,
+                                                "status" to "Offline",
+                                                "lastHeartBeat" to ""
                                             )
 
                                             //Trying to store the userdata in the Firebase Firestore
-                                            db.collection("users").document(auth.currentUser!!.uid)
-                                                .set(userDetails)
-                                                .addOnCompleteListener { firestoreTask ->
-                                                    if (firestoreTask.isSuccessful) {
+                                            rtDB.getReference("users").child(auth.currentUser!!.uid)
+                                                .setValue(userDetails)
+                                                .addOnCompleteListener { databaseTask ->
+                                                    if (databaseTask.isSuccessful) {
                                                         isLoading(false)
                                                         showToast("Signed Up Successfully")
 
@@ -414,7 +412,7 @@ class SignUpActivity : AppCompatActivity() {
                                                         showToast("Failed to save user data")
                                                         Log.d(
                                                             "SignUpError",
-                                                            firestoreTask.exception.toString()
+                                                            databaseTask.exception.toString()
                                                         )
                                                     }
                                                 }
@@ -434,18 +432,24 @@ class SignUpActivity : AppCompatActivity() {
                         //Creating a hashmap of the userdata to store it in the Firebase Firestore
                         val userDetails = hashMapOf(
                             "userName" to binding.editTextUserName.text.toString(),
+                            "displayName" to binding.editTextDisplayName.text.toString(),
                             "email" to binding.editTextEmail.text.toString(),
-                            "avatar" to ""
+                            "avatar" to "",
+                            "typing" to false,
+                            "status" to "offline",
+                            "lastHeartBeat" to ""
                         )
 
                         //Trying to store the userdata in the Firebase Firestore
-                        db.collection("users").document(auth.currentUser!!.uid).set(userDetails)
-                            .addOnCompleteListener { firestoreTask ->
-                                if (firestoreTask.isSuccessful) {
+                        rtDB.getReference("users").child(auth.currentUser!!.uid)
+                            .setValue(userDetails)
+                            .addOnCompleteListener { databaseTask ->
+                                if (databaseTask.isSuccessful) {
                                     isLoading(false)
                                     showToast("Signed Up Successfully")
 
                                     //Sending the user back to Sign In activity
+                                    auth.signOut()
                                     val intent =
                                         Intent(this@SignUpActivity, SignInActivity::class.java)
                                     intent.putExtra("fromSignUp", true)
@@ -455,7 +459,7 @@ class SignUpActivity : AppCompatActivity() {
                                 } else {
                                     isLoading(false)
                                     showToast("Failed to save user data")
-                                    Log.d("SignUpError", firestoreTask.exception.toString())
+                                    Log.d("SignUpError", databaseTask.exception.toString())
                                 }
                             }
                     }
@@ -466,7 +470,7 @@ class SignUpActivity : AppCompatActivity() {
                     if (authTask.exception is FirebaseAuthException) {
                         when ((authTask.exception as FirebaseAuthException).errorCode) {
                             "ERROR_EMAIL_ALREADY_IN_USE" -> {
-                                binding.editLayoutEmail.error="Email is Already In Use"
+                                binding.editLayoutEmail.error = "Email is Already In Use"
                             }
 
                             "ERROR_WEAK_PASSWORD" -> {
@@ -474,7 +478,7 @@ class SignUpActivity : AppCompatActivity() {
                             }
 
                             "ERROR_INVALID_EMAIL" -> {
-                                binding.editLayoutEmail.error="Invalid Email"
+                                binding.editLayoutEmail.error = "Invalid Email"
                             }
 
                             else -> {
@@ -488,14 +492,16 @@ class SignUpActivity : AppCompatActivity() {
     }
 
     private fun isUsernameUnique(username: String, callback: (Boolean) -> (Unit)) {
-        db.collection("users").whereEqualTo("userName", username).get()
+        rtDB.getReference("users").orderByChild("userName")
+            .equalTo(username)
+            .get()
             .addOnCompleteListener { task ->
-                if (task.isSuccessful && task.result.isEmpty) {
+                if (task.isSuccessful && !task.result.exists()) {
                     callback(true)
                 } else {
                     callback(false)
                 }
             }
-
     }
 }
+

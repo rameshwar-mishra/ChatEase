@@ -49,6 +49,7 @@
 
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayoutDisplayName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="@dimen/_13sdp"
@@ -57,7 +58,7 @@
                 android:layout_marginTop="@dimen/_30sdp"
                 android:hint="Display Name"
                 app:counterEnabled="true"
-                app:counterMaxLength="25"
+                app:counterMaxLength="30"
                 app:helperTextTextAppearance="@style/HelperTextStyle"
                 app:hintTextAppearance="@style/HelperTextStyle"
                 >
@@ -71,6 +72,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayoutUserName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="@dimen/_13sdp"
@@ -79,7 +81,7 @@
                 android:layout_marginTop="@dimen/_15sdp"
                 android:hint="Username"
                 app:counterEnabled="true"
-                app:counterMaxLength="25"
+                app:counterMaxLength="30"
                 app:helperTextTextAppearance="@style/HelperTextStyle"
                 app:hintTextAppearance="@style/HintTextStyle"
                 tools:layout_editor_absoluteX="13dp"
@@ -95,6 +97,7 @@
 
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayoutUserBio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_13sdp"

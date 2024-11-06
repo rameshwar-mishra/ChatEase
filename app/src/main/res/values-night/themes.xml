@@ -4,13 +4,13 @@
         <!-- Customize your dark theme here. -->
         <item name="android:statusBarColor">@color/item_background</item>
         <item name="cardViewStyle">@style/StyleCard</item>
-        <item name="android:windowBackground">#000014</item>
+<!--        <item name="android:windowBackground">#000014</item>-->
         <item name="itemBackground">@color/white</item>
         <item name="icon_background">@color/icon_color</item>
         <item name="textColors">@color/textColors</item>
         <item name="colorCard">@color/signUpCardView</item>
         <item name="textAppearanceCaption">@style/TextInputErrorMessage</item>
-        <item name="android:navigationBarColor">#000014</item>
+<!--        <item name="android:navigationBarColor">#000014</item>-->
     </style>
 
     <style name="HelperTextStyle" parent="TextAppearance.AppCompat.Small">

@@ -33,19 +33,24 @@ class UpdatePasswordActivity : AppCompatActivity() {
             binding.submitButton.visibility = View.INVISIBLE
             binding.progressBar.visibility = View.VISIBLE
 
-            if (binding.currentPassword.text.toString().isNotEmpty()) {
-                if (binding.currentPassword.text.toString().length >= 6) {
+            if (binding.currentPassword.text.toString().isNotEmpty()
+                && binding.newPassword.text.toString().isNotEmpty()
+            ) {
+                if (binding.currentPassword.text.toString().length >= 6
+                    && binding.newPassword.text.toString().length >= 6
+                ) {
 //Getting User Email from EmailAuthProvider and current Password By User
                     val userDetails = EmailAuthProvider.getCredential(
                         user?.email!!,
                         binding.currentPassword.text.toString()
                     )
+
                     user?.reauthenticate(userDetails)?.addOnCompleteListener { authTask ->
 
-                        if (authTask.isSuccessful && binding.newPassword.text!!.isNotEmpty() && binding.newPassword.text.toString().length >= 6) {
+                        if (authTask.isSuccessful) {
                             if (binding.currentPassword.text.toString() == binding.newPassword.text.toString()) {
-                                binding.currentPasswordLayout.error ="Cannot Be Same"
-                                binding.newPasswordLayout.error ="Cannot Be Same"
+                                binding.currentPasswordLayout.error = "Cannot Be Same"
+                                binding.newPasswordLayout.error = "Cannot Be Same"
                                 binding.progressBar.visibility = View.GONE
                                 binding.submitButton.visibility = View.VISIBLE
                             } else {
@@ -66,19 +71,35 @@ class UpdatePasswordActivity : AppCompatActivity() {
                         } else {
                             Toast.makeText(this, "Failed to Update Password", Toast.LENGTH_SHORT)
                                 .show()
-                            binding.newPasswordLayout.error = "Password should contain atleast 6 letters"
-
                             binding.progressBar.visibility = View.GONE
                             binding.submitButton.visibility = View.VISIBLE
                         }
                     }
                 } else {
-                    binding.currentPasswordLayout.error = "Password should contain atleast 6 letters"
+                    if (binding.currentPassword.text.toString().length <= 6) {
+                        binding.currentPasswordLayout.error =
+                            "Password should contain atleast 6 letters"
+                    }
+                    else if (binding.newPassword.text.toString().length <= 6) {
+                        binding.currentPassword.error = null
+                        binding.newPasswordLayout.error = "Password should contain atleast 6 letters"
+                    }
+
+                    binding.progressBar.visibility = View.GONE
+                    binding.submitButton.visibility = View.VISIBLE
                 }
-            }
-            else{
-                binding.newPasswordLayout.error = "Cannot Be Empty"
-                binding.currentPasswordLayout.error = "Cannot Be Empty"
+            } else {
+                if (binding.currentPassword.text.toString().isEmpty()) {
+                    binding.currentPasswordLayout.error = "Cannot Be Empty"
+                }
+               else if (binding.newPassword.text.toString().isEmpty()) {
+                   binding.currentPassword.error = null
+                    binding.newPasswordLayout.error = "Cannot Be Empty"
+                }
+                binding.progressBar.visibility = View.GONE
+                binding.submitButton.visibility = View.VISIBLE
+
+
             }
         }
     }
