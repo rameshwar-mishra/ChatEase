@@ -17,6 +17,10 @@ import com.example.chatease.recyclerview_adapters.RecentChatAdapter
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -34,6 +38,8 @@ class MainActivity : AppCompatActivity() {
     // Firestore database instance to interact with Firestore database
     private val db = FirebaseFirestore.getInstance()
 
+    private val rtDB = FirebaseDatabase.getInstance()
+
     // RecyclerView for displaying recent chats
     private lateinit var recyclerView: RecyclerView
 
@@ -45,7 +51,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var chatUserIDs: MutableSet<String>
 
-    private lateinit var adapter : RecentChatAdapter
+    private lateinit var adapter: RecentChatAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,13 +79,10 @@ class MainActivity : AppCompatActivity() {
         adapter = RecentChatAdapter(this, recentChatDataList)
         recyclerView.adapter = adapter
 
-
         chatUserIDs = mutableSetOf()
 
         // Set up a Firestore listener to fetch chats for the current user
         listenForChatUpdates()
-
-        listenForUserProfileUpdates()
 
         // Set up the search button click listener to start the SearchActivity
         binding.floatingActionButtonSearch.setOnClickListener {
@@ -88,161 +91,186 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun listenForChatUpdates() {
-        // Set up a Firestore listener to fetch chats for the current user
-        db.collection("chats")
-            .whereArrayContains("participants", auth.currentUser!!.uid)
-            .addSnapshotListener { snapshot, error ->
-                // Handle any errors during the fetching of chats
-                if (error != null) {
-                    Log.d("MainActivity", "Error fetching chats: ${error.message}")
-                    return@addSnapshotListener
-                }
 
-                // Process document changes in the fetched snapshot
-                if (snapshot != null) {
-                    for (change in snapshot.documentChanges) {
-                        // Check the type of document change and update recent chat data accordingly
-                        updateRecentChatData(change)
+        rtDB.getReference("chats").orderByChild("participants/${auth.currentUser!!.uid}")
+            .equalTo(true)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    Log.d("CHAT_UPDATES", "WORKS")
+                    if (snapshot.exists()) {
+                        for (convo in snapshot.children) {
+                            updateRecentChatData(convo)
+                            Log.d("CHAT_UPDATES_LOOP", "WORKS")
+                            updateChatIDs(convo)
+                        }
 
-                        updateChatIDs(change.document)
                     }
                 }
-            }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("MainActivity", "Error fetching chats: ${error.message}")
+                }
+
+            })
     }
 
-    private fun updateChatIDs(document: DocumentSnapshot) {
-        val participants = document.get("participants") as List<String>
-        if (participants != null) {
-            chatUserIDs.addAll(participants) // This should work
+    private fun updateChatIDs(document: DataSnapshot) {
+        val participantsSnapshot = document.child("participants")
+        if (participantsSnapshot.exists()) {
+            for (participant in participantsSnapshot.children) {
+                chatUserIDs.add(participant.key!!)
+            }
+            listenForUserProfileUpdates()
         } else {
-            Log.d("MainActivity", "Participants list is null or not of type List<String>")
+            Log.d("MainActivity", "Participants list is null or empty")
         }
     }
 
     private fun listenForUserProfileUpdates() {
-        for (user in chatUserIDs) {
-            db.collection("users").document(user)
-                .addSnapshotListener { documentSnapshot, error ->
-                    if (error != null) {
-                        return@addSnapshotListener
-                    } else if (documentSnapshot != null && !documentSnapshot.exists()) {
-                        updateRecentChatsForUser(
-                            userID = documentSnapshot.id,
-                            userAvatar = documentSnapshot.getString("avatar") ?: "",
-                            userDisplayName = documentSnapshot.getString("displayName") ?: ""
-                        )
+        for (userID in chatUserIDs) {
+            Log.d("USER_PROFILE_UPDATES", "WORKS")
+            rtDB.getReference("chats").child(userID)
+                .addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        Log.d("USER_PROFILE_LISTENER_UPDATES", "WORKS")
+                        if (snapshot.exists()) {
+                            updateRecentChatsForUser(
+                                userID = userID,
+                                userAvatar = snapshot.child("avatar").getValue(String::class.java) ?: "",
+                                userDisplayName = snapshot.child("displayName").getValue(String::class.java) ?: ""
+                            )
+                        }
                     }
-                }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("MainActivity", "Error fetching user profile: ${error.message}")
+                    }
+
+                })
         }
     }
 
+    data class UserProfile(
+        val avatar: String,
+        val displayName: String
+    )
+
+    private val userProfileCache = mutableMapOf<String, UserProfile>()
+
     private fun updateRecentChatsForUser(userID: String, userAvatar: String, userDisplayName: String) {
-        for(chat in recentChatDataList) {
-            if(chat.id == userID) {
-                chat.avatar = userAvatar
-                chat.displayName= userDisplayName
-            }
-        }
-        adapter.notifyDataSetChanged()
+        // Update the local cache
+        userProfileCache[userID] = UserProfile(avatar = userAvatar, displayName = userDisplayName)
     }
 
     // Update the recent chat data based on the changes in Firestore documents
-    private fun updateRecentChatData(change: DocumentChange) {
+    private fun updateRecentChatData(snapshot: DataSnapshot) {
         // Extract chat details from the document
-        val lastMessage = change.document.getString("lastMessage") ?: ""
-        val lastMessageSender = change.document.getString("lastMessageSender") ?: ""
-        val lastMessageTimestamp = change.document.getTimestamp("lastMessageTimestamp") ?: Timestamp.now()
-        val formattedTimestamp = getRelativeTime(lastMessageTimestamp) // Format the timestamp for display
+        val lastMessage = snapshot.child("lastMessage").getValue(String::class.java) ?: ""
+        val lastMessageSender = snapshot.child("lastMessageSender").getValue(String::class.java) ?: ""
+        val lastMessageTimestamp =
+            (snapshot.child("lastMessageTimestamp").getValue(Long::class.java) ?: 0L) / 1000   // MiliSeconds to Seconds
+
+        val formattedTimestamp = getRelativeTime(Timestamp(lastMessageTimestamp, 0)) // Format the timestamp for display
 
         // Get participants of the chat and identify the current user and the other participant
-        val participants = change.document.get("participants") as List<String>
-        // Determine which participant is the current user and which is the other participant
-        val (thisParticipant, otherParticipant) = if (participants[0] == auth.currentUser?.uid) {
-            participants[0] to participants[1]  // Current user is first participant
-        } else {
-            participants[1] to participants[0]  // Current user is second participant
-        }
+        val participantsSnapshot = snapshot.child("participants")
+        val participants = participantsSnapshot.children.map { it.key }
+        val otherParticipant = participants.first { it != auth.currentUser!!.uid }
+        val thisParticipant = participants.first { it == auth.currentUser!!.uid }
 
+        Log.d("LAST_MESSAGE", lastMessage)
+        Log.d("LAST_MESSAGE_SENDER", lastMessage)
+        Log.d("LAST_MESSAGE_TIMESTAMP", formattedTimestamp)
+
+        Log.d("updateRecentChatData", "WORKS")
+
+        // Nested Database Fetch (Need to optimize later)
+
+        rtDB.getReference("users").child(otherParticipant!!)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+
+                    if (lastMessageSender == otherParticipant) {
+                        Log.d("updateRecentChatData_OTHER_PARTICIPANT", "WORKS")
+                        updateRecentChatDataList(
+                            userID = otherParticipant,
+                            displayName = snapshot.child("displayName").getValue(String::class.java) ?: "",
+                            avatarUrl = snapshot.child("avatar").getValue(String::class.java) ?: "",
+                            lastMessage = lastMessage,
+                            senderDisplayName = snapshot.child("displayName").getValue(String::class.java) ?: "",
+                            formattedTimestamp = formattedTimestamp,
+                            lastMessageTimestamp = lastMessageTimestamp
+                        )
+                    } else {
+                        Log.d("updateRecentChatData_THIS_PARTICIPANT", "WORKS")
+                        updateRecentChatDataList(
+                            userID = otherParticipant!!,
+                            displayName = snapshot.child("displayName").getValue(String::class.java) ?: "",
+                            avatarUrl = snapshot.child("avatar").getValue(String::class.java) ?: "",
+                            lastMessage = lastMessage,
+                            senderDisplayName = "You",
+                            formattedTimestamp = formattedTimestamp,
+                            lastMessageTimestamp = lastMessageTimestamp
+                        )
+                    }
+
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+
+                }
+
+            })
         // Fetch user details of both participants based on the last message sender
-        var userDetailsTasks: List<Any>
-        if (lastMessageSender == otherParticipant) {
-            userDetailsTasks = listOf(
-                db.collection("users").document(otherParticipant)
-                    .get()  // Get only other participant details if they sent the last message
+        // Use the cached user data in userProfileCache
+
+
+    }
+
+
+    private fun updateRecentChatDataList(
+        userID: String,
+        displayName: String,
+        avatarUrl: String,
+        lastMessage: String,
+        senderDisplayName: String,
+        formattedTimestamp: String,
+        lastMessageTimestamp: Long
+    ) {
+        // Check if chat already exists, update if necessary, or add a new entry
+        val existingChatIndex = recentChatDataList.indexOfFirst { it.id == userID }
+
+        if (existingChatIndex != -1) {
+            // Update existing chat
+            recentChatDataList[existingChatIndex] = RecentChatData(
+                id = userID,
+                displayName = displayName,
+                avatar = avatarUrl,
+                lastMessage = lastMessage,
+                lastMessageSender = senderDisplayName,
+                lastMessageTimeStamp = formattedTimestamp,
+                timestamp = lastMessageTimestamp.toString()
             )
         } else {
-            // Get details for both participants if the current user sent the last message
-            userDetailsTasks = listOf(
-                db.collection("users").document(otherParticipant).get(),
-                db.collection("users").document(thisParticipant).get()
+            // Add new chat entry
+            recentChatDataList.add(
+                RecentChatData(
+                    id = userID,
+                    displayName = displayName,
+                    avatar = avatarUrl,
+                    lastMessage = lastMessage,
+                    lastMessageSender = senderDisplayName,
+                    lastMessageTimeStamp = formattedTimestamp,
+                    timestamp = lastMessageTimestamp.toString()
+                )
             )
         }
 
-        // Wait for all user detail fetch tasks to complete
-        Tasks.whenAllComplete(userDetailsTasks).addOnCompleteListener { taskList ->
-            if (taskList.isSuccessful) {
-                // Extract user details from the fetched results
-                val otherUserDetails = userDetailsTasks[0].result
-                var currentUserDetails: DocumentSnapshot? = null
-                var actualLastMessageSender: String
+        // Sort chats by timestamp if needed
+        recentChatDataList.sortByDescending { it.timestamp }
 
-                // Determine the actual last message sender's username
-                if (lastMessageSender == otherParticipant) {
-                    actualLastMessageSender =
-                        otherUserDetails.getString("displayName") ?: "" // Get username of other participant
-                } else {
-                    currentUserDetails = userDetailsTasks[1].result // Get current user details
-                    actualLastMessageSender =
-                        currentUserDetails.getString("displayName") ?: "" // Get username of current user
-                }
-
-                // Fetch display name and avatar of the other participant
-                val displayName = otherUserDetails.getString("displayName") ?: ""
-                val avatar = otherUserDetails.getString("avatar") ?: ""
-                val userName = otherUserDetails.getString("displayName") ?: ""
-
-                // Create a RecentChatData object with the fetched data for the chat
-                val recentChatData = RecentChatData(
-                    id = otherParticipant,
-                    userName = userName,
-                    displayName = displayName,
-                    avatar = avatar,
-                    lastMessage = lastMessage,
-                    lastMessageSender = actualLastMessageSender,
-                    lastMessageTimeStamp = formattedTimestamp,
-                    timestamp = lastMessageTimestamp
-                )
-
-                // Update the recent chat data list based on the type of document change
-                when (change.type) {
-                    DocumentChange.Type.ADDED -> {
-                        // Add new chat data to the beginning of the list
-                        recentChatDataList.add(recentChatData)
-                    }
-
-                    DocumentChange.Type.MODIFIED -> {
-                        // Store modified chat data to update later
-                        val index = recentChatDataList.indexOfFirst { it.id == recentChatData.id }
-                        if (index != -1) {
-                            recentChatDataList[index] = recentChatData
-                        }
-                        modifiedChatData = recentChatData
-                    }
-
-                    DocumentChange.Type.REMOVED -> {
-                        // Currently not implemented for removed chats
-                    }
-                }
-
-                recentChatDataList.sortByDescending { it.timestamp }
-
-                // Notify the adapter that the data has changed to update the RecyclerView
-                recyclerView.adapter?.notifyDataSetChanged()
-            } else {
-                // Log error if fetching user details failed
-                Log.e("MainActivity", "Error fetching user details: ${taskList.exception?.message}")
-            }
-        }
+        // Notify the adapter about the data change
+        adapter.notifyDataSetChanged()
     }
 
     // Inflate the options menu for the activity
@@ -288,4 +316,3 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
-

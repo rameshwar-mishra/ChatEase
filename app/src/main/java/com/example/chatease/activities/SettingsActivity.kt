@@ -25,6 +25,9 @@ import com.example.chatease.databinding.ActivitySettingsBinding
 import com.example.chatease.dataclass.UserDataSettings
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ServerValue
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
 import com.squareup.picasso.Picasso
@@ -35,6 +38,7 @@ import java.io.File
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding // View binding for accessing UI elements
     private val db = Firebase.firestore // Firestore database reference
+    private val rtDB = FirebaseDatabase.getInstance() // Firebase Realtime Database database reference
     private val auth = FirebaseAuth.getInstance() // Firebase Authentication instance
     private val storage = FirebaseStorage.getInstance().reference // Firebase Storage reference
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent> // Activity result launcher for image picking
@@ -84,7 +88,7 @@ class SettingsActivity : AppCompatActivity() {
                     userBio = snapshot.getString("userBio") ?: ""
 
                     // Loading user avatar into ImageView using Glide
-                    if(!isFinishing && !isDestroyed) {
+                    if (!isFinishing && !isDestroyed) {
                         Glide.with(this@SettingsActivity)
                             .load(userAvatar)
                             .placeholder(R.drawable.vector_default_user_avatar) // Placeholder image while loading
@@ -94,9 +98,9 @@ class SettingsActivity : AppCompatActivity() {
 
                     // Setting text fields with user data
                     binding.editTextUserName.setText(userName)
-                    Log.d("Username",userName)
+                    Log.d("Username", userName)
                     binding.editTextDisplayName.setText(userDisplayName)
-                    Log.d("Username",userDisplayName)
+                    Log.d("Username", userDisplayName)
                     binding.editTextUserBio.setText(userBio)
                 }
             }
@@ -152,8 +156,22 @@ class SettingsActivity : AppCompatActivity() {
 
         // Setting onClickListener for sign out button
         binding.signOutButton.setOnClickListener {
-            auth.signOut() // Signing out the user
-            startActivity(Intent(this@SettingsActivity, SignInActivity::class.java)) // Navigating to SignInActivity
+            // Signing out the user
+            rtDB.getReference("users/${auth.currentUser!!.uid}")
+                .updateChildren(
+                mapOf(
+                    "status" to "Offline",
+                    "lastHeartBeat" to ServerValue.TIMESTAMP
+                )
+            ).addOnSuccessListener {
+                auth.signOut()
+                startActivity(Intent(this@SettingsActivity, SignInActivity::class.java)) // Navigating to SignInActivity
+                finish()
+            }.addOnFailureListener { e ->
+                Toast.makeText(this@SettingsActivity, "Failed to update status. Please try again.", Toast.LENGTH_LONG).show()
+                Log.e("StatusUpdateError", e.toString())
+            }
+
         }
 
         // Setting onClickListener for avatar frame to choose an image
