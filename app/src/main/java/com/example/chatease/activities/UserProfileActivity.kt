@@ -12,10 +12,12 @@ import com.bumptech.glide.Glide
 import com.example.chatease.R
 import com.example.chatease.databinding.ActivityUserProfileBinding
 import com.google.firebase.Firebase
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.firestore
 
 class UserProfileActivity : AppCompatActivity() {
     private val db = Firebase.firestore // Initialize Firestore database instance
+    private val rtDb = FirebaseDatabase.getInstance()
     private var userId: String = "" // Variable to store the user ID
     private lateinit var binding: ActivityUserProfileBinding // View binding for UserProfileActivity layout
 
@@ -40,25 +42,28 @@ class UserProfileActivity : AppCompatActivity() {
         userId = intent.getStringExtra("id") ?: "" // Get the user ID from the intent extras
 
         // Fetch user data from Firestore using the user ID
-        db.collection("users").document(userId).get()
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) { // Check if Firestore data retrieval was successful
-                    val userName = task.result.getString("userName") ?: "" // Get username from Firestore document
-                    val displayName = task.result.getString("displayName") ?: "" // Get display name with default value
-                    val userAvatar = task.result.getString("avatar") ?: "" // Get avatar URL from Firestore
-                    val userBio = task.result.getString("userBio") ?: "" // Get user bio from Firestore
 
-                    // Load avatar image into ImageView using Glide, with a default placeholder
+        rtDb.getReference("users").child(userId).get().addOnCompleteListener { task ->
+            if (task.isSuccessful) { // Check if Firestore data retrieval was successful
+                val userName = task.result.child("userName").getValue(String::class.java) ?: "" // Get
+                val displayName = task.result.child("displayName").getValue(String::class.java) ?: ""
+                val userAvatar = task.result.child("avatar").getValue(String::class.java)?: "" // Get
+                val userBio = task.result.child("userBio").getValue(String::class.java) ?: "" // Get e
+
+                // Load avatar image into ImageView using Glide, with a default placeholder
+                if(!isDestroyed && !isFinishing){
                     Glide.with(this@UserProfileActivity)
                         .load(userAvatar)
                         .placeholder(R.drawable.vector_default_user_avatar)
                         .into(binding.userProfilePic)
-
-                    binding.userName.text = "@$userName" // Set username text in UI
-                    binding.displayName.text = displayName // Set display name text in UI
-                    binding.textViewBioText.text = userBio // Set user bio text in UI
                 }
+
+                binding.userName.text = "@$userName" // Set username text in UI
+                binding.displayName.text = displayName // Set display name text in UI
+                binding.textViewBioText.text = userBio // Set user bio text in UI
             }
+        }
+
 
         val userFromChatActivity = intent.getBooleanExtra("userFromChatActivity", false) // Check if user came from ChatActivity
 

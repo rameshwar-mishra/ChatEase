@@ -20,103 +20,149 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <FrameLayout
-        android:id="@+id/frameUserAvatar"
-        android:layout_width="@dimen/_70sdp"
-        android:layout_height="@dimen/_70sdp"
-        android:layout_marginTop="@dimen/_60sdp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/main">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/_50sdp"
+        >
 
-        <com.makeramen.roundedimageview.RoundedImageView
-            android:id="@+id/userAvatar"
-            android:layout_width="@dimen/_70sdp"
-            android:layout_height="@dimen/_70sdp"
-            android:scaleType="centerCrop"
-            android:src="@color/black"
-            app:riv_oval="true" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:id="@+id/frameUserAvatar"
+                android:layout_width="@dimen/_70sdp"
+                android:layout_height="@dimen/_70sdp"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/_40sdp"
+                >
+
+                <com.makeramen.roundedimageview.RoundedImageView
+                    android:id="@+id/userAvatar"
+                    android:layout_width="@dimen/_70sdp"
+                    android:layout_height="@dimen/_70sdp"
+                    android:scaleType="centerCrop"
+                    android:src="@color/black"
+                    app:riv_oval="true" />
+            </FrameLayout>
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayoutDisplayName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/_13sdp"
+                android:layout_marginLeft="@dimen/_13sdp"
+                android:layout_marginBottom="@dimen/_13sdp"
+                android:layout_marginTop="@dimen/_30sdp"
+                android:hint="Display Name"
+                app:counterEnabled="true"
+                app:counterMaxLength="30"
+                app:helperTextTextAppearance="@style/HelperTextStyle"
+                app:hintTextAppearance="@style/HelperTextStyle"
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTextDisplayName"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Goku"
+                    android:textSize="@dimen/_13sdp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayoutUserName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/_13sdp"
+                android:layout_marginLeft="@dimen/_13sdp"
+                android:layout_marginBottom="@dimen/_13sdp"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:hint="Username"
+                app:counterEnabled="true"
+                app:counterMaxLength="30"
+                app:helperTextTextAppearance="@style/HelperTextStyle"
+                app:hintTextAppearance="@style/HintTextStyle"
+                tools:layout_editor_absoluteX="13dp"
+                tools:layout_editor_absoluteY="357dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTextUserName"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="goku"
+                    android:textSize="@dimen/_13sdp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayoutUserBio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/_13sdp"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:layout_marginRight="@dimen/_13sdp"
+                android:layout_marginBottom="@dimen/_13sdp"
+                android:hint="Bio"
+                app:counterEnabled="true"
+                app:counterMaxLength="100"
+                app:helperTextTextAppearance="@style/HelperTextStyle"
+                app:hintTextAppearance="@style/HintTextStyle"
+                tools:layout_editor_absoluteX="16dp"
+                tools:layout_editor_absoluteY="482dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTextUserBio"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Goku"
+                    android:textSize="@dimen/_13sdp" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <FrameLayout
+                android:id="@+id/frameLayoutApplyButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/_20sdp"
+                android:layout_gravity="center"
+                >
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/applyChangesButton"
+                    android:layout_width="@dimen/_160sdp"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#FF5722"
+                    android:text="Apply Changes"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_13ssp"
+                    app:cornerRadius="0dp"
+                    tools:layout_editor_absoluteX="133dp"
+                    tools:layout_editor_absoluteY="655dp" />
+                <ProgressBar
+                    android:id="@+id/applyButtonProgressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true"
+                    android:layout_gravity="center"
+                    android:indeterminateTint="@color/dodger_blue"
+                    android:visibility="gone"
+                    />
+            </FrameLayout>
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/changePasswordButton"
+                android:layout_width="@dimen/_160sdp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:backgroundTint="#FF5722"
+                android:text="Change Password"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_13ssp"
+                app:cornerRadius="0dp" />
+        </LinearLayout>
+
+
     </FrameLayout>
 
-    <EditText
-        android:id="@+id/editTextDisplayName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="204dp"
-        android:background="@drawable/toolbarborderlayout"
-        android:outlineSpotShadowColor="@color/red"
-        android:padding="@dimen/_10sdp"
-        android:text="Display Name"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/main" />
-
-    <EditText
-        android:id="@+id/editTextUserName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="34dp"
-        android:background="@drawable/toolbarborderlayout"
-        android:outlineSpotShadowColor="@color/red"
-        android:padding="@dimen/_10sdp"
-        android:text="Username"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextDisplayName" />
-
-    <EditText
-        android:id="@+id/editTextUserBio"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="35dp"
-        android:background="@drawable/toolbarborderlayout"
-        android:outlineSpotShadowColor="@color/red"
-        android:padding="@dimen/_10sdp"
-        android:text="Change the Bio"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextUserName" />
-
-    <FrameLayout
-        android:id="@+id/frameLayoutApplyButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="65dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextUserBio">
-
-        <Button
-            android:id="@+id/applyChangesButton"
-            android:layout_width="@dimen/_120sdp"
-            android:layout_height="wrap_content"
-            android:backgroundTint="#2AA545"
-            android:text="Apply Changes"
-            android:textColor="@color/white"
-            app:cornerRadius="0dp" />
-
-        <ProgressBar
-            android:id="@+id/applyButtonProgressBar"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_gravity="center"
-            android:indeterminate="true"
-            android:indeterminateTint="@color/dodger_blue"
-            android:visibility="gone" />
-
-    </FrameLayout>
-
-
-    <Button
-        android:id="@+id/signOutButton"
-        android:layout_width="@dimen/_120sdp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:backgroundTint="#FF5722"
-        android:text="Sign Out"
-        android:textColor="@color/white"
-        app:cornerRadius="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/frameLayoutApplyButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

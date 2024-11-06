@@ -17,11 +17,14 @@ import com.example.chatease.recyclerview_adapters.SearchUserAdapter
 import com.example.chatease.dataclass.SearchUserData
 import com.example.chatease.databinding.ActivitySearchBinding
 import com.google.firebase.Firebase
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.firestore
 
 class SearchActivity : AppCompatActivity() {
     // Initialize Firestore database instance
-    val db = Firebase.firestore
+    private val db = Firebase.firestore
+    private val rtDB = FirebaseDatabase.getInstance()
+
     lateinit var recyclerView: RecyclerView
     // Handler to manage search delay to enhance performance and prevent redundant queries
     private val handler = Handler(Looper.getMainLooper())
@@ -80,21 +83,22 @@ class SearchActivity : AppCompatActivity() {
 
                                 if (query.isNotEmpty()) {
                                     // Perform Firestore query for user search
-                                    db.collection("users")
-                                        .whereGreaterThanOrEqualTo("userName", query)
-                                        .whereLessThan("userName", upperBoundQuery)
+                                    rtDB.getReference("users").orderByChild("userName")
+                                        .startAt(query)
+                                        .endAt(upperBoundQuery)
                                         .get()
                                         .addOnCompleteListener { search ->
                                             binding.progressBar.visibility = View.INVISIBLE // Hide loading indicator
                                             searchUserList.clear() // Clear previous search results
 
-                                            if (search.isSuccessful && search.result.size() > 0) {
+                                            if (search.isSuccessful ) {
                                                 // Loop through results and add to the list if found
-                                                for (document in search.result) {
-                                                    val userID = document.id // Get user ID
-                                                    val userName = document.getString("userName") ?: "" // Get username
-                                                    val displayName = document.getString("displayname") ?: "" // Get display name
-                                                    val userAvatar = document.getString("avatar") ?: "" // Get user avatar
+
+                                                for (document in search.result.children) {
+                                                    val userID = document.key ?: "" // Get user ID
+                                                    val userName = document.child("userName").getValue(String::class.java) ?: "" // Get username
+                                                    val displayName = document.child("displayName").getValue(String::class.java) ?: "" // Get display name
+                                                    val userAvatar = document.child("avatar").getValue(String::class.java) ?: "" // Get user avatar
                                                     val userProfile = SearchUserData(userName, displayName, userID, userAvatar) // Create user data object
                                                     searchUserList.add(userProfile) // Add user object to results list
                                                 }
@@ -104,6 +108,31 @@ class SearchActivity : AppCompatActivity() {
                                             }
                                             adapter.notifyDataSetChanged() // Update UI with search results
                                         }
+
+//                                    db.collection("users")
+//                                        .whereGreaterThanOrEqualTo("userName", query)
+//                                        .whereLessThan("userName", upperBoundQuery)
+//                                        .get()
+//                                        .addOnCompleteListener { search ->
+//                                            binding.progressBar.visibility = View.INVISIBLE // Hide loading indicator
+//                                            searchUserList.clear() // Clear previous search results
+//
+//                                            if (search.isSuccessful && search.result.size() > 0) {
+//                                                // Loop through results and add to the list if found
+//                                                for (document in search.result) {
+//                                                    val userID = document.id // Get user ID
+//                                                    val userName = document.getString("userName") ?: "" // Get username
+//                                                    val displayName = document.getString("displayname") ?: "" // Get display name
+//                                                    val userAvatar = document.getString("avatar") ?: "" // Get user avatar
+//                                                    val userProfile = SearchUserData(userName, displayName, userID, userAvatar) // Create user data object
+//                                                    searchUserList.add(userProfile) // Add user object to results list
+//                                                }
+//                                                adapter.updateSearchState(true) // Notify adapter that results are available
+//                                            } else {
+//                                                adapter.updateSearchState(false) // Notify adapter of no results found
+//                                            }
+//                                            adapter.notifyDataSetChanged() // Update UI with search results
+//                                        }
                                 } else {
                                     // Clear results if query is empty after '@' and refresh adapter
                                     binding.progressBar.visibility = View.INVISIBLE // Hide loading indicator

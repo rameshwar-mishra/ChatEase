@@ -49,6 +49,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
+    implementation(libs.firebase.database)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -68,4 +69,8 @@ dependencies {
 
     // Native version of uCrop (Image Cropping Library for Android) for enhanced image quality
     implementation("com.github.yalantis:ucrop:2.2.8-native")
+
+    // Libraries of LifeCycle Observer
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1") // For Latest versions
+    implementation("androidx.lifecycle:lifecycle-extensions:2.2.0") // For older versions
 }

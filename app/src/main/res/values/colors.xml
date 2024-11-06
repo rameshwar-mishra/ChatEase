@@ -43,4 +43,6 @@
     <color name="icon_color">#000000</color>
     <color name="textColors">#000000</color>
     <color name="signUpCardView">#FFFFFF</color>
+    <color name="backgroundColor">@color/white</color>
+
 </resources>

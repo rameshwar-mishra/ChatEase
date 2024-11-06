@@ -34,7 +34,7 @@ class RecentChatAdapter(
     override fun onBindViewHolder(holder: RecentChatViewHolder, position: Int) {
         holder.binding.apply {
             // Set the username and last message timestamp
-            userName.text = recentChatDataList[position].userName
+            displayName.text = recentChatDataList[position].displayName
             userLastMessageTimeStamp.text = recentChatDataList[position].lastMessageTimeStamp
 
             // Create a formatted string for the last message
@@ -60,9 +60,6 @@ class RecentChatAdapter(
                 val intent = Intent(context, ChatActivity::class.java)
                 intent.apply {
                     putExtra("id", recentChatDataList[position].id)
-                    putExtra("username", recentChatDataList[position].userName)
-                    putExtra("displayname", recentChatDataList[position].displayName)
-                    putExtra("avatar", recentChatDataList[position].avatar)
                 }
                 context.startActivity(intent) // Start the chat activity
             }

@@ -84,7 +84,8 @@ class SearchUserAdapter(
 
             // If holder is UserProfileViewHolder, bind user data
             // Load profile image
-            holder.binding.textViewUserName.text = userData[position].userName
+            holder.binding.textViewUserName.text = "@${userData[position].userName}"
+            holder.binding.textViewDisplayName.text = userData[position].displayName
 
             Glide.with(holder.binding.roundedImageView.context)
                 .load(userData[position].userAvatar)

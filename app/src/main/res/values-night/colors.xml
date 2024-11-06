@@ -43,4 +43,5 @@
     <color name="textColors">#FFFFFF</color>
     <color name="item_background">@android:color/transparent</color>
     <color name="signUpCardView">#0E0202</color>
+    <color name="backgroundColor">#000014</color>
 </resources>
