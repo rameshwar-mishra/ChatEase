@@ -14,15 +14,12 @@ import com.example.chatease.R
 import com.example.chatease.databinding.ActivityMainBinding
 import com.example.chatease.dataclass.RecentChatData
 import com.example.chatease.recyclerview_adapters.RecentChatAdapter
-import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.firestore.DocumentChange
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -59,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         // Inflate the layout and set it as the content view using view binding
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        resources
         // Set up window insets to ensure layout is not obscured by system bars (like status bar)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -96,11 +93,9 @@ class MainActivity : AppCompatActivity() {
             .equalTo(true)
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    Log.d("CHAT_UPDATES", "WORKS")
                     if (snapshot.exists()) {
                         for (convo in snapshot.children) {
                             updateRecentChatData(convo)
-                            Log.d("CHAT_UPDATES_LOOP", "WORKS")
                             updateChatIDs(convo)
                         }
 
@@ -128,11 +123,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun listenForUserProfileUpdates() {
         for (userID in chatUserIDs) {
-            Log.d("USER_PROFILE_UPDATES", "WORKS")
             rtDB.getReference("chats").child(userID)
                 .addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        Log.d("USER_PROFILE_LISTENER_UPDATES", "WORKS")
                         if (snapshot.exists()) {
                             updateRecentChatsForUser(
                                 userID = userID,
@@ -163,54 +156,51 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Update the recent chat data based on the changes in Firestore documents
-    private fun updateRecentChatData(snapshot: DataSnapshot) {
+    private fun updateRecentChatData(documentMetaData: DataSnapshot) {
         // Extract chat details from the document
-        val lastMessage = snapshot.child("lastMessage").getValue(String::class.java) ?: ""
-        val lastMessageSender = snapshot.child("lastMessageSender").getValue(String::class.java) ?: ""
+        val lastMessage = documentMetaData.child("lastMessage").getValue(String::class.java) ?: ""
+        val lastMessageSender = documentMetaData.child("lastMessageSender").getValue(String::class.java) ?: ""
         val lastMessageTimestamp =
-            (snapshot.child("lastMessageTimestamp").getValue(Long::class.java) ?: 0L) / 1000   // MiliSeconds to Seconds
+            (documentMetaData.child("lastMessageTimestamp").getValue(Long::class.java) ?: 0L) / 1000   // MiliSeconds to Seconds
 
         val formattedTimestamp = getRelativeTime(Timestamp(lastMessageTimestamp, 0)) // Format the timestamp for display
 
         // Get participants of the chat and identify the current user and the other participant
-        val participantsSnapshot = snapshot.child("participants")
+        val participantsSnapshot = documentMetaData.child("participants")
         val participants = participantsSnapshot.children.map { it.key }
         val otherParticipant = participants.first { it != auth.currentUser!!.uid }
-        val thisParticipant = participants.first { it == auth.currentUser!!.uid }
-
-        Log.d("LAST_MESSAGE", lastMessage)
-        Log.d("LAST_MESSAGE_SENDER", lastMessage)
-        Log.d("LAST_MESSAGE_TIMESTAMP", formattedTimestamp)
-
-        Log.d("updateRecentChatData", "WORKS")
+//        val thisParticipant = participants.first { it == auth.currentUser!!.uid }
 
         // Nested Database Fetch (Need to optimize later)
 
         rtDB.getReference("users").child(otherParticipant!!)
             .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-
+                override fun onDataChange(userData: DataSnapshot) {
+                    Log.d("ID", "unRead_By_${auth.currentUser!!.uid}")
+                    Log.d("HasRead", "${documentMetaData.child("unRead_By_${auth.currentUser!!.uid}").getValue(Boolean::class.java)}")
                     if (lastMessageSender == otherParticipant) {
-                        Log.d("updateRecentChatData_OTHER_PARTICIPANT", "WORKS")
                         updateRecentChatDataList(
                             userID = otherParticipant,
-                            displayName = snapshot.child("displayName").getValue(String::class.java) ?: "",
-                            avatarUrl = snapshot.child("avatar").getValue(String::class.java) ?: "",
+                            displayName = userData.child("displayName").getValue(String::class.java) ?: "",
+                            avatarUrl = userData.child("avatar").getValue(String::class.java) ?: "",
                             lastMessage = lastMessage,
-                            senderDisplayName = snapshot.child("displayName").getValue(String::class.java) ?: "",
+                            senderDisplayName = userData.child("displayName").getValue(String::class.java) ?: "",
                             formattedTimestamp = formattedTimestamp,
-                            lastMessageTimestamp = lastMessageTimestamp
+                            lastMessageTimestamp = lastMessageTimestamp,
+                            isLastMessageReadByMe = documentMetaData.child("unRead_By_${auth.currentUser!!.uid}")
+                                .getValue(Boolean::class.java) ?: true
                         )
                     } else {
-                        Log.d("updateRecentChatData_THIS_PARTICIPANT", "WORKS")
                         updateRecentChatDataList(
                             userID = otherParticipant!!,
-                            displayName = snapshot.child("displayName").getValue(String::class.java) ?: "",
-                            avatarUrl = snapshot.child("avatar").getValue(String::class.java) ?: "",
+                            displayName = userData.child("displayName").getValue(String::class.java) ?: "",
+                            avatarUrl = userData.child("avatar").getValue(String::class.java) ?: "",
                             lastMessage = lastMessage,
                             senderDisplayName = "You",
                             formattedTimestamp = formattedTimestamp,
-                            lastMessageTimestamp = lastMessageTimestamp
+                            lastMessageTimestamp = lastMessageTimestamp,
+                            isLastMessageReadByMe = documentMetaData.child("unRead_By_${auth.currentUser!!.uid}")
+                                .getValue(Boolean::class.java) ?: true
                         )
                     }
 
@@ -235,7 +225,8 @@ class MainActivity : AppCompatActivity() {
         lastMessage: String,
         senderDisplayName: String,
         formattedTimestamp: String,
-        lastMessageTimestamp: Long
+        lastMessageTimestamp: Long,
+        isLastMessageReadByMe: Boolean
     ) {
         // Check if chat already exists, update if necessary, or add a new entry
         val existingChatIndex = recentChatDataList.indexOfFirst { it.id == userID }
@@ -249,7 +240,8 @@ class MainActivity : AppCompatActivity() {
                 lastMessage = lastMessage,
                 lastMessageSender = senderDisplayName,
                 lastMessageTimeStamp = formattedTimestamp,
-                timestamp = lastMessageTimestamp.toString()
+                timestamp = lastMessageTimestamp.toString(),
+                isLastMessageReadByMe = isLastMessageReadByMe
             )
         } else {
             // Add new chat entry
@@ -261,7 +253,8 @@ class MainActivity : AppCompatActivity() {
                     lastMessage = lastMessage,
                     lastMessageSender = senderDisplayName,
                     lastMessageTimeStamp = formattedTimestamp,
-                    timestamp = lastMessageTimestamp.toString()
+                    timestamp = lastMessageTimestamp.toString(),
+                    isLastMessageReadByMe = isLastMessageReadByMe
                 )
             )
         }
