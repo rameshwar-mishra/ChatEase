@@ -29,6 +29,28 @@ class UpdatePasswordActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enable back button on toolbar
         supportActionBar?.title = ""
         val user = FirebaseAuth.getInstance().currentUser
+        binding.currentPassword.setOnFocusChangeListener { v, hasFocus ->
+            if (!hasFocus) {
+                if (binding.currentPassword.text.toString().isEmpty()) {
+                    binding.currentPasswordLayout.error = "Cannot Be Empty"
+                } else if (binding.currentPassword.text.toString().length < 6) {
+                    binding.currentPasswordLayout.error = "Password Must be more than 6 Characters"
+                } else {
+                    binding.currentPasswordLayout.error = null
+                }
+            }
+        }
+        binding.newPassword.setOnFocusChangeListener { v, hasFocus ->
+            if (!hasFocus) {
+                if (binding.newPassword.text.toString().isEmpty()) {
+                    binding.newPasswordLayout.error = "Cannot Be Empty"
+                } else if (binding.newPassword.text.toString().length < 6) {
+                    binding.newPasswordLayout.error = "Password Must be more than 6 Characters"
+                } else {
+                    binding.newPasswordLayout.error = null
+                }
+            }
+        }
         binding.submitButton.setOnClickListener {
             binding.submitButton.visibility = View.INVISIBLE
             binding.progressBar.visibility = View.VISIBLE
@@ -62,6 +84,8 @@ class UpdatePasswordActivity : AppCompatActivity() {
                                                 "Password Successfully Changed",
                                                 Toast.LENGTH_SHORT
                                             ).show()
+                                            binding.currentPassword.error = null
+                                            binding.newPasswordLayout.error = null
                                             binding.progressBar.visibility = View.GONE
                                             binding.submitButton.visibility = View.VISIBLE
                                         }
@@ -69,6 +93,8 @@ class UpdatePasswordActivity : AppCompatActivity() {
                             }
 
                         } else {
+                            binding.currentPassword.error = null
+                            binding.newPasswordLayout.error = null
                             Toast.makeText(this, "Failed to Update Password", Toast.LENGTH_SHORT)
                                 .show()
                             binding.progressBar.visibility = View.GONE
@@ -76,25 +102,36 @@ class UpdatePasswordActivity : AppCompatActivity() {
                         }
                     }
                 } else {
-                    if (binding.currentPassword.text.toString().length <= 6) {
+                    if (binding.currentPassword.text.toString().length <= 5 && binding.newPassword.text.toString().length <= 5) {
                         binding.currentPasswordLayout.error =
                             "Password should contain atleast 6 letters"
+                        binding.newPasswordLayout.error =
+                            "Password should contain atleast 6 letters"
                     }
-                    else if (binding.newPassword.text.toString().length <= 6) {
-                        binding.currentPassword.error = null
-                        binding.newPasswordLayout.error = "Password should contain atleast 6 letters"
+                    if (binding.newPassword.text.toString().length <= 5 && binding.currentPassword.text.toString().length > 5) {
+
+                        binding.newPasswordLayout.error =
+                            "Password should contain atleast 6 letters"
+                    } else {
+                        binding.currentPasswordLayout.error =
+                            "Password should contain atleast 6 letters"
                     }
 
                     binding.progressBar.visibility = View.GONE
                     binding.submitButton.visibility = View.VISIBLE
                 }
             } else {
-                if (binding.currentPassword.text.toString().isEmpty()) {
+                if (binding.currentPassword.text.toString()
+                        .isEmpty() && binding.newPassword.text.toString().isEmpty()
+                ) {
                     binding.currentPasswordLayout.error = "Cannot Be Empty"
-                }
-               else if (binding.newPassword.text.toString().isEmpty()) {
-                   binding.currentPassword.error = null
                     binding.newPasswordLayout.error = "Cannot Be Empty"
+                } else if (binding.newPassword.text.toString()
+                        .isEmpty() && binding.currentPassword.text.toString().isNotEmpty()
+                ) {
+                    binding.newPasswordLayout.error = "Cannot Be Empty"
+                } else {
+                    binding.currentPasswordLayout.error = "Cannot Be Empty"
                 }
                 binding.progressBar.visibility = View.GONE
                 binding.submitButton.visibility = View.VISIBLE
@@ -104,3 +141,5 @@ class UpdatePasswordActivity : AppCompatActivity() {
         }
     }
 }
+
+
