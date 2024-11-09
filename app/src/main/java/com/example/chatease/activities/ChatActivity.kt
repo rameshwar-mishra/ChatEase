@@ -1,5 +1,6 @@
 package com.example.chatease.activities
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -21,6 +22,7 @@ import com.example.chatease.databinding.ActivityChatBinding
 import com.example.chatease.dataclass.MessageUserData
 import com.example.chatease.recyclerview_adapters.ChatAdapter
 import com.google.firebase.Firebase
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -28,13 +30,13 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.firestore.DocumentChange
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+
 
 // ChatActivity handles the chat screen functionality
 class ChatActivity : AppCompatActivity() {
@@ -55,7 +57,7 @@ class ChatActivity : AppCompatActivity() {
 
     // List to hold message data
     private var messagesList = mutableListOf<MessageUserData>()
-
+    var lastHeartBeatTime :Long = 0
     private val token = 1 // Token for activity result
     private var otherUserId: String? = "" // ID of the other user in the chat
 
@@ -104,8 +106,16 @@ class ChatActivity : AppCompatActivity() {
                 if (snapshot.exists()) {
                     // Setting the display name from intent extra
                     binding.textViewDisplayName.text = snapshot.child("displayName").getValue(String::class.java) ?: ""
-                    binding.textViewUserPresenceStatus.text =
-                        snapshot.child("status").getValue(String::class.java) ?: "Offline"
+
+                    if (snapshot.child("status").getValue(String::class.java) == "Offline") {
+                         lastHeartBeatTime = (snapshot.child("lastHeartBeat").getValue(Long::class.java) ?: 0L) / 1000
+
+                        binding.textViewUserPresenceStatus.text ="Last Seen at " +
+                            getRelativeTime(Timestamp(lastHeartBeatTime, 0)) // Format the timestamp for display
+                    } else {
+                        binding.textViewUserPresenceStatus.text = snapshot.child("status").getValue(String::class.java)
+                    }
+
                     // Loading the user's avatar image using Glide library
                     val avatar = snapshot.child("avatar").getValue(String::class.java)
 
@@ -295,51 +305,13 @@ class ChatActivity : AppCompatActivity() {
 
             })
 
-//        db.collection("chats").document(conversationID).collection("messages")
-//            .orderBy("timestamp") // Ordering messages by timestamp
-//            .addSnapshotListener { snapshot, error ->
-//                if (error != null) {
-//                    Log.d("LoadMessages", error.toString()) // Logging the error if any
-//                    return@addSnapshotListener
-//                } else if (snapshot != null && !snapshot.isEmpty) {
-//                    // Loop through each document change
-//                    for (message in snapshot.documentChanges) {
-//                        when (message.type) {
-//                            DocumentChange.Type.ADDED -> {
-//                                // Extracting data from the message document
-//                                val sender = message.document.getString("sender") ?: ""
-//                                val content = message.document.getString("content") ?: ""
-//                                val timestamp = message.document.getTimestamp("timestamp")?.toDate() ?: Date()
-//                                // Formatting the timestamp to a readable string
-//                                val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
-//                                formatter.timeZone = TimeZone.getDefault()
-//                                val formattedTimeStamp = formatter.format(timestamp)
-//                                // Creating a MessageUserData object
-//                                val messageObject = MessageUserData(sender, content, formattedTimeStamp)
-//                                // Adding the message to the list and notifying the adapter
-//                                messagesList.add(messageObject)
-//                                adapter.notifyDataSetChanged() // Notify adapter of data change
-//                                // Scrolling to the bottom to show the latest message
-//                                recyclerView.scrollToPosition(messagesList.size - 1)
-//                            }
-//
-//                            DocumentChange.Type.MODIFIED -> {
-//                                // Handle modified messages if needed
-//                            }
-//
-//                            DocumentChange.Type.REMOVED -> {
-//                                // Handle removed messages if needed
-//                            }
-//                        }
-//                    }
-//                }
-//            }
         // Click listener for user profile frame
         binding.frameUserProfile.setOnClickListener {
             val intent = Intent(this@ChatActivity, UserProfileActivity::class.java)
             intent.apply {
                 putExtra("id", otherUserId) // Pass the other user's ID to the profile activity
                 putExtra("userFromChatActivity", true) // Flag indicating the source of the intent
+                putExtra("lastHeartBeat", getRelativeTime(Timestamp(lastHeartBeatTime, 0)))
             }
             startActivityForResult(intent, token) // Start UserProfileActivity with a request code
         }
@@ -364,5 +336,33 @@ class ChatActivity : AppCompatActivity() {
         // Inflate the menu resource
         menuInflater.inflate(R.menu.menu_chat_options, menu)
         return true
+    }
+
+    // Get a relative time string based on the timestamp for display
+    private fun getRelativeTime(timestamp: Timestamp): String {
+        // Create calendar instance from the timestamp
+        val calendar = Calendar.getInstance().apply { timeInMillis = timestamp.seconds * 1000 }
+        val today = Calendar.getInstance() // Get current date
+
+        // Formatters for time display
+        val dateFormatter = SimpleDateFormat("dd/MM", Locale.getDefault())
+        val timeFormatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
+
+        return when {
+            calendar.get(Calendar.YEAR) != today.get(Calendar.YEAR) -> {
+                // Return formatted date if it's not the current year
+                dateFormatter.format(calendar.time)
+            }
+
+            calendar.get(Calendar.DAY_OF_YEAR) != today.get(Calendar.DAY_OF_YEAR) -> {
+                // Return formatted date if it's not today
+                dateFormatter.format(calendar.time)
+            }
+
+            else -> {
+                // Return formatted time if it's today
+                timeFormatter.format(calendar.time)
+            }
+        }
     }
 }

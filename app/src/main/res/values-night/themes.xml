@@ -10,7 +10,7 @@
         <item name="textColors">@color/textColors</item>
         <item name="colorCard">@color/signUpCardView</item>
         <item name="textAppearanceCaption">@style/TextInputErrorMessage</item>
-        <item name="android:navigationBarColor">#000014</item>
+<!--        <item name="android:navigationBarColor">#000014</item>-->
     </style>
 
     <style name="HelperTextStyle" parent="TextAppearance.AppCompat.Small">

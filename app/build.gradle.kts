@@ -11,7 +11,6 @@ android {
     buildFeatures {
         viewBinding = true
     }
-
     defaultConfig {
         applicationId = "com.example.chatease"
         minSdk = 24
@@ -73,4 +72,6 @@ dependencies {
     // Libraries of LifeCycle Observer
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1") // For Latest versions
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0") // For older versions
+
+    implementation ("nl.coffeeit.aroma:emojipicker:1.0.6")
 }

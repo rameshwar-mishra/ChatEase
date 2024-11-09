@@ -96,11 +96,9 @@ class MainActivity : AppCompatActivity() {
             .equalTo(true)
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    Log.d("CHAT_UPDATES", "WORKS")
                     if (snapshot.exists()) {
                         for (convo in snapshot.children) {
                             updateRecentChatData(convo)
-                            Log.d("CHAT_UPDATES_LOOP", "WORKS")
                             updateChatIDs(convo)
                         }
 
@@ -128,11 +126,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun listenForUserProfileUpdates() {
         for (userID in chatUserIDs) {
-            Log.d("USER_PROFILE_UPDATES", "WORKS")
             rtDB.getReference("chats").child(userID)
                 .addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        Log.d("USER_PROFILE_LISTENER_UPDATES", "WORKS")
                         if (snapshot.exists()) {
                             updateRecentChatsForUser(
                                 userID = userID,
@@ -178,12 +174,6 @@ class MainActivity : AppCompatActivity() {
         val otherParticipant = participants.first { it != auth.currentUser!!.uid }
         val thisParticipant = participants.first { it == auth.currentUser!!.uid }
 
-        Log.d("LAST_MESSAGE", lastMessage)
-        Log.d("LAST_MESSAGE_SENDER", lastMessage)
-        Log.d("LAST_MESSAGE_TIMESTAMP", formattedTimestamp)
-
-        Log.d("updateRecentChatData", "WORKS")
-
         // Nested Database Fetch (Need to optimize later)
 
         rtDB.getReference("users").child(otherParticipant!!)
@@ -191,7 +181,6 @@ class MainActivity : AppCompatActivity() {
                 override fun onDataChange(snapshot: DataSnapshot) {
 
                     if (lastMessageSender == otherParticipant) {
-                        Log.d("updateRecentChatData_OTHER_PARTICIPANT", "WORKS")
                         updateRecentChatDataList(
                             userID = otherParticipant,
                             displayName = snapshot.child("displayName").getValue(String::class.java) ?: "",
@@ -202,7 +191,6 @@ class MainActivity : AppCompatActivity() {
                             lastMessageTimestamp = lastMessageTimestamp
                         )
                     } else {
-                        Log.d("updateRecentChatData_THIS_PARTICIPANT", "WORKS")
                         updateRecentChatDataList(
                             userID = otherParticipant!!,
                             displayName = snapshot.child("displayName").getValue(String::class.java) ?: "",

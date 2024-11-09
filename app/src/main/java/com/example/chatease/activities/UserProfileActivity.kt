@@ -48,8 +48,8 @@ class UserProfileActivity : AppCompatActivity() {
                 val userName = task.result.child("userName").getValue(String::class.java) ?: "" // Get
                 val displayName = task.result.child("displayName").getValue(String::class.java) ?: ""
                 val userAvatar = task.result.child("avatar").getValue(String::class.java)?: "" // Get
-                val userBio = task.result.child("userBio").getValue(String::class.java) ?: "" // Get e
-
+                val userBio = task.result.child("userBio").getValue(String::class.java) ?: "Update Bio From Settings" // Get e
+                val lastSeenTime = task.result.child("lastHeartBeat").getValue(Long::class.java) ?: 0L
                 // Load avatar image into ImageView using Glide, with a default placeholder
                 if(!isDestroyed && !isFinishing){
                     Glide.with(this@UserProfileActivity)
@@ -61,6 +61,7 @@ class UserProfileActivity : AppCompatActivity() {
                 binding.userName.text = "@$userName" // Set username text in UI
                 binding.displayName.text = displayName // Set display name text in UI
                 binding.textViewBioText.text = userBio // Set user bio text in UI
+                binding.textViewLastHeartBeat.text = "Last Seen at $lastSeenTime"
             }
         }
 
