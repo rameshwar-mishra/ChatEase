@@ -289,12 +289,13 @@ class ChatActivity : AppCompatActivity() {
                 val isRead = snapshot.child("isRead").getValue(Boolean::class.java) ?: false
 
                 // Convert Long timestamp to Date
-                val timestamp = Date(timestampLong)
-
-                // Formatting the timestamp to a readable string
-                val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
-                formatter.timeZone = TimeZone.getDefault()
-                val formattedTimeStamp = formatter.format(timestamp)
+//                val timestamp = Date(timestampLong)
+//
+//                // Formatting the timestamp to a readable string
+//                val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
+//                formatter.timeZone = TimeZone.getDefault()
+//                val formattedTimeStamp = formatter.format(timestamp)
+                val formattedTimeStamp = getRelativeTime(Timestamp((timestampLong/1000), 0)) // Format the timestamp for display
                 // Creating a MessageUserData object
                 val messageObject = MessageUserData(
                     id = snapshot.key ?: "",
@@ -492,21 +493,22 @@ class ChatActivity : AppCompatActivity() {
 
         // Formatters for time display
         val dateFormatter = SimpleDateFormat("dd/MM", Locale.getDefault())
+        val dateFormatterYear = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         val timeFormatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
 
         return when {
             calendar.get(Calendar.YEAR) != today.get(Calendar.YEAR) -> {
-                // Return formatted date if it's not the current year
-                dateFormatter.format(calendar.time)
+                // Not in the current year
+                dateFormatterYear.format(calendar.time)
             }
 
             calendar.get(Calendar.DAY_OF_YEAR) != today.get(Calendar.DAY_OF_YEAR) -> {
-                // Return formatted date if it's not today
+                // Earlier this year
                 dateFormatter.format(calendar.time)
             }
 
             else -> {
-                // Return formatted time if it's today
+                // Today
                 timeFormatter.format(calendar.time)
             }
         }

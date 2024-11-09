@@ -161,7 +161,8 @@ class MainActivity : AppCompatActivity() {
         val lastMessage = documentMetaData.child("lastMessage").getValue(String::class.java) ?: ""
         val lastMessageSender = documentMetaData.child("lastMessageSender").getValue(String::class.java) ?: ""
         val lastMessageTimestamp =
-            (documentMetaData.child("lastMessageTimestamp").getValue(Long::class.java) ?: 0L) / 1000   // MiliSeconds to Seconds
+            (documentMetaData.child("lastMessageTimestamp").getValue(Long::class.java)
+                ?: 0L) / 1000   // MiliSeconds to Seconds
 
         val formattedTimestamp = getRelativeTime(Timestamp(lastMessageTimestamp, 0)) // Format the timestamp for display
 
@@ -177,7 +178,10 @@ class MainActivity : AppCompatActivity() {
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(userData: DataSnapshot) {
                     Log.d("ID", "unRead_By_${auth.currentUser!!.uid}")
-                    Log.d("HasRead", "${documentMetaData.child("unRead_By_${auth.currentUser!!.uid}").getValue(Boolean::class.java)}")
+                    Log.d(
+                        "HasRead",
+                        "${documentMetaData.child("unRead_By_${auth.currentUser!!.uid}").getValue(Boolean::class.java)}"
+                    )
                     if (lastMessageSender == otherParticipant) {
                         updateRecentChatDataList(
                             userID = otherParticipant,
@@ -289,22 +293,28 @@ class MainActivity : AppCompatActivity() {
 
         // Formatters for time display
         val dateFormatter = SimpleDateFormat("dd/MM", Locale.getDefault())
+        val dateFormatterYear = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         val timeFormatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
 
         return when {
             calendar.get(Calendar.YEAR) != today.get(Calendar.YEAR) -> {
-                // Return formatted date if it's not the current year
-                dateFormatter.format(calendar.time)
+                // Not in the current year
+                dateFormatterYear.format(calendar.time)
             }
 
-            calendar.get(Calendar.DAY_OF_YEAR) != today.get(Calendar.DAY_OF_YEAR) -> {
-                // Return formatted date if it's not today
-                dateFormatter.format(calendar.time)
+            calendar.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR) -> {
+                // Today
+                timeFormatter.format(calendar.time)
+            }
+
+            calendar.get(Calendar.DAY_OF_YEAR) == (today.get(Calendar.DAY_OF_YEAR) - 1) -> {
+                // Yesterday
+                "Yesterday"
             }
 
             else -> {
-                // Return formatted time if it's today
-                timeFormatter.format(calendar.time)
+                // Earlier this year
+                dateFormatter.format(calendar.time)
             }
         }
     }
