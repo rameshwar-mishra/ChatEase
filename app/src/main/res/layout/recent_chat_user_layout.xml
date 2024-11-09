@@ -44,7 +44,6 @@
                 android:layout_marginTop="4dp"
                 android:text="Goku"
                 android:textSize="19sp"
-                android:textStyle="bold"
                 app:layout_constraintLeft_toRightOf="@id/userAvatar"
                 app:layout_constraintTop_toTopOf="parent" />
 

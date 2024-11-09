@@ -31,6 +31,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
@@ -59,6 +60,8 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var userId: String // User's unique ID
     private lateinit var destinationUri: Uri // Destination URI for cropped image
 
+    private lateinit var databaseReference: DatabaseReference
+    private var valueListener: ValueEventListener? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         registerActivityResultLauncher() // Registering activity result launcher for image picking
         binding = ActivitySettingsBinding.inflate(layoutInflater) // Initializing view binding
@@ -83,7 +86,8 @@ class SettingsActivity : AppCompatActivity() {
         destinationUri = Uri.fromFile(File(cacheDir, "temp_cropped_image.webp"))
 
         // Fetching user data from Firestore
-        rtDB.getReference("users").child(userId).addValueEventListener(object : ValueEventListener {
+        databaseReference = rtDB.getReference("users").child(userId)
+        valueListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     // Retrieving user data from Firestore
@@ -115,7 +119,11 @@ class SettingsActivity : AppCompatActivity() {
 
             }
 
-        })
+        }
+
+        valueListener?.let {
+            databaseReference.addValueEventListener(it)
+        }
 
 
         // Setting onClickListener for apply changes button
@@ -184,32 +192,19 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
 
-        // Setting onClickListener for sign out button
-//        binding.signOutButton.setOnClickListener {
-//            // Signing out the user
-//            rtDB.getReference("users/${auth.currentUser!!.uid}")
-//                .updateChildren(
-//                mapOf(
-//                    "status" to "Offline",
-//                    "lastHeartBeat" to ServerValue.TIMESTAMP
-//                )
-//            ).addOnSuccessListener {
-//                auth.signOut()
-//                startActivity(Intent(this@SettingsActivity, SignInActivity::class.java)) // Navigating to SignInActivity
-//                finish()
-//            }.addOnFailureListener { e ->
-//                Toast.makeText(this@SettingsActivity, "Failed to update status. Please try again.", Toast.LENGTH_LONG).show()
-//                Log.e("StatusUpdateError", e.toString())
-//            }
-//
-//        }
-
         // Setting onClickListener for avatar frame to choose an image
         binding.frameUserAvatar.setOnClickListener {
             chooseImage() // Call to choose image from gallery
         }
         binding.changePasswordButton.setOnClickListener {
             startActivity(Intent(this@SettingsActivity, UpdatePasswordActivity::class.java))
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        valueListener?.let {
+            databaseReference.removeEventListener(it)
         }
     }
 
@@ -232,10 +227,12 @@ class SettingsActivity : AppCompatActivity() {
                         dialog.cancel()
                     })
                     .setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, which ->
-                        rtDB.getReference("users").child(userId).updateChildren(mapOf(
-                            "status" to "Offline",
-                            "lastHeartBeat" to ServerValue.TIMESTAMP
-                        ))
+                        rtDB.getReference("users").child(userId).updateChildren(
+                            mapOf(
+                                "status" to "Offline",
+                                "lastHeartBeat" to ServerValue.TIMESTAMP
+                            )
+                        )
                         auth.signOut()
                         startActivity(Intent(this@SettingsActivity, SignInActivity::class.java))
                         finish()
@@ -246,8 +243,6 @@ class SettingsActivity : AppCompatActivity() {
 
             else -> return super.onOptionsItemSelected(item)
         }
-//
-
     }
 
 
@@ -364,7 +359,6 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-
     private fun croppedImage(sourceUri: Uri, destinationUri: Uri) {
         UCrop.of(sourceUri, destinationUri)
             .withAspectRatio(1f, 1f)
@@ -439,5 +433,4 @@ class SettingsActivity : AppCompatActivity() {
             }
 
     }
-
 }

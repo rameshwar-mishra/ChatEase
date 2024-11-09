@@ -74,7 +74,6 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
     override fun onActivityStarted(activity: Activity) {
         currentUser?.let {
             if (!isActivityChangingConfiguration && activity !is SignInActivity && activity !is SignUpActivity) {
-                Log.d("RESUME_ACTIVITY_COUNT_BEFORE", activityCount.toString())
                 if (activityCount.incrementAndGet() == 1) {
                     updateStatus("Online")
                 }
@@ -86,7 +85,6 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
         currentUser?.let {
             isActivityChangingConfiguration = activity.isChangingConfigurations
             if (!isActivityChangingConfiguration && activity !is SignInActivity && activity !is SignUpActivity) {
-                Log.d("PAUSE_ACTIVITY_COUNT_BEFORE", activityCount.toString())
                 if (activityCount.decrementAndGet() == 0) {
                     updateStatus("Offline")
                 }
