@@ -1,14 +1,13 @@
 package com.example.chatease.recyclerview_adapters
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.chatease.dataclass.MessageUserData
 import com.example.chatease.databinding.ReceiverMessageLayoutBinding
 import com.example.chatease.databinding.SenderMessageLayoutBinding
 import com.example.chatease.databinding.UnreadMessageLayoutBinding
+import com.example.chatease.dataclass.MessageUserData
 
 // Adapter for managing chat messages in the RecyclerView
 class ChatAdapter(
@@ -65,7 +64,6 @@ class ChatAdapter(
 
     // Binds the message data to the ViewHolder based on its type
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        Log.d("DATA",messageList[position].content)
         if (holder is SenderViewHolder) {
             // Bind data for sender messages
             if (!messageList[position].hasRead) {

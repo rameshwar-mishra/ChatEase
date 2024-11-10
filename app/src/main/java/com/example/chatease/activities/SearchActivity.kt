@@ -108,31 +108,6 @@ class SearchActivity : AppCompatActivity() {
                                             }
                                             adapter.notifyDataSetChanged() // Update UI with search results
                                         }
-
-//                                    db.collection("users")
-//                                        .whereGreaterThanOrEqualTo("userName", query)
-//                                        .whereLessThan("userName", upperBoundQuery)
-//                                        .get()
-//                                        .addOnCompleteListener { search ->
-//                                            binding.progressBar.visibility = View.INVISIBLE // Hide loading indicator
-//                                            searchUserList.clear() // Clear previous search results
-//
-//                                            if (search.isSuccessful && search.result.size() > 0) {
-//                                                // Loop through results and add to the list if found
-//                                                for (document in search.result) {
-//                                                    val userID = document.id // Get user ID
-//                                                    val userName = document.getString("userName") ?: "" // Get username
-//                                                    val displayName = document.getString("displayname") ?: "" // Get display name
-//                                                    val userAvatar = document.getString("avatar") ?: "" // Get user avatar
-//                                                    val userProfile = SearchUserData(userName, displayName, userID, userAvatar) // Create user data object
-//                                                    searchUserList.add(userProfile) // Add user object to results list
-//                                                }
-//                                                adapter.updateSearchState(true) // Notify adapter that results are available
-//                                            } else {
-//                                                adapter.updateSearchState(false) // Notify adapter of no results found
-//                                            }
-//                                            adapter.notifyDataSetChanged() // Update UI with search results
-//                                        }
                                 } else {
                                     // Clear results if query is empty after '@' and refresh adapter
                                     binding.progressBar.visibility = View.INVISIBLE // Hide loading indicator

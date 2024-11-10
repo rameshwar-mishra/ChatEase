@@ -2,7 +2,12 @@ package com.example.chatease.trackers
 
 import android.app.Activity
 import android.app.Application
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import com.example.chatease.activities.SignInActivity
 import com.example.chatease.activities.SignUpActivity
@@ -23,11 +28,27 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
     private var activityCount = AtomicInteger(0)
     private var lastStatus: String? = null
     private var isActivityChangingConfiguration = false
+    private var notificationService: NotificationService? = null
+    private var serviceConnection: ServiceConnection? = null
+    private var serviceBound = false
+
     override fun onCreate() {
         super.onCreate()
         rtDB = FirebaseDatabase.getInstance()
         auth = FirebaseAuth.getInstance()
         currentUser = auth.currentUser
+        serviceConnection = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                val binder = service as NotificationService.NotificationBinder
+                notificationService = binder.getService()
+            }
+
+            override fun onServiceDisconnected(name: ComponentName?) {
+                Log.d("SERVICE", "Service disconnected")
+                serviceBound = false
+                notificationService = null
+            }
+        }
         registerAuthListener()
         setupConnectionListener()
         registerActivityLifecycleCallbacks(this)
@@ -47,7 +68,6 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
                 .addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val connected = snapshot.getValue(Boolean::class.java) ?: false
-                        Log.d("CONNECTION_STATUS",connected.toString())
                         if (connected && currentUser != null) {
                             setupOnlineStatusWithOnDisconnect()
                         }
@@ -61,7 +81,7 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
         }
     }
 
-    fun setupOnlineStatusWithOnDisconnect(){
+    fun setupOnlineStatusWithOnDisconnect() {
         currentUser?.let { user ->
             val userRef = rtDB.getReference("users").child(user.uid)
             userRef.child("status").onDisconnect().setValue("Offline")
@@ -71,10 +91,16 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
         }
 
     }
+
     override fun onActivityStarted(activity: Activity) {
         currentUser?.let {
             if (!isActivityChangingConfiguration && activity !is SignInActivity && activity !is SignUpActivity) {
                 if (activityCount.incrementAndGet() == 1) {
+                    // The service will start here as the app is in foreground
+                    Log.d("SERVICE BINDING ACTIVITY",activity.localClassName)
+
+                    startNotificationService(activity)
+
                     updateStatus("Online")
                 }
             }
@@ -86,8 +112,42 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
             isActivityChangingConfiguration = activity.isChangingConfigurations
             if (!isActivityChangingConfiguration && activity !is SignInActivity && activity !is SignUpActivity) {
                 if (activityCount.decrementAndGet() == 0) {
+                    // The service will stop here as the app is in background
+                    Log.d("SERVICE BINDING ACTIVITY",activity.localClassName)
+                    stopNotificationService(activity)
                     updateStatus("Offline")
                 }
+            }
+        }
+    }
+
+    private fun startNotificationService(activity: Activity) {
+        Log.d("START", "STARTING")
+        if (!serviceBound) {
+            val intent = Intent(activity, NotificationService::class.java)
+            serviceConnection?.let {
+                startService(intent)
+                activity.bindService(intent, it, Context.BIND_AUTO_CREATE)
+                serviceBound = true
+                Log.d("START", "STARTED")
+            }
+        }
+    }
+
+    private fun stopNotificationService(activity: Activity) {
+        Log.d("STOP", "STOPPING")
+        if (serviceBound) {
+            val intent = Intent(activity, NotificationService::class.java)
+            serviceConnection?.let {
+                stopService(intent)
+                try {
+                    activity.unbindService(it)
+                } catch (e: Exception) {
+                    Log.e("ERROR","NO ERROR: CHINTA KI KOI BAAT NAHI HAI")
+                }
+
+                serviceBound = false
+                Log.d("STOP", "STOPPED")
             }
         }
     }
@@ -121,8 +181,5 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
                     )
             }
         }
-
-
     }
-
 }

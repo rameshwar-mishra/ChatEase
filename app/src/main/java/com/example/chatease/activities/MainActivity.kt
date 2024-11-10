@@ -1,11 +1,17 @@
 package com.example.chatease.activities
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -52,6 +58,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        requestPostNotificationPermission()
 
         // Inflate the layout and set it as the content view using view binding
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -170,18 +178,13 @@ class MainActivity : AppCompatActivity() {
         val participantsSnapshot = documentMetaData.child("participants")
         val participants = participantsSnapshot.children.map { it.key }
         val otherParticipant = participants.first { it != auth.currentUser!!.uid }
-//        val thisParticipant = participants.first { it == auth.currentUser!!.uid }
+        // val thisParticipant = participants.first { it == auth.currentUser!!.uid }
 
         // Nested Database Fetch (Need to optimize later)
 
         rtDB.getReference("users").child(otherParticipant!!)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(userData: DataSnapshot) {
-                    Log.d("ID", "unRead_By_${auth.currentUser!!.uid}")
-                    Log.d(
-                        "HasRead",
-                        "${documentMetaData.child("unRead_By_${auth.currentUser!!.uid}").getValue(Boolean::class.java)}"
-                    )
                     if (lastMessageSender == otherParticipant) {
                         updateRecentChatDataList(
                             userID = otherParticipant,
@@ -315,6 +318,34 @@ class MainActivity : AppCompatActivity() {
             else -> {
                 // Earlier this year
                 dateFormatter.format(calendar.time)
+            }
+        }
+    }
+
+    private fun requestPostNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this@MainActivity,
+                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                    2
+                )
+            }
+        }
+
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 2) {
+            if (grantResults.isEmpty() || grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "No Notifications will be shown until the permission is turn on of \"POST NOTIFICATION\"",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }

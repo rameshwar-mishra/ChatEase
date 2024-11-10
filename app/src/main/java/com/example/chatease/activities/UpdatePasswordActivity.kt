@@ -39,7 +39,7 @@ class UpdatePasswordActivity : AppCompatActivity() {
                 if (binding.currentPassword.text.toString().length >= 6
                     && binding.newPassword.text.toString().length >= 6
                 ) {
-//Getting User Email from EmailAuthProvider and current Password By User
+                    //Getting User Email from EmailAuthProvider and current Password By User
                     val userDetails = EmailAuthProvider.getCredential(
                         user?.email!!,
                         binding.currentPassword.text.toString()
@@ -79,8 +79,7 @@ class UpdatePasswordActivity : AppCompatActivity() {
                     if (binding.currentPassword.text.toString().length <= 6) {
                         binding.currentPasswordLayout.error =
                             "Password should contain atleast 6 letters"
-                    }
-                    else if (binding.newPassword.text.toString().length <= 6) {
+                    } else if (binding.newPassword.text.toString().length <= 6) {
                         binding.currentPassword.error = null
                         binding.newPasswordLayout.error = "Password should contain atleast 6 letters"
                     }
@@ -91,9 +90,8 @@ class UpdatePasswordActivity : AppCompatActivity() {
             } else {
                 if (binding.currentPassword.text.toString().isEmpty()) {
                     binding.currentPasswordLayout.error = "Cannot Be Empty"
-                }
-               else if (binding.newPassword.text.toString().isEmpty()) {
-                   binding.currentPassword.error = null
+                } else if (binding.newPassword.text.toString().isEmpty()) {
+                    binding.currentPassword.error = null
                     binding.newPasswordLayout.error = "Cannot Be Empty"
                 }
                 binding.progressBar.visibility = View.GONE
