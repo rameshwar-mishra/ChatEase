@@ -48,24 +48,26 @@
                 android:text="09:46"
                 android:layout_gravity="bottom">
             </TextView>
-           <ImageView
-               android:layout_marginRight="5dp"
-               android:layout_marginTop="@dimen/_10sdp"
-               android:layout_width="@dimen/_15sdp"
-               android:layout_height="wrap_content"
-               android:src="@drawable/vector_icon_single_tick"
-               android:visibility="visible"
-               />
             <ImageView
+                android:id="@+id/readIndicatorSingleTick"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_width="@dimen/_15sdp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/vector_icon_single_tick"
+                android:visibility="visible"
+                />
+            <ImageView
+                android:id="@+id/readIndicatorDoubleTick"
                 android:layout_marginRight="5dp"
                 android:layout_marginTop="@dimen/_10sdp"
                 android:layout_width="@dimen/_20sdp"
                 android:layout_height="@dimen/_20sdp"
                 android:src="@drawable/vector_icon_double_tick"
-                android:visibility="visible"
+                android:visibility="gone"
                 />
 
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
 
+    </com.google.android.material.card.MaterialCardView>
 </LinearLayout>

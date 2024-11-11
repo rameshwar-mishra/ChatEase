@@ -12,8 +12,12 @@ import com.bumptech.glide.Glide
 import com.example.chatease.R
 import com.example.chatease.databinding.ActivityUserProfileBinding
 import com.google.firebase.Firebase
+import com.google.firebase.Timestamp
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.firestore
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class UserProfileActivity : AppCompatActivity() {
     private val db = Firebase.firestore // Initialize Firestore database instance
@@ -49,7 +53,7 @@ class UserProfileActivity : AppCompatActivity() {
                 val displayName = task.result.child("displayName").getValue(String::class.java) ?: ""
                 val userAvatar = task.result.child("avatar").getValue(String::class.java)?: "" // Get
                 val userBio = task.result.child("userBio").getValue(String::class.java) ?: "Update Bio From Settings" // Get e
-                val lastSeenTime = task.result.child("lastHeartBeat").getValue(Long::class.java) ?: 0L
+                val lastSeenTime = task.result.child("lastHeartBeat").getValue(Long::class.java) ?: 0L / 1000
                 // Load avatar image into ImageView using Glide, with a default placeholder
                 if(!isDestroyed && !isFinishing){
                     Glide.with(this@UserProfileActivity)
@@ -61,7 +65,7 @@ class UserProfileActivity : AppCompatActivity() {
                 binding.userName.text = "@$userName" // Set username text in UI
                 binding.displayName.text = displayName // Set display name text in UI
                 binding.textViewBioText.text = userBio // Set user bio text in UI
-                binding.textViewLastHeartBeat.text = "Last Seen at $lastSeenTime"
+                binding.textViewLastHeartBeat.text = "Last Seen at " + getRelativeTime(Timestamp(lastSeenTime/1000,0))
             }
         }
 
@@ -98,4 +102,37 @@ class UserProfileActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.menu_chat_options, menu) // Inflate the menu resource into the toolbar
         return true // Return true to display the menu
     }
+    private fun getRelativeTime(timestamp: Timestamp): String {
+        // Create calendar instance from the timestamp
+        val calendar = Calendar.getInstance().apply { timeInMillis = timestamp.seconds * 1000 }
+        val today = Calendar.getInstance() // Get current date
+
+        // Formatters for time display
+        val dateFormatter = SimpleDateFormat("dd/MM", Locale.getDefault())
+        val dateFormatterYear = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val timeFormatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
+
+        return when {
+            calendar.get(Calendar.YEAR) != today.get(Calendar.YEAR) -> {
+                // Not in the current year
+                dateFormatterYear.format(calendar.time)
+            }
+
+            calendar.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR) -> {
+                // Today
+                timeFormatter.format(calendar.time)
+            }
+
+            calendar.get(Calendar.DAY_OF_YEAR) == (today.get(Calendar.DAY_OF_YEAR) - 1) -> {
+                // Yesterday
+                "Yesterday"
+            }
+
+            else -> {
+                // Earlier this year
+                dateFormatter.format(calendar.time)
+            }
+        }
+    }
 }
+
