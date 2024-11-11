@@ -11,16 +11,12 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.chatease.R
 import com.example.chatease.databinding.ActivitySignInBinding
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.firestore
 
 class SignInActivity : AppCompatActivity() {
     lateinit var binding: ActivitySignInBinding
-    val auth = FirebaseAuth.getInstance()
-    val db = Firebase.firestore
+    private val auth = FirebaseAuth.getInstance()
     private val rtDB = FirebaseDatabase.getInstance()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,7 +51,6 @@ class SignInActivity : AppCompatActivity() {
 
         //A textView of "Don't have an Account? Sign Up" using as a Button
         binding.textViewSignUp.setOnClickListener {
-            Log.d("test", "test")
             val intent = Intent(this@SignInActivity, SignUpActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
             startActivity(intent)
@@ -132,7 +127,7 @@ class SignInActivity : AppCompatActivity() {
                 } else {
                     isLoading(false)
                     showToast("Login failed")
-                    Log.d("SignIpError", task.exception.toString())
+                    Log.e("SignIpError", task.exception.toString())
                 }
             }
     }

@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -27,7 +26,6 @@ import com.bumptech.glide.Glide
 import com.example.chatease.R
 import com.example.chatease.databinding.ActivitySettingsBinding
 import com.example.chatease.dataclass.UserDataSettings
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -35,7 +33,6 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
 import com.yalantis.ucrop.UCrop
 import java.io.ByteArrayOutputStream
@@ -43,7 +40,6 @@ import java.io.File
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding // View binding for accessing UI elements
-    private val db = Firebase.firestore // Firestore database reference
     private val rtDB =
         FirebaseDatabase.getInstance() // Firebase Realtime Database database reference
     private val auth = FirebaseAuth.getInstance() // Firebase Authentication instance
@@ -108,9 +104,7 @@ class SettingsActivity : AppCompatActivity() {
 
                     // Setting text fields with user data
                     binding.editTextUserName.setText(userName)
-                    Log.d("Username", userName)
                     binding.editTextDisplayName.setText(userDisplayName)
-                    Log.d("Username", userDisplayName)
                     binding.editTextUserBio.setText(userBio)
                 }
             }
@@ -216,7 +210,7 @@ class SettingsActivity : AppCompatActivity() {
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
+        when (item.itemId) {
             R.id.settingsIcon -> {
                 val alertDialog = AlertDialog.Builder(this)
                     .setTitle("Sign Out")
@@ -238,7 +232,7 @@ class SettingsActivity : AppCompatActivity() {
                         finish()
                     })
                 alertDialog.show()
-                true
+                return true
             }
 
             else -> return super.onOptionsItemSelected(item)

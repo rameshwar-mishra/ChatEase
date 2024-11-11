@@ -90,6 +90,13 @@ class ChatActivity : AppCompatActivity() {
         // Disabling the default app name display on the ActionBar
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
+        if(intent.getBooleanExtra("fromNotification",false)) {
+            toolbar.setNavigationOnClickListener {
+                startActivity(Intent(this@ChatActivity, MainActivity::class.java))
+                finish()
+            }
+        }
+
         // Get the current user's ID
         val currentUserId = auth.currentUser?.uid
 
@@ -100,7 +107,6 @@ class ChatActivity : AppCompatActivity() {
             putString("chatPartnerID", intent.getStringExtra("id"))
             commit()
         }
-        Log.d("SHAREDPREF", "UPDATED IN ON CREATE : ${intent.getStringExtra("id")}")
 
         if (otherUserId == null) {
             // Show a Toast message if the user ID is missing
@@ -414,9 +420,6 @@ class ChatActivity : AppCompatActivity() {
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
                 val id = snapshot.key ?: ""
                 if (snapshot.child("sender").getValue(String::class.java) == currentUserId) {
-//                    Log.d("CHECK_CHANGED", snapshot.child("isRead").getValue(Boolean::class.java).toString())
-//                    Log.d("CHECK_CHANGED", messagesList.toString())
-
                     val index = messagesList.indexOfFirst { it.id == id }
                     if (index != -1 &&
                         messagesList[index].hasRead != snapshot.child("isRead").getValue(Boolean::class.java)
@@ -487,7 +490,6 @@ class ChatActivity : AppCompatActivity() {
             putString("chatPartnerID", intent.getStringExtra("id"))
             commit()
         }
-        Log.d("SHAREDPREF", "UPDATED IN ON RESUME with otherUserId: ${intent.getStringExtra("id")}")
     }
 
     override fun onPause() {
@@ -496,7 +498,6 @@ class ChatActivity : AppCompatActivity() {
             remove("chatPartnerID")
             commit()
         }
-        Log.d("SHAREDPREF", "REMOVED IN ON PAUSED")
     }
 
     override fun onDestroy() {

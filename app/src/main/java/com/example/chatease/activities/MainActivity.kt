@@ -26,7 +26,6 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -38,8 +37,7 @@ class MainActivity : AppCompatActivity() {
     // Firebase authentication instance to manage user authentication
     private val auth = FirebaseAuth.getInstance()
 
-    // Firestore database instance to interact with Firestore database
-    private val db = FirebaseFirestore.getInstance()
+    // Realtime database instance to interact with Firebase Realtime database
 
     private val rtDB = FirebaseDatabase.getInstance()
 
@@ -125,7 +123,7 @@ class MainActivity : AppCompatActivity() {
             }
             listenForUserProfileUpdates()
         } else {
-            Log.d("MainActivity", "Participants list is null or empty")
+            Log.e("MainActivity", "Participants list is null or empty")
         }
     }
 

@@ -12,7 +12,6 @@ import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 
 class UpdatePasswordActivity : AppCompatActivity() {
-    val auth = FirebaseAuth.getInstance()
     lateinit var binding: ActivityUpdatePasswordBinding
     override fun onCreate(savedInstanceState: Bundle?) {
 

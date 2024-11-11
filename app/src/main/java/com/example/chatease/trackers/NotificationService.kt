@@ -13,7 +13,6 @@ import android.os.Binder
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
@@ -40,12 +39,10 @@ class NotificationService : Service() {
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
-        Log.d("SERVICE", "onUnbind called")
         return super.onUnbind(intent)
     }
 
     override fun onDestroy() {
-        Log.d("SERVICE", "onDestroy called")
         valueListener?.let {
             databaseRef.removeEventListener(it)
         }
@@ -67,25 +64,16 @@ class NotificationService : Service() {
                                 doc.child("unRead_By_${currentUser.uid}").getValue(Boolean::class.java) ?: false
                             var avatar = ""
                             var displayName = ""
-
-                            Log.d("READ STATUS BEFORE", haveIReadThisMessage.toString())
-                            Log.d("READ STATUS BEFORE MESSAGE", lastMessage)
                             if (!haveIReadThisMessage) {
                                 getSenderDetails(lastMessageSenderID) { userDetails_For_Notification ->
                                     if (userDetails_For_Notification != null) {
                                         avatar = userDetails_For_Notification.avatar
                                         displayName = userDetails_For_Notification.displayName
-                                        Log.d("TITLE", displayName)
-                                        Log.d("BODY", lastMessage)
-                                        Log.d("READ STATUS AFTER", haveIReadThisMessage.toString())
                                     }
 
                                     val currentChatPartner =
                                         getSharedPreferences("chatTracker", MODE_PRIVATE).getString("chatPartnerID", null)
                                     // KAAM KARNA HAI
-
-                                    Log.d("SHAREDPREF", currentChatPartner.toString())
-
 
                                     if (lastMessageSenderID != currentChatPartner && lastMessageSenderID != currentUser.uid) {
                                         if (lastMessage.length > 30) {
@@ -162,6 +150,7 @@ class NotificationService : Service() {
                 Handler(Looper.getMainLooper()).post({
                     val intent = Intent(this, ChatActivity::class.java).apply {
                         putExtra("id", senderID)
+                        putExtra("fromNotification",true)
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     }
                     val pendingIntent = PendingIntent.getActivity(

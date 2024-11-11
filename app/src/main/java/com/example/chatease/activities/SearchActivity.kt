@@ -5,7 +5,6 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -13,16 +12,13 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chatease.R
-import com.example.chatease.recyclerview_adapters.SearchUserAdapter
-import com.example.chatease.dataclass.SearchUserData
 import com.example.chatease.databinding.ActivitySearchBinding
-import com.google.firebase.Firebase
+import com.example.chatease.dataclass.SearchUserData
+import com.example.chatease.recyclerview_adapters.SearchUserAdapter
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.firestore.firestore
 
 class SearchActivity : AppCompatActivity() {
     // Initialize Firestore database instance
-    private val db = Firebase.firestore
     private val rtDB = FirebaseDatabase.getInstance()
 
     lateinit var recyclerView: RecyclerView
