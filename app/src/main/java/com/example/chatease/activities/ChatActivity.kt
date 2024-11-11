@@ -90,7 +90,7 @@ class ChatActivity : AppCompatActivity() {
         // Disabling the default app name display on the ActionBar
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        if(intent.getBooleanExtra("fromNotification",false)) {
+        if (intent.getBooleanExtra("fromNotification", false)) {
             toolbar.setNavigationOnClickListener {
                 startActivity(Intent(this@ChatActivity, MainActivity::class.java))
                 finish()
@@ -211,10 +211,8 @@ class ChatActivity : AppCompatActivity() {
             if (binding.editTextMessage.text.toString().trim().isNotEmpty()) {
                 // Reference to the metadata document for the chat
                 val metaRef = rtDB.getReference("chats/$conversationID")
-//                    db.collection("chats").document(conversationID)
 
                 // List of participants sorted (current user and the other user)
-//                val participants = listOf(auth.currentUser!!.uid, otherUserId).sorted()
                 val participants = mapOf(
                     currentUserId to true,
                     otherUserId to true
@@ -226,12 +224,17 @@ class ChatActivity : AppCompatActivity() {
                 // Last message content
                 val lastMessage = binding.editTextMessage.text.toString().trim()
 
+                // Reference to the messages collection within the chat document
+                val messageRef = rtDB.getReference("chats").child(conversationID).child("messages")
+                // Generating a new message ID
+                val newMessageId = messageRef.push().key // Firebase generates a random ID
+
                 // Creating a map to store metadata of the chat
                 val userMetaData = hashMapOf(
                     "participants" to participants,
                     "lastMessage" to lastMessage,
-                    // setting the the last message read for the other user (with whom im chatting with)
-                    // hasn't read or read to false
+                    "lastMessageID" to newMessageId,
+                    // setting the the last message read for the other user (with whom im chatting with) haven't read
                     "unRead_By_$otherUserId" to false,
                     "lastMessageTimestamp" to timestamp,
                     "lastMessageSender" to auth.currentUser!!.uid
@@ -240,14 +243,11 @@ class ChatActivity : AppCompatActivity() {
                 // Setting the metadata document in Firestore
                 metaRef.updateChildren(userMetaData)
 
-                // Reference to the messages collection within the chat document
-                val messageRef = rtDB.getReference("chats").child(conversationID).child("messages")
-                // Generating a new message ID
-                val newMessageId = messageRef.push().key // Firebase generates a random ID
 
                 // Creating a map for the message data
                 val messageData = hashMapOf(
                     "sender" to auth.currentUser?.uid,
+                    "receiver" to otherUserId,
                     "content" to binding.editTextMessage.text.toString().trim(),
                     "timestamp" to timestamp,
                     "isRead" to false,
@@ -337,12 +337,7 @@ class ChatActivity : AppCompatActivity() {
                         messagesList.add(messageObject)
                         hasRead = true
                         // Update read status and timestamp in the database
-                        rtDB.getReference("chats/$conversationID/messages/${snapshot.key}").updateChildren(
-                            mapOf(
-                                "isRead" to true,
-                                "lastReadTimestamp" to ServerValue.TIMESTAMP
-                            )
-                        )
+                        markMessageAsRead(conversationID, snapshot.key!!)
                         // Update metadata to reflect that the user has read the last message
                         updateMetaData(
                             convoID = conversationID,
@@ -362,12 +357,7 @@ class ChatActivity : AppCompatActivity() {
                         messagesList.add(messageObject)
                         hasRead = true
                         // Update read status and timestamp in the database
-                        rtDB.getReference("chats/$conversationID/messages/${snapshot.key}").updateChildren(
-                            mapOf(
-                                "isRead" to true,
-                                "lastReadTimestamp" to ServerValue.TIMESTAMP
-                            )
-                        )
+                        markMessageAsRead(conversationID, snapshot.key!!)
                         // Update metadata to reflect that the user has read the last message
                         updateMetaData(
                             convoID = conversationID,
@@ -383,12 +373,7 @@ class ChatActivity : AppCompatActivity() {
 
                         // Add the message without marking it as truly unread
                         messagesList.add(messageObject)
-                        rtDB.getReference("chats/$conversationID/messages/${snapshot.key}").updateChildren(
-                            mapOf(
-                                "isRead" to true,
-                                "lastReadTimestamp" to ServerValue.TIMESTAMP
-                            )
-                        )
+                        markMessageAsRead(conversationID, snapshot.key!!)
                         // Update metadata to reflect that the user has read the last message
                         updateMetaData(
                             convoID = conversationID,
@@ -399,14 +384,22 @@ class ChatActivity : AppCompatActivity() {
                         messagesList.add(messageObject)
                     }
                 } else {
-
                     if (messagesList.size > 0) {
                         if (!messagesList[unReadIndicatorPosition].hasRead && messagesList[unReadIndicatorPosition].sender == "") {
-                            // Removing the unread indicator containter "NEW"
+                            // Removing the unread indicator container "NEW"
                             // when this user replies/sent some message after those unread messages
                             messagesList.removeAt(unReadIndicatorPosition)
                             adapter.notifyItemRemoved(unReadIndicatorPosition)
                         }
+                    }
+
+                    val receiver = snapshot.child("receiver").getValue(String::class.java) ?: ""
+                    if (sender == receiver) {
+                        markMessageAsRead(conversationID, snapshot.key!!)
+                        updateMetaData(
+                            convoID = conversationID,
+                            currentUserID = currentUserId
+                        )
                     }
                     // This message was sent by this user
                     messagesList.add(messageObject)
@@ -482,6 +475,23 @@ class ChatActivity : AppCompatActivity() {
             )
         }, 1000L)
 
+    }
+
+    private fun markMessageAsRead(convoID: String, messageID: String) {
+        rtDB.getReference("chats/$convoID/messages/${messageID}").updateChildren(
+            mapOf(
+                "isRead" to true,
+                "lastReadTimestamp" to ServerValue.TIMESTAMP
+            )
+        )
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        if (intent.getBooleanExtra("fromNotification", false)) {
+            startActivity(Intent(this@ChatActivity, MainActivity::class.java))
+            finish()
+        }
     }
 
     override fun onResume() {
