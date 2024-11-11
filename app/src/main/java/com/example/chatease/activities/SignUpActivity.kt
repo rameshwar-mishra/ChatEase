@@ -410,7 +410,7 @@ class SignUpActivity : AppCompatActivity() {
                                                     } else {
                                                         isLoading(false)
                                                         showToast("Failed to save user data")
-                                                        Log.d(
+                                                        Log.e(
                                                             "SignUpError",
                                                             databaseTask.exception.toString()
                                                         )
@@ -419,13 +419,13 @@ class SignUpActivity : AppCompatActivity() {
                                         } else {
                                             isLoading(false)
                                             showToast("Failed to get download URL")
-                                            Log.d("SignUpError", urlTask.exception.toString())
+                                            Log.e("SignUpError", urlTask.exception.toString())
                                         }
                                     }
                                 } else {
                                     isLoading(false)
                                     showToast("Failed to upload image")
-                                    Log.d("SignUpError", uploadTask.exception.toString())
+                                    Log.e("SignUpError", uploadTask.exception.toString())
                                 }
                             }
                     } else {
@@ -459,7 +459,7 @@ class SignUpActivity : AppCompatActivity() {
                                 } else {
                                     isLoading(false)
                                     showToast("Failed to save user data")
-                                    Log.d("SignUpError", databaseTask.exception.toString())
+                                    Log.e("SignUpError", databaseTask.exception.toString())
                                 }
                             }
                     }

@@ -5,7 +5,6 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -13,16 +12,13 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chatease.R
-import com.example.chatease.recyclerview_adapters.SearchUserAdapter
-import com.example.chatease.dataclass.SearchUserData
 import com.example.chatease.databinding.ActivitySearchBinding
-import com.google.firebase.Firebase
+import com.example.chatease.dataclass.SearchUserData
+import com.example.chatease.recyclerview_adapters.SearchUserAdapter
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.firestore.firestore
 
 class SearchActivity : AppCompatActivity() {
     // Initialize Firestore database instance
-    private val db = Firebase.firestore
     private val rtDB = FirebaseDatabase.getInstance()
 
     lateinit var recyclerView: RecyclerView
@@ -108,31 +104,6 @@ class SearchActivity : AppCompatActivity() {
                                             }
                                             adapter.notifyDataSetChanged() // Update UI with search results
                                         }
-
-//                                    db.collection("users")
-//                                        .whereGreaterThanOrEqualTo("userName", query)
-//                                        .whereLessThan("userName", upperBoundQuery)
-//                                        .get()
-//                                        .addOnCompleteListener { search ->
-//                                            binding.progressBar.visibility = View.INVISIBLE // Hide loading indicator
-//                                            searchUserList.clear() // Clear previous search results
-//
-//                                            if (search.isSuccessful && search.result.size() > 0) {
-//                                                // Loop through results and add to the list if found
-//                                                for (document in search.result) {
-//                                                    val userID = document.id // Get user ID
-//                                                    val userName = document.getString("userName") ?: "" // Get username
-//                                                    val displayName = document.getString("displayname") ?: "" // Get display name
-//                                                    val userAvatar = document.getString("avatar") ?: "" // Get user avatar
-//                                                    val userProfile = SearchUserData(userName, displayName, userID, userAvatar) // Create user data object
-//                                                    searchUserList.add(userProfile) // Add user object to results list
-//                                                }
-//                                                adapter.updateSearchState(true) // Notify adapter that results are available
-//                                            } else {
-//                                                adapter.updateSearchState(false) // Notify adapter of no results found
-//                                            }
-//                                            adapter.notifyDataSetChanged() // Update UI with search results
-//                                        }
                                 } else {
                                     // Clear results if query is empty after '@' and refresh adapter
                                     binding.progressBar.visibility = View.INVISIBLE // Hide loading indicator
