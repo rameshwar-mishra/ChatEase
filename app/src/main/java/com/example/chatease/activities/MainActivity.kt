@@ -1,11 +1,17 @@
 package com.example.chatease.activities
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,12 +20,13 @@ import com.example.chatease.R
 import com.example.chatease.databinding.ActivityMainBinding
 import com.example.chatease.dataclass.RecentChatData
 import com.example.chatease.recyclerview_adapters.RecentChatAdapter
-import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentChange
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.messaging.FirebaseMessaging
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -31,24 +38,61 @@ class MainActivity : AppCompatActivity() {
     // Firebase authentication instance to manage user authentication
     private val auth = FirebaseAuth.getInstance()
 
-    // Firestore database instance to interact with Firestore database
-    private val db = FirebaseFirestore.getInstance()
+    // Realtime database instance to interact with Firebase Realtime database
+
+    private val rtDB = FirebaseDatabase.getInstance()
 
     // RecyclerView for displaying recent chats
     private lateinit var recyclerView: RecyclerView
 
     // Variable to hold modified chat data temporarily
     private var modifiedChatData: RecentChatData? = null
+
     // Mutable list to hold recent chat data
     private var recentChatDataList = mutableListOf<RecentChatData>()
+
+    private lateinit var chatUserIDs: MutableSet<String>
+
+    private lateinit var adapter: RecentChatAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        requestPostNotificationPermission()
+
+        val currentFCMUserToken = getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE).getString(
+            "FCMUserToken",
+            null
+        )
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.e("CHECK TOKEN","$currentFCMUserToken")
+                Log.e("CHECK TOKEN 1","${task.result}")
+
+                if (currentFCMUserToken != task.result && task.result.isNotEmpty()) {
+                    auth.currentUser?.let { currentUser ->
+                        rtDB.getReference("users").child(currentUser.uid).updateChildren(
+                            mapOf(
+                                "FCMUserToken" to task.result
+                            )
+                        ).addOnCompleteListener { task1 ->
+                            if (task1.isSuccessful) {
+                                Log.e("CHECK TOKEN 1","UPDATED")
+                                getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE)
+                                    .edit().putString("FCMUserToken", task.result).apply()
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+
         // Inflate the layout and set it as the content view using view binding
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        resources
         // Set up window insets to ensure layout is not obscured by system bars (like status bar)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -65,33 +109,13 @@ class MainActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         // Initialize the adapter for the RecyclerView with the recent chat data list
-        val adapter = RecentChatAdapter(this, recentChatDataList)
+        adapter = RecentChatAdapter(this, recentChatDataList)
         recyclerView.adapter = adapter
 
-        // Set up a Firestore listener to fetch chats for the current user
-        db.collection("chats")
-            .whereArrayContains("participants", auth.currentUser!!.uid)
-            .addSnapshotListener { snapshot, error ->
-                // Handle any errors during the fetching of chats
-                if (error != null) {
-                    Log.d("MainActivity", "Error fetching chats: ${error.message}")
-                    return@addSnapshotListener
-                }
+        chatUserIDs = mutableSetOf()
 
-                // Process document changes in the fetched snapshot
-                if (snapshot != null) {
-                    for (change in snapshot.documentChanges) {
-                        // Check the type of document change and update recent chat data accordingly
-                        when (change.type) {
-                            DocumentChange.Type.ADDED -> updateRecentChatData(change)  // New chat added
-                            DocumentChange.Type.MODIFIED -> updateRecentChatData(change)  // Existing chat modified
-                            DocumentChange.Type.REMOVED -> {
-                                // Handle chat removal if needed (currently not implemented)
-                            }
-                        }
-                    }
-                }
-            }
+        // Set up a Firestore listener to fetch chats for the current user
+        listenForChatUpdates()
 
         // Set up the search button click listener to start the SearchActivity
         binding.floatingActionButtonSearch.setOnClickListener {
@@ -99,107 +123,226 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Update the recent chat data based on the changes in Firestore documents
-    private fun updateRecentChatData(change: DocumentChange) {
-        // Extract chat details from the document
-        val lastMessage = change.document.getString("lastMessage") ?: ""
-        val lastMessageSender = change.document.getString("lastMessageSender") ?: ""
-        val lastMessageTimestamp = change.document.getTimestamp("lastMessageTimestamp") ?: Timestamp.now()
-        val formattedTimestamp = getRelativeTime(lastMessageTimestamp) // Format the timestamp for display
+    private fun listenForChatUpdates() {
 
-        // Get participants of the chat and identify the current user and the other participant
-        val participants = change.document.get("participants") as List<String>
-        // Determine which participant is the current user and which is the other participant
-        val (thisParticipant, otherParticipant) = if (participants[0] == auth.currentUser?.uid) {
-            participants[0] to participants[1]  // Current user is first participant
-        } else {
-            participants[1] to participants[0]  // Current user is second participant
-        }
-
-        // Fetch user details of both participants based on the last message sender
-        var userDetailsTasks: List<Any>
-        if (lastMessageSender == otherParticipant) {
-            userDetailsTasks = listOf(
-                db.collection("users").document(otherParticipant).get()  // Get only other participant details if they sent the last message
-            )
-        } else {
-            // Get details for both participants if the current user sent the last message
-            userDetailsTasks = listOf(
-                db.collection("users").document(otherParticipant).get(),
-                db.collection("users").document(thisParticipant).get()
-            )
-        }
-
-        // Wait for all user detail fetch tasks to complete
-        Tasks.whenAllComplete(userDetailsTasks).addOnCompleteListener { taskList ->
-            if (taskList.isSuccessful) {
-                // Extract user details from the fetched results
-                val otherUserDetails = userDetailsTasks[0].result
-                var currentUserDetails: DocumentSnapshot? = null
-                var actualLastMessageSender: String
-
-                // Determine the actual last message sender's username
-                if (lastMessageSender == otherParticipant) {
-                    actualLastMessageSender = otherUserDetails.getString("username") ?: "" // Get username of other participant
-                } else {
-                    currentUserDetails = userDetailsTasks[1].result // Get current user details
-                    actualLastMessageSender = currentUserDetails.getString("username") ?: "" // Get username of current user
-                }
-
-                // Fetch display name and avatar of the other participant
-                val displayName = otherUserDetails.getString("displayName") ?: ""
-                val avatar = otherUserDetails.getString("avatar") ?: ""
-                val userName = otherUserDetails.getString("username") ?: ""
-
-                // Create a RecentChatData object with the fetched data for the chat
-                val recentChatData = RecentChatData(
-                    id = otherParticipant,
-                    userName = userName,
-                    displayName = displayName,
-                    avatar = avatar,
-                    lastMessage = lastMessage,
-                    lastMessageSender = actualLastMessageSender,
-                    lastMessageTimeStamp = formattedTimestamp
-                )
-
-                // Update the recent chat data list based on the type of document change
-                when (change.type) {
-                    DocumentChange.Type.ADDED -> {
-                        // Add new chat data to the beginning of the list
-                        recentChatDataList.add(0, recentChatData)
-                        Log.e("type", "ADDED: $recentChatDataList") // Log the updated list for debugging
-                        Log.e("type", "ADDED SIZE: ${recentChatDataList.size}") // Log the size of the list
-                    }
-
-                    DocumentChange.Type.MODIFIED -> {
-                        // Store modified chat data to update later
-                        modifiedChatData = recentChatData
-                    }
-
-                    DocumentChange.Type.REMOVED -> {
-                        // Currently not implemented for removed chats
-                    }
-                }
-
-                // If there is modified chat data, update the list accordingly
-                if (modifiedChatData != null) {
-                    for (i in recentChatDataList.indices) {
-                        // Remove the old chat data from the list
-                        if (recentChatDataList[i].id == modifiedChatData!!.id) {
-                            recentChatDataList.removeAt(i)
-                            break
+        rtDB.getReference("chats").orderByChild("participants/${auth.currentUser!!.uid}")
+            .equalTo(true)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        for (convo in snapshot.children) {
+                            updateRecentChatData(convo)
+                            updateChatIDs(convo)
                         }
                     }
-                    // Add the modified chat data to the beginning of the list
-                    recentChatDataList.add(0, modifiedChatData!!)
                 }
-                // Notify the adapter that the data has changed to update the RecyclerView
-                recyclerView.adapter?.notifyDataSetChanged()
-            } else {
-                // Log error if fetching user details failed
-                Log.e("MainActivity", "Error fetching user details: ${taskList.exception?.message}")
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("MainActivity", "Error fetching chats: ${error.message}")
+                }
+
+            })
+    }
+
+    private fun updateChatIDs(document: DataSnapshot) {
+        val participantsSnapshot = document.child("participants")
+        if (participantsSnapshot.exists()) {
+            for (participant in participantsSnapshot.children) {
+                if (participant.key!! != auth.currentUser!!.uid) {
+                    chatUserIDs.add(participant.key!!)
+                }
+            }
+            listenForUserProfileUpdates()
+        } else {
+            Log.e("MainActivity", "Participants list is null or empty")
+        }
+    }
+
+    private val activeUserDataListener = mutableSetOf<String>()
+    private fun listenForUserProfileUpdates() {
+        for (userID in chatUserIDs) {
+            if (!activeUserDataListener.contains(userID)) {
+                Log.d("LISTENING TO ", userID)
+                activeUserDataListener.add(userID)
+                rtDB.getReference("users").child(userID)
+                    .addValueEventListener(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (snapshot.exists()) {
+                                updateRecentChatsUserData(
+                                    userID = userID,
+                                    userAvatar = snapshot.child("avatar").getValue(String::class.java) ?: "",
+                                    userDisplayName = snapshot.child("displayName").getValue(String::class.java) ?: ""
+                                )
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            Log.e("MainActivity", "Error fetching user profile: ${error.message}")
+                        }
+
+                    })
             }
         }
+    }
+
+    private fun updateRecentChatsUserData(userID: String, userAvatar: String, userDisplayName: String) {
+        // Update the local cache
+        val index = recentChatDataList.indexOfFirst { it.id == userID }
+        if (index != -1) {
+            recentChatDataList[index] = RecentChatData(
+                id = userID,
+                displayName = userDisplayName,
+                avatar = userAvatar,
+                lastMessage = recentChatDataList[index].lastMessage,
+                lastMessageSender = recentChatDataList[index].lastMessageSender,
+                lastMessageTimeStamp = recentChatDataList[index].lastMessageTimeStamp,
+                timestamp = recentChatDataList[index].timestamp,
+                isLastMessageReadByMe = recentChatDataList[index].isLastMessageReadByMe
+            )
+            adapter.notifyItemChanged(index)
+        }
+
+    }
+
+    // Update the recent chat data based on the changes in Firestore documents
+    private fun updateRecentChatData(documentMetaData: DataSnapshot) {
+        // Extract chat details from the document
+        val lastMessage = documentMetaData.child("lastMessage").getValue(String::class.java) ?: ""
+        val lastMessageSender = documentMetaData.child("lastMessageSender").getValue(String::class.java) ?: ""
+        val lastMessageTimestamp =
+            (documentMetaData.child("lastMessageTimestamp").getValue(Long::class.java)
+                ?: 0L) / 1000   // MiliSeconds to Seconds
+
+        val formattedTimestamp = getRelativeTime(Timestamp(lastMessageTimestamp, 0)) // Format the timestamp for display
+
+        // Get participants of the chat and identify the current user and the other participant
+        val participantsSnapshot = documentMetaData.child("participants")
+        val participants = participantsSnapshot.children.map { it.key }
+        var otherParticipant = participants.firstOrNull { it != auth.currentUser!!.uid }
+        if (otherParticipant.isNullOrEmpty()) {
+            otherParticipant = auth.currentUser!!.uid
+        }
+
+        rtDB.getReference("users").child(otherParticipant)
+            .get().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    if (lastMessageSender == otherParticipant) {
+                        updateRecentChatDataList(
+                            userID = otherParticipant,
+                            displayName = task.result.child("displayName").getValue(String::class.java) ?: "",
+                            avatarUrl = task.result.child("avatar").getValue(String::class.java) ?: "",
+                            lastMessage = lastMessage,
+                            senderDisplayName = task.result.child("displayName").getValue(String::class.java) ?: "",
+                            formattedTimestamp = formattedTimestamp,
+                            lastMessageTimestamp = lastMessageTimestamp,
+                            isLastMessageReadByMe = documentMetaData.child("unRead_By_${auth.currentUser!!.uid}")
+                                .getValue(Boolean::class.java) ?: true
+                        )
+                    } else {
+                        updateRecentChatDataList(
+                            userID = otherParticipant,
+                            displayName = task.result.child("displayName").getValue(String::class.java) ?: "",
+                            avatarUrl = task.result.child("avatar").getValue(String::class.java) ?: "",
+                            lastMessage = lastMessage,
+                            senderDisplayName = "You",
+                            formattedTimestamp = formattedTimestamp,
+                            lastMessageTimestamp = lastMessageTimestamp,
+                            isLastMessageReadByMe = documentMetaData.child("unRead_By_${auth.currentUser!!.uid}")
+                                .getValue(Boolean::class.java) ?: true
+                        )
+                    }
+                }
+            }
+
+
+//        rtDB.getReference("users").child(otherParticipant)
+//            .addListenerForSingleValueEvent(object : ValueEventListener {
+//                override fun onDataChange(userData: DataSnapshot) {
+//                    if (lastMessageSender == otherParticipant) {
+//                        updateRecentChatDataList(
+//                            userID = otherParticipant,
+//                            displayName = userData.child("displayName").getValue(String::class.java) ?: "",
+//                            avatarUrl = userData.child("avatar").getValue(String::class.java) ?: "",
+//                            lastMessage = lastMessage,
+//                            senderDisplayName = userData.child("displayName").getValue(String::class.java) ?: "",
+//                            formattedTimestamp = formattedTimestamp,
+//                            lastMessageTimestamp = lastMessageTimestamp,
+//                            isLastMessageReadByMe = documentMetaData.child("unRead_By_${auth.currentUser!!.uid}")
+//                                .getValue(Boolean::class.java) ?: true
+//                        )
+//                    } else {
+//                        updateRecentChatDataList(
+//                            userID = otherParticipant,
+//                            displayName = userData.child("displayName").getValue(String::class.java) ?: "",
+//                            avatarUrl = userData.child("avatar").getValue(String::class.java) ?: "",
+//                            lastMessage = lastMessage,
+//                            senderDisplayName = "You",
+//                            formattedTimestamp = formattedTimestamp,
+//                            lastMessageTimestamp = lastMessageTimestamp,
+//                            isLastMessageReadByMe = documentMetaData.child("unRead_By_${auth.currentUser!!.uid}")
+//                                .getValue(Boolean::class.java) ?: true
+//                        )
+//                    }
+//
+//                }
+//
+//                override fun onCancelled(error: DatabaseError) {
+//
+//                }
+//
+//            })
+        // Fetch user details of both participants based on the last message sender
+        // Use the cached user data in userProfileCache
+
+    }
+
+
+    private fun updateRecentChatDataList(
+        userID: String,
+        displayName: String,
+        avatarUrl: String,
+        lastMessage: String,
+        senderDisplayName: String,
+        formattedTimestamp: String,
+        lastMessageTimestamp: Long,
+        isLastMessageReadByMe: Boolean
+    ) {
+        // Check if chat already exists, update if necessary, or add a new entry
+        val existingChatIndex = recentChatDataList.indexOfFirst { it.id == userID }
+
+        if (existingChatIndex != -1) {
+            // Update existing chat
+            recentChatDataList[existingChatIndex] = RecentChatData(
+                id = userID,
+                displayName = displayName,
+                avatar = avatarUrl,
+                lastMessage = lastMessage,
+                lastMessageSender = senderDisplayName,
+                lastMessageTimeStamp = formattedTimestamp,
+                timestamp = lastMessageTimestamp.toString(),
+                isLastMessageReadByMe = isLastMessageReadByMe
+            )
+        } else {
+            // Add new chat entry
+            recentChatDataList.add(
+                RecentChatData(
+                    id = userID,
+                    displayName = displayName,
+                    avatar = avatarUrl,
+                    lastMessage = lastMessage,
+                    lastMessageSender = senderDisplayName,
+                    lastMessageTimeStamp = formattedTimestamp,
+                    timestamp = lastMessageTimestamp.toString(),
+                    isLastMessageReadByMe = isLastMessageReadByMe
+                )
+            )
+        }
+
+        // Sort chats by timestamp if needed
+        recentChatDataList.sortByDescending { it.timestamp }
+
+        // Notify the adapter about the data change
+        adapter.notifyDataSetChanged()
     }
 
     // Inflate the options menu for the activity
@@ -225,20 +368,56 @@ class MainActivity : AppCompatActivity() {
 
         // Formatters for time display
         val dateFormatter = SimpleDateFormat("dd/MM", Locale.getDefault())
+        val dateFormatterYear = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         val timeFormatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
 
         return when {
             calendar.get(Calendar.YEAR) != today.get(Calendar.YEAR) -> {
-                // Return formatted date if it's not the current year
-                dateFormatter.format(calendar.time)
+                // Not in the current year
+                dateFormatterYear.format(calendar.time)
             }
-            calendar.get(Calendar.DAY_OF_YEAR) != today.get(Calendar.DAY_OF_YEAR) -> {
-                // Return formatted date if it's not today
-                dateFormatter.format(calendar.time)
-            }
-            else -> {
-                // Return formatted time if it's today
+
+            calendar.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR) -> {
+                // Today
                 timeFormatter.format(calendar.time)
+            }
+
+            calendar.get(Calendar.DAY_OF_YEAR) == (today.get(Calendar.DAY_OF_YEAR) - 1) -> {
+                // Yesterday
+                "Yesterday"
+            }
+
+            else -> {
+                // Earlier this year
+                dateFormatter.format(calendar.time)
+            }
+        }
+    }
+
+    private fun requestPostNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this@MainActivity,
+                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                    2
+                )
+            }
+        }
+
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 2) {
+            if (grantResults.isEmpty() || grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "No Notifications will be shown until the permission is turn on of \"POST NOTIFICATION\"",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }

@@ -2,6 +2,8 @@ package com.example.chatease.recyclerview_adapters
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -31,10 +33,29 @@ class RecentChatAdapter(
     }
 
     // Bind data to the ViewHolder
+
     override fun onBindViewHolder(holder: RecentChatViewHolder, position: Int) {
         holder.binding.apply {
+
+            // Message Highlight setup based on Read Receipt
+            if (!recentChatDataList[position].isLastMessageReadByMe) {
+                // If the user hasn't seen the last message
+                // HighLight it
+                displayName.setTypeface(null, Typeface.BOLD)
+                userLastMessage.setTypeface(null, Typeface.BOLD)
+                userLastMessage.setTextColor(userLastMessage.context.getColor(R.color.white))
+                userLastMessageTimeStamp.setTypeface(null, Typeface.BOLD)
+            } else {
+                // If the user has seen the last message
+                // Remove the highlight
+                displayName.setTypeface(null, Typeface.NORMAL)
+                userLastMessage.setTypeface(null, Typeface.NORMAL)
+                userLastMessage.setTextColor(Color.parseColor("#746C6C"))
+                userLastMessageTimeStamp.setTypeface(null, Typeface.NORMAL)
+            }
+
             // Set the username and last message timestamp
-            userName.text = recentChatDataList[position].userName
+            displayName.text = recentChatDataList[position].displayName
             userLastMessageTimeStamp.text = recentChatDataList[position].lastMessageTimeStamp
 
             // Create a formatted string for the last message
@@ -60,12 +81,10 @@ class RecentChatAdapter(
                 val intent = Intent(context, ChatActivity::class.java)
                 intent.apply {
                     putExtra("id", recentChatDataList[position].id)
-                    putExtra("username", recentChatDataList[position].userName)
-                    putExtra("displayname", recentChatDataList[position].displayName)
-                    putExtra("avatar", recentChatDataList[position].avatar)
                 }
                 context.startActivity(intent) // Start the chat activity
             }
+
         }
     }
 }

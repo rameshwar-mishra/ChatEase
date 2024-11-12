@@ -36,14 +36,13 @@
                 app:riv_oval="true" />
 
             <TextView
-                android:id="@+id/userName"
+                android:id="@+id/displayName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="4dp"
                 android:text="Goku"
                 android:textSize="19sp"
-                android:textStyle="bold"
                 app:layout_constraintLeft_toRightOf="@id/userAvatar"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -57,7 +56,7 @@
                 android:textColor="#746C6C"
                 android:textSize="15sp"
                 app:layout_constraintLeft_toRightOf="@id/userAvatar"
-                app:layout_constraintTop_toBottomOf="@id/userName" />
+                app:layout_constraintTop_toBottomOf="@id/displayName" />
 
             <TextView
                 android:id="@+id/userLastMessageTimeStamp"
