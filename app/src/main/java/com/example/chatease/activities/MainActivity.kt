@@ -26,6 +26,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.messaging.FirebaseMessaging
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -58,6 +59,35 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         requestPostNotificationPermission()
+
+        val currentFCMUserToken = getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE).getString(
+            "FCMUserToken",
+            null
+        )
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.e("CHECK TOKEN","$currentFCMUserToken")
+                Log.e("CHECK TOKEN 1","${task.result}")
+
+                if (currentFCMUserToken != task.result && task.result.isNotEmpty()) {
+                    auth.currentUser?.let { currentUser ->
+                        rtDB.getReference("users").child(currentUser.uid).updateChildren(
+                            mapOf(
+                                "FCMUserToken" to task.result
+                            )
+                        ).addOnCompleteListener { task1 ->
+                            if (task1.isSuccessful) {
+                                Log.e("CHECK TOKEN 1","UPDATED")
+                                getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE)
+                                    .edit().putString("FCMUserToken", task.result).apply()
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
 
         // Inflate the layout and set it as the content view using view binding
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -104,7 +134,6 @@ class MainActivity : AppCompatActivity() {
                             updateRecentChatData(convo)
                             updateChatIDs(convo)
                         }
-
                     }
                 }
 
@@ -119,7 +148,9 @@ class MainActivity : AppCompatActivity() {
         val participantsSnapshot = document.child("participants")
         if (participantsSnapshot.exists()) {
             for (participant in participantsSnapshot.children) {
-                chatUserIDs.add(participant.key!!)
+                if (participant.key!! != auth.currentUser!!.uid) {
+                    chatUserIDs.add(participant.key!!)
+                }
             }
             listenForUserProfileUpdates()
         } else {
@@ -127,38 +158,50 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val activeUserDataListener = mutableSetOf<String>()
     private fun listenForUserProfileUpdates() {
         for (userID in chatUserIDs) {
-            rtDB.getReference("users").child(userID)
-                .addValueEventListener(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        if (snapshot.exists()) {
-                            updateRecentChatsForUser(
-                                userID = userID,
-                                userAvatar = snapshot.child("avatar").getValue(String::class.java) ?: "",
-                                userDisplayName = snapshot.child("displayName").getValue(String::class.java) ?: ""
-                            )
+            if (!activeUserDataListener.contains(userID)) {
+                Log.d("LISTENING TO ", userID)
+                activeUserDataListener.add(userID)
+                rtDB.getReference("users").child(userID)
+                    .addValueEventListener(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (snapshot.exists()) {
+                                updateRecentChatsUserData(
+                                    userID = userID,
+                                    userAvatar = snapshot.child("avatar").getValue(String::class.java) ?: "",
+                                    userDisplayName = snapshot.child("displayName").getValue(String::class.java) ?: ""
+                                )
+                            }
                         }
-                    }
 
-                    override fun onCancelled(error: DatabaseError) {
-                        Log.e("MainActivity", "Error fetching user profile: ${error.message}")
-                    }
+                        override fun onCancelled(error: DatabaseError) {
+                            Log.e("MainActivity", "Error fetching user profile: ${error.message}")
+                        }
 
-                })
+                    })
+            }
         }
     }
 
-    data class UserProfile(
-        val avatar: String,
-        val displayName: String
-    )
-
-    private val userProfileCache = mutableMapOf<String, UserProfile>()
-
-    private fun updateRecentChatsForUser(userID: String, userAvatar: String, userDisplayName: String) {
+    private fun updateRecentChatsUserData(userID: String, userAvatar: String, userDisplayName: String) {
         // Update the local cache
-        userProfileCache[userID] = UserProfile(avatar = userAvatar, displayName = userDisplayName)
+        val index = recentChatDataList.indexOfFirst { it.id == userID }
+        if (index != -1) {
+            recentChatDataList[index] = RecentChatData(
+                id = userID,
+                displayName = userDisplayName,
+                avatar = userAvatar,
+                lastMessage = recentChatDataList[index].lastMessage,
+                lastMessageSender = recentChatDataList[index].lastMessageSender,
+                lastMessageTimeStamp = recentChatDataList[index].lastMessageTimeStamp,
+                timestamp = recentChatDataList[index].timestamp,
+                isLastMessageReadByMe = recentChatDataList[index].isLastMessageReadByMe
+            )
+            adapter.notifyItemChanged(index)
+        }
+
     }
 
     // Update the recent chat data based on the changes in Firestore documents
@@ -179,19 +222,17 @@ class MainActivity : AppCompatActivity() {
         if (otherParticipant.isNullOrEmpty()) {
             otherParticipant = auth.currentUser!!.uid
         }
-        // Nested Database Fetch (Need to optimize later)
-
 
         rtDB.getReference("users").child(otherParticipant)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(userData: DataSnapshot) {
+            .get().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
                     if (lastMessageSender == otherParticipant) {
                         updateRecentChatDataList(
                             userID = otherParticipant,
-                            displayName = userData.child("displayName").getValue(String::class.java) ?: "",
-                            avatarUrl = userData.child("avatar").getValue(String::class.java) ?: "",
+                            displayName = task.result.child("displayName").getValue(String::class.java) ?: "",
+                            avatarUrl = task.result.child("avatar").getValue(String::class.java) ?: "",
                             lastMessage = lastMessage,
-                            senderDisplayName = userData.child("displayName").getValue(String::class.java) ?: "",
+                            senderDisplayName = task.result.child("displayName").getValue(String::class.java) ?: "",
                             formattedTimestamp = formattedTimestamp,
                             lastMessageTimestamp = lastMessageTimestamp,
                             isLastMessageReadByMe = documentMetaData.child("unRead_By_${auth.currentUser!!.uid}")
@@ -200,8 +241,8 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         updateRecentChatDataList(
                             userID = otherParticipant,
-                            displayName = userData.child("displayName").getValue(String::class.java) ?: "",
-                            avatarUrl = userData.child("avatar").getValue(String::class.java) ?: "",
+                            displayName = task.result.child("displayName").getValue(String::class.java) ?: "",
+                            avatarUrl = task.result.child("avatar").getValue(String::class.java) ?: "",
                             lastMessage = lastMessage,
                             senderDisplayName = "You",
                             formattedTimestamp = formattedTimestamp,
@@ -210,14 +251,46 @@ class MainActivity : AppCompatActivity() {
                                 .getValue(Boolean::class.java) ?: true
                         )
                     }
-
                 }
+            }
 
-                override fun onCancelled(error: DatabaseError) {
 
-                }
-
-            })
+//        rtDB.getReference("users").child(otherParticipant)
+//            .addListenerForSingleValueEvent(object : ValueEventListener {
+//                override fun onDataChange(userData: DataSnapshot) {
+//                    if (lastMessageSender == otherParticipant) {
+//                        updateRecentChatDataList(
+//                            userID = otherParticipant,
+//                            displayName = userData.child("displayName").getValue(String::class.java) ?: "",
+//                            avatarUrl = userData.child("avatar").getValue(String::class.java) ?: "",
+//                            lastMessage = lastMessage,
+//                            senderDisplayName = userData.child("displayName").getValue(String::class.java) ?: "",
+//                            formattedTimestamp = formattedTimestamp,
+//                            lastMessageTimestamp = lastMessageTimestamp,
+//                            isLastMessageReadByMe = documentMetaData.child("unRead_By_${auth.currentUser!!.uid}")
+//                                .getValue(Boolean::class.java) ?: true
+//                        )
+//                    } else {
+//                        updateRecentChatDataList(
+//                            userID = otherParticipant,
+//                            displayName = userData.child("displayName").getValue(String::class.java) ?: "",
+//                            avatarUrl = userData.child("avatar").getValue(String::class.java) ?: "",
+//                            lastMessage = lastMessage,
+//                            senderDisplayName = "You",
+//                            formattedTimestamp = formattedTimestamp,
+//                            lastMessageTimestamp = lastMessageTimestamp,
+//                            isLastMessageReadByMe = documentMetaData.child("unRead_By_${auth.currentUser!!.uid}")
+//                                .getValue(Boolean::class.java) ?: true
+//                        )
+//                    }
+//
+//                }
+//
+//                override fun onCancelled(error: DatabaseError) {
+//
+//                }
+//
+//            })
         // Fetch user details of both participants based on the last message sender
         // Use the cached user data in userProfileCache
 
