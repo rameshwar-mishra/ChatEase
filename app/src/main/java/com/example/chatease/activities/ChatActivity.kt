@@ -1,5 +1,6 @@
 package com.example.chatease.activities
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -20,6 +21,8 @@ import com.example.chatease.R
 import com.example.chatease.databinding.ActivityChatBinding
 import com.example.chatease.dataclass.MessageUserData
 import com.example.chatease.recyclerview_adapters.ChatAdapter
+import com.google.auth.oauth2.GoogleCredentials
+import com.google.auth.oauth2.ServiceAccountCredentials
 import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -30,9 +33,19 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.firestore.DocumentChange
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -62,9 +75,13 @@ class ChatActivity : AppCompatActivity() {
     private val token = 1 // Token for activity result
     private var otherUserId: String? = "" // ID of the other user in the chat
 
-    private lateinit var rtDbChatListener: DatabaseReference
-
+    private lateinit var rtDbChatStore: DatabaseReference
     private var messageListener: ChildEventListener? = null
+
+    private lateinit var convoDBRef: DatabaseReference
+    private var typingListener: ValueEventListener? = null
+
+    private var lastMessageReadHandler = Handler(Looper.getMainLooper())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,11 +107,23 @@ class ChatActivity : AppCompatActivity() {
         // Disabling the default app name display on the ActionBar
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
+        if (intent.getBooleanExtra("fromNotification", false)) {
+            toolbar.setNavigationOnClickListener {
+                startActivity(Intent(this@ChatActivity, MainActivity::class.java))
+                finish()
+            }
+        }
+
         // Get the current user's ID
         val currentUserId = auth.currentUser?.uid
 
         // Retrieve the other user's ID from the intent
         val otherUserId = intent.getStringExtra("id")
+
+        getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE).edit().apply {
+            putString("chatPartnerID", intent.getStringExtra("id"))
+            commit()
+        }
 
         if (otherUserId == null) {
             // Show a Toast message if the user ID is missing
@@ -105,21 +134,26 @@ class ChatActivity : AppCompatActivity() {
 
         var avatarAlreadyLoadedForTheFirstTime = false
         var previousAvatarUrl: String? = null
+        var otherUserFCMToken: String? = null
+        var otherUserPresenceStatus: String? = null
 
         rtDB.getReference("users").child(otherUserId).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     // Setting the display name from intent extra
                     binding.textViewDisplayName.text = snapshot.child("displayName").getValue(String::class.java) ?: ""
+                    otherUserPresenceStatus = snapshot.child("status").getValue(String::class.java)
 
-                    if (snapshot.child("status").getValue(String::class.java) == "Offline") {
+                    if (otherUserPresenceStatus == "Offline") {
                         val lastHeartBeatTime = (snapshot.child("lastHeartBeat").getValue(Long::class.java) ?: 0L) / 1000
 
                         binding.textViewUserPresenceStatus.text = "Last Seen at " +
                                 getRelativeTime(Timestamp(lastHeartBeatTime, 0)) // Format the timestamp for display
                     } else {
-                        binding.textViewUserPresenceStatus.text = snapshot.child("status").getValue(String::class.java)
+                        binding.textViewUserPresenceStatus.text = otherUserPresenceStatus
                     }
+
+                    otherUserFCMToken = snapshot.child("FCMUserToken").getValue(String::class.java) ?: null
 
                     // Loading the user's avatar image using Glide library
                     val avatar = snapshot.child("avatar").getValue(String::class.java)
@@ -136,16 +170,15 @@ class ChatActivity : AppCompatActivity() {
                         }
                     }
 
-                    if (otherUserId != currentUserId) {
-                        if (snapshot.child("typing").getValue(Boolean::class.java) == true) {
-                            binding.textViewUserPresenceStatus.visibility = View.INVISIBLE
-                            binding.textViewTypingStatus.visibility = View.VISIBLE
-                        } else {
-                            binding.textViewUserPresenceStatus.visibility = View.VISIBLE
-                            binding.textViewTypingStatus.visibility = View.INVISIBLE
-                        }
-
-                    }
+//                    if (otherUserId != currentUserId) {
+//                        if (snapshot.child("typing_of_$otherUserId").getValue(Boolean::class.java) == true) {
+//                            binding.textViewUserPresenceStatus.visibility = View.INVISIBLE
+//                            binding.textViewTypingStatus.visibility = View.VISIBLE
+//                        } else {
+//                            binding.textViewUserPresenceStatus.visibility = View.VISIBLE
+//                            binding.textViewTypingStatus.visibility = View.INVISIBLE
+//                        }
+//                    }
                 }
             }
 
@@ -161,8 +194,29 @@ class ChatActivity : AppCompatActivity() {
 
         // Typing Indicator SETUP below
         var typing = false
-        var handler = Handler(Looper.getMainLooper())
-        var userDbRef = rtDB.getReference("users/${currentUserId}")
+        var typingStatusHandler = Handler(Looper.getMainLooper())
+        var userDbRef = rtDB.getReference("chats/$conversationID")
+//        var userDbRef = rtDB.getReference("users/${currentUserId}")
+
+        convoDBRef = rtDB.getReference("chats/$conversationID")
+
+        typingListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.child("typing_of_$otherUserId").getValue(Boolean::class.java) == true) {
+                    binding.textViewUserPresenceStatus.visibility = View.INVISIBLE
+                    binding.textViewTypingStatus.visibility = View.VISIBLE
+                } else {
+                    binding.textViewUserPresenceStatus.visibility = View.VISIBLE
+                    binding.textViewTypingStatus.visibility = View.INVISIBLE
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+        }
+
 
         binding.editTextMessage.addTextChangedListener(object : TextWatcher {
             // Typing Indicator SETUP below
@@ -172,17 +226,17 @@ class ChatActivity : AppCompatActivity() {
                 if (!typing) {
                     typing = true
                     val dataMap = hashMapOf<String, Any>(
-                        "typing" to typing
+                        "typing_of_$currentUserId" to typing
                     )
                     userDbRef.updateChildren(dataMap)
                 }
 
-                handler.removeCallbacksAndMessages(null)
+                typingStatusHandler.removeCallbacksAndMessages(null)
 
-                handler.postDelayed({
+                typingStatusHandler.postDelayed({
                     typing = false
                     val dataMap = hashMapOf<String, Any>(
-                        "typing" to typing
+                        "typing_of_$currentUserId" to typing
                     )
                     userDbRef.updateChildren(dataMap)
                 }, 2000L)
@@ -195,14 +249,17 @@ class ChatActivity : AppCompatActivity() {
 
         // Setting up the send button click listener
         binding.buttonSend.setOnClickListener {
+
+            if (otherUserPresenceStatus == null || otherUserFCMToken == null) {
+                return@setOnClickListener
+            }
+
             // Check if the message input is not empty
             if (binding.editTextMessage.text.toString().trim().isNotEmpty()) {
                 // Reference to the metadata document for the chat
                 val metaRef = rtDB.getReference("chats/$conversationID")
-//                    db.collection("chats").document(conversationID)
 
                 // List of participants sorted (current user and the other user)
-//                val participants = listOf(auth.currentUser!!.uid, otherUserId).sorted()
                 val participants = mapOf(
                     currentUserId to true,
                     otherUserId to true
@@ -214,41 +271,51 @@ class ChatActivity : AppCompatActivity() {
                 // Last message content
                 val lastMessage = binding.editTextMessage.text.toString().trim()
 
-                // Creating a map to store metadata of the chat
-                val userMetaData = hashMapOf(
-                    "participants" to participants,
-                    "lastMessage" to lastMessage,
-                    // setting the the last message read for the other user (with whom im chatting with)
-                    // hasn't read or read to false
-                    "unRead_By_$otherUserId" to false,
-                    "lastMessageTimestamp" to timestamp,
-                    "lastMessageSender" to auth.currentUser!!.uid
-                )
-
-                // Setting the metadata document in Firestore
-                metaRef.updateChildren(userMetaData)
-
                 // Reference to the messages collection within the chat document
                 val messageRef = rtDB.getReference("chats").child(conversationID).child("messages")
                 // Generating a new message ID
                 val newMessageId = messageRef.push().key // Firebase generates a random ID
 
+                // Creating a map to store metadata of the chat
+                val userMetaData = hashMapOf(
+                    "participants" to participants,
+                    "lastMessage" to lastMessage,
+                    "lastMessageID" to newMessageId,
+                    // setting the the last message read for the other user (with whom im chatting with) haven't read
+                    "unRead_By_$otherUserId" to false,
+                    "lastMessageTimestamp" to timestamp,
+                    "lastMessageSender" to auth.currentUser!!.uid
+                )
+
+                // Setting the metadata document in Realtime Database
+                metaRef.updateChildren(userMetaData)
+
                 // Creating a map for the message data
                 val messageData = hashMapOf(
                     "sender" to auth.currentUser?.uid,
-                    "content" to binding.editTextMessage.text.toString().trim(),
+                    "receiver" to otherUserId,
+                    "content" to lastMessage,
                     "timestamp" to timestamp,
                     "isRead" to false,
                     "lastReadTimestamp" to ""
                 )
 
-                // Adding the new message to Firestore
+                // Adding the new message to Realtime Database
                 if (newMessageId != null) {
                     messageRef.child(newMessageId).setValue(messageData)
                         .addOnCompleteListener { task ->
                             // Clearing the message input field on successful send
                             if (task.isSuccessful) {
                                 binding.editTextMessage.text.clear()
+
+                                if (otherUserPresenceStatus == "Offline") {
+                                    showOfflineNotification(
+                                        otherUserFCMToken = otherUserFCMToken!!,
+                                        lastMessage = lastMessage,
+                                        senderID = auth.currentUser!!.uid,
+                                        messageID = newMessageId
+                                    )
+                                }
                             }
                         }
                         .addOnFailureListener { exception ->
@@ -277,25 +344,20 @@ class ChatActivity : AppCompatActivity() {
         var hasRead = false
         val currentTimestamp = System.currentTimeMillis()
         // Listening for changes in the messages collection
-        rtDbChatListener = rtDB.getReference("chats/$conversationID/messages")
+        rtDbChatStore = rtDB.getReference("chats/$conversationID/messages")
 
         var unReadIndicatorPosition = 0
         messageListener = object : ChildEventListener {
             // Message Listeners
-
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 val sender = snapshot.child("sender").getValue(String::class.java) ?: ""
                 val timestampLong = snapshot.child("timestamp").getValue(Long::class.java) ?: 0L
                 val isRead = snapshot.child("isRead").getValue(Boolean::class.java) ?: false
 
                 // Convert Long timestamp to Date
-//                val timestamp = Date(timestampLong)
-//
-//                // Formatting the timestamp to a readable string
-//                val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
-//                formatter.timeZone = TimeZone.getDefault()
-//                val formattedTimeStamp = formatter.format(timestamp)
-                val formattedTimeStamp = getRelativeTime(Timestamp((timestampLong/1000), 0)) // Format the timestamp for display
+
+                val formattedTimeStamp =
+                    getRelativeTime(Timestamp((timestampLong / 1000), 0)) // Format the timestamp for display
                 // Creating a MessageUserData object
                 val messageObject = MessageUserData(
                     id = snapshot.key ?: "",
@@ -305,9 +367,7 @@ class ChatActivity : AppCompatActivity() {
                     hasRead = isRead
                 )
                 // Adding the message to the list and notifying the adapter
-
                 if (sender != auth.currentUser?.uid) {
-
                     // This message wasn't sent by this user
                     if (!isRead && !hasRead && (timestampLong < currentTimestamp)) {
 
@@ -324,18 +384,13 @@ class ChatActivity : AppCompatActivity() {
                         messagesList.add(messageObject)
                         hasRead = true
                         // Update read status and timestamp in the database
-                        rtDB.getReference("chats/$conversationID/messages/${snapshot.key}").updateChildren(
-                            mapOf(
-                                "isRead" to true,
-                                "lastReadTimestamp" to ServerValue.TIMESTAMP
-                            )
-                        )
+                        markMessageAsRead(conversationID, snapshot.key!!)
                         // Update metadata to reflect that the user has read the last message
-                        rtDB.getReference("chats/$conversationID").updateChildren(
-                            mapOf(
-                                "unRead_By_$currentUserId" to true,
-                            )
+                        updateMetaData(
+                            convoID = conversationID,
+                            currentUserID = currentUserId
                         )
+
                     } else if (!isRead && !hasRead && (timestampLong > currentTimestamp)) {
                         // If the message is unread but was sent after the user opened the chat:
 
@@ -349,17 +404,11 @@ class ChatActivity : AppCompatActivity() {
                         messagesList.add(messageObject)
                         hasRead = true
                         // Update read status and timestamp in the database
-                        rtDB.getReference("chats/$conversationID/messages/${snapshot.key}").updateChildren(
-                            mapOf(
-                                "isRead" to true,
-                                "lastReadTimestamp" to ServerValue.TIMESTAMP
-                            )
-                        )
+                        markMessageAsRead(conversationID, snapshot.key!!)
                         // Update metadata to reflect that the user has read the last message
-                        rtDB.getReference("chats/$conversationID").updateChildren(
-                            mapOf(
-                                "unRead_By_$currentUserId" to true,
-                            )
+                        updateMetaData(
+                            convoID = conversationID,
+                            currentUserID = currentUserId
                         )
                     } else if (!isRead && hasRead) {
                         // If the message is unread in the database but is not the first unread message:
@@ -371,25 +420,33 @@ class ChatActivity : AppCompatActivity() {
 
                         // Add the message without marking it as truly unread
                         messagesList.add(messageObject)
-                        rtDB.getReference("chats/$conversationID/messages/${snapshot.key}").updateChildren(
-                            mapOf(
-                                "isRead" to true,
-                                "lastReadTimestamp" to ServerValue.TIMESTAMP
-                            )
+                        markMessageAsRead(conversationID, snapshot.key!!)
+                        // Update metadata to reflect that the user has read the last message
+                        updateMetaData(
+                            convoID = conversationID,
+                            currentUserID = currentUserId
                         )
                     } else if (isRead) {
                         // If the message is already marked as read:
                         messagesList.add(messageObject)
                     }
                 } else {
-
                     if (messagesList.size > 0) {
                         if (!messagesList[unReadIndicatorPosition].hasRead && messagesList[unReadIndicatorPosition].sender == "") {
-                            // Removing the unread indicator containter "NEW"
+                            // Removing the unread indicator container "NEW"
                             // when this user replies/sent some message after those unread messages
                             messagesList.removeAt(unReadIndicatorPosition)
                             adapter.notifyItemRemoved(unReadIndicatorPosition)
                         }
+                    }
+
+                    val receiver = snapshot.child("receiver").getValue(String::class.java) ?: ""
+                    if (sender == receiver) {
+                        markMessageAsRead(conversationID, snapshot.key!!)
+                        updateMetaData(
+                            convoID = conversationID,
+                            currentUserID = currentUserId
+                        )
                     }
                     // This message was sent by this user
                     messagesList.add(messageObject)
@@ -403,9 +460,6 @@ class ChatActivity : AppCompatActivity() {
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
                 val id = snapshot.key ?: ""
                 if (snapshot.child("sender").getValue(String::class.java) == currentUserId) {
-//                    Log.d("CHECK_CHANGED", snapshot.child("isRead").getValue(Boolean::class.java).toString())
-//                    Log.d("CHECK_CHANGED", messagesList.toString())
-
                     val index = messagesList.indexOfFirst { it.id == id }
                     if (index != -1 &&
                         messagesList[index].hasRead != snapshot.child("isRead").getValue(Boolean::class.java)
@@ -439,11 +493,6 @@ class ChatActivity : AppCompatActivity() {
             override fun onCancelled(error: DatabaseError) {}
         }
 
-        messageListener?.let {
-            rtDbChatListener.orderByChild("timestamp")
-                .addChildEventListener(it)
-        }
-
 
         // Click listener for user profile frame
         binding.frameUserProfile.setOnClickListener {
@@ -457,12 +506,147 @@ class ChatActivity : AppCompatActivity() {
 
     }
 
+    private fun getGoogleCredential(context: Context): GoogleCredentials {
+        val OAuthJsonFile = context.assets.open("FCM_Server_OAuthKey.json")
+        return GoogleCredentials.fromStream(OAuthJsonFile)
+            .createScoped(listOf("https://www.googleapis.com/auth/firebase.messaging"))
+    }
+
+    private suspend fun getAccessToken(): String? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val credentials = getGoogleCredential(this@ChatActivity) as ServiceAccountCredentials
+                credentials.refreshIfExpired()
+                credentials.accessToken.tokenValue
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+
+    }
+
+    private fun showOfflineNotification(
+        otherUserFCMToken: String,
+        lastMessage: String,
+        senderID: String,
+        messageID: String
+    ) {
+        Log.d("FCM", "STARTING")
+        CoroutineScope(Dispatchers.IO).launch {
+            val accessToken = getAccessToken() ?: return@launch
+            val url = "https://fcm.googleapis.com/v1/projects/chatease2024-aa2e1/messages:send"
+            Log.d("FCM", "STARTED")
+            val payload = """
+                {
+                    "message" : {
+                        "token" : "$otherUserFCMToken",
+                        "data" : {
+                        "senderID" : "$senderID",
+                        "messageID" : "$messageID",
+                        "lastMessage" : "$lastMessage"
+                        },
+                        "android" : {
+                        "priority" : "high"
+                        }
+                    }
+                }
+            """.trimIndent()
+
+            Log.d("FCM Payload", payload)
+
+            val request = Request.Builder().apply {
+                url(url)
+                addHeader("Authorization", "Bearer $accessToken")
+                addHeader("Content-Type", "application/json")
+                post(payload.toRequestBody("application/json".toMediaType()))
+            }
+
+            val client = OkHttpClient()
+            client.newCall(request.build()).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    e.printStackTrace()
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    if (response.isSuccessful) {
+                        Log.d("FCM", "Message Sent: ${response.body?.string()}")
+                    } else {
+                        Log.e("FCM", "Error sending message: ${response.body?.string()}")
+                    }
+                }
+
+            })
+        }
+    }
+
+    private fun updateMetaData(convoID: String, currentUserID: String) {
+        lastMessageReadHandler.removeCallbacksAndMessages(null)
+
+        lastMessageReadHandler.postDelayed({
+            rtDB.getReference("chats/$convoID").updateChildren(
+                mapOf(
+                    "unRead_By_$currentUserID" to true,
+                )
+            )
+        }, 1000L)
+
+    }
+
+    private fun markMessageAsRead(convoID: String, messageID: String) {
+        rtDB.getReference("chats/$convoID/messages/${messageID}").updateChildren(
+            mapOf(
+                "isRead" to true,
+                "lastReadTimestamp" to ServerValue.TIMESTAMP
+            )
+        )
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        if (intent.getBooleanExtra("fromNotification", false)) {
+            startActivity(Intent(this@ChatActivity, MainActivity::class.java))
+            finish()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE).edit().apply {
+            putString("chatPartnerID", intent.getStringExtra("id"))
+            commit()
+        }
+
+        typingListener?.let {
+            convoDBRef.addValueEventListener(it)
+        }
+
+        messageListener?.let {
+            rtDbChatStore.orderByChild("timestamp")
+                .addChildEventListener(it)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE).edit().apply {
+            remove("chatPartnerID")
+            commit()
+        }
+
+        messageListener?.let {
+            rtDbChatStore.removeEventListener(it)
+            messageListener = null
+        }
+
+        typingListener?.let {
+            convoDBRef.removeEventListener(it)
+            typingListener = null
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        messageListener?.let {
-            rtDbChatListener.removeEventListener(it)
-        }
-        messageListener = null
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -514,3 +698,6 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 }
+
+
+

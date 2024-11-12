@@ -1,6 +1,5 @@
 package com.example.chatease.activities
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -11,17 +10,13 @@ import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.example.chatease.R
 import com.example.chatease.databinding.ActivityUserProfileBinding
-import com.google.firebase.Firebase
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.firestore.firestore
 
 class UserProfileActivity : AppCompatActivity() {
-    private val db = Firebase.firestore // Initialize Firestore database instance
     private val rtDb = FirebaseDatabase.getInstance()
     private var userId: String = "" // Variable to store the user ID
     private lateinit var binding: ActivityUserProfileBinding // View binding for UserProfileActivity layout
 
-    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityUserProfileBinding.inflate(layoutInflater) // Inflate the layout using view binding
         super.onCreate(savedInstanceState)

@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" /> <!-- For accessing storage in API 29 and below -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- For accessing images from storage in API 33 and above -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".trackers.AppStatusTracker"
@@ -20,12 +21,11 @@
         <activity
             android:name=".activities.UpdatePasswordActivity"
             android:exported="false"
-            android:parentActivityName=".activities.SettingsActivity"/>
+            android:parentActivityName=".activities.SettingsActivity" />
         <activity
             android:name=".activities.ForgetPasswordActivity"
             android:exported="false"
-            android:parentActivityName=".activities.SignInActivity"
-            />
+            android:parentActivityName=".activities.SignInActivity" />
         <activity
             android:name=".activities.UserProfileActivity"
             android:exported="false" />
@@ -64,6 +64,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".trackers.NotificationService"
+            android:enabled="true"
+            android:exported="false" />
+        <service
+            android:name=".trackers.FCMMessageService"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name=".trackers.NotificationClearReceiver"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>
