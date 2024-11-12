@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -41,6 +42,7 @@ class RecentChatAdapter(
             if (!recentChatDataList[position].isLastMessageReadByMe) {
                 // If the user hasn't seen the last message
                 // HighLight it
+                Log.d("BOLD", "YES")
                 displayName.setTypeface(null, Typeface.BOLD)
                 userLastMessage.setTypeface(null, Typeface.BOLD)
                 userLastMessage.setTextColor(userLastMessage.context.getColor(R.color.white))
@@ -48,6 +50,7 @@ class RecentChatAdapter(
             } else {
                 // If the user has seen the last message
                 // Remove the highlight
+                Log.d("BOLD", "NO")
                 displayName.setTypeface(null, Typeface.NORMAL)
                 userLastMessage.setTypeface(null, Typeface.NORMAL)
                 userLastMessage.setTextColor(Color.parseColor("#746C6C"))

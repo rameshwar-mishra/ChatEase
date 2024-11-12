@@ -9,6 +9,10 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+<<<<<<< HEAD
+=======
+import android.util.Log
+>>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -33,6 +37,10 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
+<<<<<<< HEAD
+=======
+import com.google.firebase.firestore.firestore
+>>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
 import com.google.firebase.storage.FirebaseStorage
 import com.yalantis.ucrop.UCrop
 import java.io.ByteArrayOutputStream
@@ -40,6 +48,10 @@ import java.io.File
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding // View binding for accessing UI elements
+<<<<<<< HEAD
+=======
+    private val db = Firebase.firestore // Firestore database reference
+>>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
     private val rtDB =
         FirebaseDatabase.getInstance() // Firebase Realtime Database database reference
     private val auth = FirebaseAuth.getInstance() // Firebase Authentication instance
@@ -104,7 +116,13 @@ class SettingsActivity : AppCompatActivity() {
 
                     // Setting text fields with user data
                     binding.editTextUserName.setText(userName)
+<<<<<<< HEAD
                     binding.editTextDisplayName.setText(userDisplayName)
+=======
+                    Log.d("Username", userName)
+                    binding.editTextDisplayName.setText(userDisplayName)
+                    Log.d("Username", userDisplayName)
+>>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
                     binding.editTextUserBio.setText(userBio)
                 }
             }
@@ -210,12 +228,20 @@ class SettingsActivity : AppCompatActivity() {
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+<<<<<<< HEAD
         when (item.itemId) {
+=======
+        return when (item.itemId) {
+>>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
             R.id.settingsIcon -> {
                 val alertDialog = AlertDialog.Builder(this)
                     .setTitle("Sign Out")
                     .setMessage("Do you want to Sign Out From the App?")
                     .setIcon(R.drawable.vector_icon_warning)
+<<<<<<< HEAD
+=======
+                    .setCancelable(false)
+>>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
                     .setNegativeButton("No", DialogInterface.OnClickListener { dialog, which ->
                         dialog.cancel()
                     })
@@ -231,7 +257,11 @@ class SettingsActivity : AppCompatActivity() {
                         finish()
                     })
                 alertDialog.show()
+<<<<<<< HEAD
                 return true
+=======
+                true
+>>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
             }
 
             else -> return super.onOptionsItemSelected(item)

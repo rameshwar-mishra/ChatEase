@@ -26,7 +26,11 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+<<<<<<< HEAD
 import com.google.firebase.messaging.FirebaseMessaging
+=======
+import com.google.firebase.firestore.FirebaseFirestore
+>>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -39,6 +43,8 @@ class MainActivity : AppCompatActivity() {
     private val auth = FirebaseAuth.getInstance()
 
     // Realtime database instance to interact with Firebase Realtime database
+
+    private val rtDB = FirebaseDatabase.getInstance()
 
     private val rtDB = FirebaseDatabase.getInstance()
 
@@ -134,6 +140,10 @@ class MainActivity : AppCompatActivity() {
                             updateRecentChatData(convo)
                             updateChatIDs(convo)
                         }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
                     }
                 }
 
@@ -148,6 +158,7 @@ class MainActivity : AppCompatActivity() {
         val participantsSnapshot = document.child("participants")
         if (participantsSnapshot.exists()) {
             for (participant in participantsSnapshot.children) {
+<<<<<<< HEAD
                 if (participant.key!! != auth.currentUser!!.uid) {
                     chatUserIDs.add(participant.key!!)
                 }
@@ -155,12 +166,20 @@ class MainActivity : AppCompatActivity() {
             listenForUserProfileUpdates()
         } else {
             Log.e("MainActivity", "Participants list is null or empty")
+=======
+                chatUserIDs.add(participant.key!!)
+            }
+            listenForUserProfileUpdates()
+        } else {
+            Log.d("MainActivity", "Participants list is null or empty")
+>>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
         }
     }
 
     private val activeUserDataListener = mutableSetOf<String>()
     private fun listenForUserProfileUpdates() {
         for (userID in chatUserIDs) {
+<<<<<<< HEAD
             if (!activeUserDataListener.contains(userID)) {
                 Log.d("LISTENING TO ", userID)
                 activeUserDataListener.add(userID)
@@ -202,6 +221,38 @@ class MainActivity : AppCompatActivity() {
             adapter.notifyItemChanged(index)
         }
 
+=======
+            rtDB.getReference("chats").child(userID)
+                .addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        if (snapshot.exists()) {
+                            updateRecentChatsForUser(
+                                userID = userID,
+                                userAvatar = snapshot.child("avatar").getValue(String::class.java) ?: "",
+                                userDisplayName = snapshot.child("displayName").getValue(String::class.java) ?: ""
+                            )
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("MainActivity", "Error fetching user profile: ${error.message}")
+                    }
+
+                })
+        }
+    }
+
+    data class UserProfile(
+        val avatar: String,
+        val displayName: String
+    )
+
+    private val userProfileCache = mutableMapOf<String, UserProfile>()
+
+    private fun updateRecentChatsForUser(userID: String, userAvatar: String, userDisplayName: String) {
+        // Update the local cache
+        userProfileCache[userID] = UserProfile(avatar = userAvatar, displayName = userDisplayName)
+>>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
     }
 
     // Update the recent chat data based on the changes in Firestore documents
@@ -218,6 +269,7 @@ class MainActivity : AppCompatActivity() {
         // Get participants of the chat and identify the current user and the other participant
         val participantsSnapshot = documentMetaData.child("participants")
         val participants = participantsSnapshot.children.map { it.key }
+<<<<<<< HEAD
         var otherParticipant = participants.firstOrNull { it != auth.currentUser!!.uid }
         if (otherParticipant.isNullOrEmpty()) {
             otherParticipant = auth.currentUser!!.uid
@@ -233,6 +285,28 @@ class MainActivity : AppCompatActivity() {
                             avatarUrl = task.result.child("avatar").getValue(String::class.java) ?: "",
                             lastMessage = lastMessage,
                             senderDisplayName = task.result.child("displayName").getValue(String::class.java) ?: "",
+=======
+        val otherParticipant = participants.first { it != auth.currentUser!!.uid }
+//        val thisParticipant = participants.first { it == auth.currentUser!!.uid }
+
+        // Nested Database Fetch (Need to optimize later)
+
+        rtDB.getReference("users").child(otherParticipant!!)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(userData: DataSnapshot) {
+                    Log.d("ID", "unRead_By_${auth.currentUser!!.uid}")
+                    Log.d(
+                        "HasRead",
+                        "${documentMetaData.child("unRead_By_${auth.currentUser!!.uid}").getValue(Boolean::class.java)}"
+                    )
+                    if (lastMessageSender == otherParticipant) {
+                        updateRecentChatDataList(
+                            userID = otherParticipant,
+                            displayName = userData.child("displayName").getValue(String::class.java) ?: "",
+                            avatarUrl = userData.child("avatar").getValue(String::class.java) ?: "",
+                            lastMessage = lastMessage,
+                            senderDisplayName = userData.child("displayName").getValue(String::class.java) ?: "",
+>>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
                             formattedTimestamp = formattedTimestamp,
                             lastMessageTimestamp = lastMessageTimestamp,
                             isLastMessageReadByMe = documentMetaData.child("unRead_By_${auth.currentUser!!.uid}")
@@ -240,9 +314,15 @@ class MainActivity : AppCompatActivity() {
                         )
                     } else {
                         updateRecentChatDataList(
+<<<<<<< HEAD
                             userID = otherParticipant,
                             displayName = task.result.child("displayName").getValue(String::class.java) ?: "",
                             avatarUrl = task.result.child("avatar").getValue(String::class.java) ?: "",
+=======
+                            userID = otherParticipant!!,
+                            displayName = userData.child("displayName").getValue(String::class.java) ?: "",
+                            avatarUrl = userData.child("avatar").getValue(String::class.java) ?: "",
+>>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
                             lastMessage = lastMessage,
                             senderDisplayName = "You",
                             formattedTimestamp = formattedTimestamp,
@@ -251,6 +331,7 @@ class MainActivity : AppCompatActivity() {
                                 .getValue(Boolean::class.java) ?: true
                         )
                     }
+<<<<<<< HEAD
                 }
             }
 
@@ -294,6 +375,20 @@ class MainActivity : AppCompatActivity() {
         // Fetch user details of both participants based on the last message sender
         // Use the cached user data in userProfileCache
 
+=======
+
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+
+                }
+
+            })
+        // Fetch user details of both participants based on the last message sender
+        // Use the cached user data in userProfileCache
+
+
+>>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
     }
 
 
@@ -393,6 +488,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+<<<<<<< HEAD
 
     private fun requestPostNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -421,4 +517,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+=======
+>>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
 }

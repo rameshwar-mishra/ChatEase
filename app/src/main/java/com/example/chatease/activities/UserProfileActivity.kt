@@ -10,9 +10,18 @@ import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.example.chatease.R
 import com.example.chatease.databinding.ActivityUserProfileBinding
+<<<<<<< HEAD
 import com.google.firebase.database.FirebaseDatabase
 
 class UserProfileActivity : AppCompatActivity() {
+=======
+import com.google.firebase.Firebase
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.firestore
+
+class UserProfileActivity : AppCompatActivity() {
+    private val db = Firebase.firestore // Initialize Firestore database instance
+>>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
     private val rtDb = FirebaseDatabase.getInstance()
     private var userId: String = "" // Variable to store the user ID
     private lateinit var binding: ActivityUserProfileBinding // View binding for UserProfileActivity layout

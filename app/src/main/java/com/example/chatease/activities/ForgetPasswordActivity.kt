@@ -30,8 +30,17 @@ class ForgetPasswordActivity : AppCompatActivity() {
                 else{
                     binding.textInputLayoutEmail.error = "Enter Valid Email"
                 }
+<<<<<<< HEAD
             }
         }
+=======
+
+            }
+
+
+        }
+
+>>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
     }
 
     private fun forgotPassword() {

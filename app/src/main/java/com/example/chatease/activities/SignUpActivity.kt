@@ -459,7 +459,11 @@ class SignUpActivity : AppCompatActivity() {
                                 } else {
                                     isLoading(false)
                                     showToast("Failed to save user data")
+<<<<<<< HEAD
                                     Log.e("SignUpError", databaseTask.exception.toString())
+=======
+                                    Log.d("SignUpError", databaseTask.exception.toString())
+>>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
                                 }
                             }
                     }

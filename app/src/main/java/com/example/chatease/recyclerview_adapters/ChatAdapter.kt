@@ -1,5 +1,6 @@
 package com.example.chatease.recyclerview_adapters
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -64,6 +65,7 @@ class ChatAdapter(
 
     // Binds the message data to the ViewHolder based on its type
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        Log.d("DATA",messageList[position].content)
         if (holder is SenderViewHolder) {
             // Bind data for sender messages
             if (!messageList[position].hasRead) {
