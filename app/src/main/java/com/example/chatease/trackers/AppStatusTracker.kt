@@ -10,7 +10,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.util.Log
+import com.example.chatease.activities.ChatActivity
 import com.example.chatease.activities.SignInActivity
 import com.example.chatease.activities.SignUpActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -93,12 +93,11 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
             if (!isActivityChangingConfiguration && activity !is SignInActivity && activity !is SignUpActivity) {
                 if (activityCount.incrementAndGet() == 1) {
                     // The service will start here as the app is in foreground
-                    Log.e("DELAYED","STARTING")
                     Handler(Looper.getMainLooper()).postDelayed({
-                        Log.e("DELAYED","YES")
-                        if (!ActiveNotificationManager.hasMessageArrived.get()) {
+                        if (!TrackerSingletonObject.hasMessageArrived.get()) {
                             startNotificationService(activity)
                             updateStatus("Online")
+                            TrackerSingletonObject.isAppForeground.set(true)
                         }
                     }, 2000L)
                 }
@@ -111,10 +110,15 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
             isActivityChangingConfiguration = activity.isChangingConfigurations
             if (!isActivityChangingConfiguration && activity !is SignInActivity && activity !is SignUpActivity) {
                 if (activityCount.decrementAndGet() == 0) {
-                    Log.d("TEST STOP", activity.toString())
                     // The service will stop here as the app is in background
                     stopNotificationService(activity)
                     updateStatus("Offline")
+                    TrackerSingletonObject.isAppForeground.set(false)
+
+                    if (TrackerSingletonObject.isTyping.get()) {
+                        ChatActivity().setTypingStatus(false)
+                        TrackerSingletonObject.isTyping.set(false)
+                    }
                 }
             }
         }

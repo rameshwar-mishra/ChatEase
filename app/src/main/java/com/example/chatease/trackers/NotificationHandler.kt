@@ -11,7 +11,6 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
@@ -32,7 +31,6 @@ class Notification() {
         val channel = NotificationChannel("1", "Message Notifications", NotificationManager.IMPORTANCE_HIGH)
         val manager: NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.createNotificationChannel(channel)
-        Log.d("NOTIFICATION","ACTIVE")
         Thread {
             try {
                 lateinit var largeIconBitmap: Bitmap
@@ -105,12 +103,12 @@ class Notification() {
                         }
 
                         // Add the notification to active notifications set
-                        ActiveNotificationManager.activeNotification.add(messageID)
+                        TrackerSingletonObject.activeNotification.add(messageID)
 
                         manager.notify(senderID.hashCode(), builder.build()) // Use unique ID for each notification
 
                         // Create group summary notification if there are multiple notifications
-                        if (ActiveNotificationManager.activeNotification.size > 1) {
+                        if (TrackerSingletonObject.activeNotification.size > 1) {
                             val groupNotification = NotificationCompat.Builder(context, "1").apply {
                                 setContentTitle("You have new messages")
                                 setContentText("From: $senderID")
@@ -126,8 +124,8 @@ class Notification() {
                             manager.notify(0, groupNotification.build()) // Group summary ID should be constant
                         }
 
-                        if(ActiveNotificationManager.hasMessageArrived.get()) {
-                            ActiveNotificationManager.hasMessageArrived.set(false)
+                        if(TrackerSingletonObject.hasMessageArrived.get()) {
+                            TrackerSingletonObject.hasMessageArrived.set(false)
                         }
                     }
                 })
@@ -143,7 +141,7 @@ class NotificationClearReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         val senderID = intent?.getStringExtra("senderID")
         if (senderID != null) {
-            ActiveNotificationManager.activeNotification.remove(senderID)
+            TrackerSingletonObject.activeNotification.remove(senderID)
         }
     }
 }

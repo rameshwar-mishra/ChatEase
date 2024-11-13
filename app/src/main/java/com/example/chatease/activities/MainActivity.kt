@@ -67,9 +67,6 @@ class MainActivity : AppCompatActivity() {
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Log.e("CHECK TOKEN","$currentFCMUserToken")
-                Log.e("CHECK TOKEN 1","${task.result}")
-
                 if (currentFCMUserToken != task.result && task.result.isNotEmpty()) {
                     auth.currentUser?.let { currentUser ->
                         rtDB.getReference("users").child(currentUser.uid).updateChildren(
@@ -78,7 +75,6 @@ class MainActivity : AppCompatActivity() {
                             )
                         ).addOnCompleteListener { task1 ->
                             if (task1.isSuccessful) {
-                                Log.e("CHECK TOKEN 1","UPDATED")
                                 getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE)
                                     .edit().putString("FCMUserToken", task.result).apply()
                             }
@@ -162,7 +158,6 @@ class MainActivity : AppCompatActivity() {
     private fun listenForUserProfileUpdates() {
         for (userID in chatUserIDs) {
             if (!activeUserDataListener.contains(userID)) {
-                Log.d("LISTENING TO ", userID)
                 activeUserDataListener.add(userID)
                 rtDB.getReference("users").child(userID)
                     .addValueEventListener(object : ValueEventListener {
