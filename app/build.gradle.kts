@@ -12,9 +12,13 @@ android {
         viewBinding = true
     }
 
+    packaging {
+        resources.excludes.add("META-INF/DEPENDENCIES")
+    }
+
     defaultConfig {
         applicationId = "com.example.chatease"
-        minSdk = 24
+        minSdk = 26 // Android 8.0
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -50,6 +54,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
     implementation(libs.firebase.database)
+    implementation(libs.firebase.messaging)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -73,4 +78,9 @@ dependencies {
     // Libraries of LifeCycle Observer
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1") // For Latest versions
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0") // For older versions
+    // For handling FCM OAuth Key Registration and Regeneration
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.11.0")
+
+    // For handling HTTP requests
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
 }
