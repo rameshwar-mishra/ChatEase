@@ -129,7 +129,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun listenForUserProfileUpdates() {
         for (userID in chatUserIDs) {
-            rtDB.getReference("chats").child(userID)
+            rtDB.getReference("users").child(userID)
                 .addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         if (snapshot.exists()) {
@@ -175,12 +175,14 @@ class MainActivity : AppCompatActivity() {
         // Get participants of the chat and identify the current user and the other participant
         val participantsSnapshot = documentMetaData.child("participants")
         val participants = participantsSnapshot.children.map { it.key }
-        val otherParticipant = participants.first { it != auth.currentUser!!.uid }
-        // val thisParticipant = participants.first { it == auth.currentUser!!.uid }
-
+        var otherParticipant = participants.firstOrNull { it != auth.currentUser!!.uid }
+        if (otherParticipant.isNullOrEmpty()) {
+            otherParticipant = auth.currentUser!!.uid
+        }
         // Nested Database Fetch (Need to optimize later)
 
-        rtDB.getReference("users").child(otherParticipant!!)
+
+        rtDB.getReference("users").child(otherParticipant)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(userData: DataSnapshot) {
                     if (lastMessageSender == otherParticipant) {
@@ -197,7 +199,7 @@ class MainActivity : AppCompatActivity() {
                         )
                     } else {
                         updateRecentChatDataList(
-                            userID = otherParticipant!!,
+                            userID = otherParticipant,
                             displayName = userData.child("displayName").getValue(String::class.java) ?: "",
                             avatarUrl = userData.child("avatar").getValue(String::class.java) ?: "",
                             lastMessage = lastMessage,
@@ -218,7 +220,6 @@ class MainActivity : AppCompatActivity() {
             })
         // Fetch user details of both participants based on the last message sender
         // Use the cached user data in userProfileCache
-
 
     }
 

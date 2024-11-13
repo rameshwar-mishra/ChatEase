@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -30,11 +31,11 @@ class NotificationService : Service() {
     private val binder = NotificationBinder()
     private val auth = FirebaseAuth.getInstance()
     private val rtDB = FirebaseDatabase.getInstance()
-    lateinit var databaseRef: DatabaseReference
+    private lateinit var databaseRef: DatabaseReference
     private var valueListener: ValueEventListener? = null
 
     override fun onBind(intent: Intent?): IBinder? {
-        unReadMesssageListener()
+        unReadMessageListener()
         return binder
     }
 
@@ -50,46 +51,61 @@ class NotificationService : Service() {
         super.onDestroy()
     }
 
+    val messageIDSet = mutableSetOf<String>()
 
-    private fun unReadMesssageListener() {
+    private fun unReadMessageListener() {
         auth.currentUser?.let { currentUser ->
             databaseRef = rtDB.getReference("chats")
             valueListener = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
                         for (doc in snapshot.children) {
-                            val lastMessage = doc.child("lastMessage").getValue(String::class.java) ?: ""
-                            val lastMessageSenderID = doc.child("lastMessageSender").getValue(String::class.java) ?: ""
+                            val lastMessageID = doc.child("lastMessageID").getValue(String::class.java) ?: ""
                             val haveIReadThisMessage =
                                 doc.child("unRead_By_${currentUser.uid}").getValue(Boolean::class.java) ?: false
-                            var avatar = ""
-                            var displayName = ""
-                            if (!haveIReadThisMessage) {
-                                getSenderDetails(lastMessageSenderID) { userDetails_For_Notification ->
-                                    if (userDetails_For_Notification != null) {
-                                        avatar = userDetails_For_Notification.avatar
-                                        displayName = userDetails_For_Notification.displayName
-                                    }
 
-                                    val currentChatPartner =
-                                        getSharedPreferences("chatTracker", MODE_PRIVATE).getString("chatPartnerID", null)
-                                    // KAAM KARNA HAI
+                            if (messageIDSet.contains(lastMessageID) && haveIReadThisMessage) {
+                                messageIDSet.remove(lastMessageID)
+                            }
 
-                                    if (lastMessageSenderID != currentChatPartner && lastMessageSenderID != currentUser.uid) {
-                                        if (lastMessage.length > 30) {
-                                            showNotification(
-                                                title = displayName,
-                                                body = lastMessage.substring(0, 30) + "...",
-                                                icon = avatar,
-                                                senderID = lastMessageSenderID
+                            if (!messageIDSet.contains(lastMessageID)) {
+                                messageIDSet.add(lastMessageID)
+                                val lastMessage = doc.child("lastMessage").getValue(String::class.java) ?: ""
+                                val lastMessageSenderID = doc.child("lastMessageSender").getValue(String::class.java) ?: ""
+
+                                var avatar = ""
+                                var displayName = ""
+                                if (!haveIReadThisMessage) {
+                                    getSenderDetails(lastMessageSenderID) { userDetails_For_Notification ->
+                                        if (userDetails_For_Notification != null) {
+                                            avatar = userDetails_For_Notification.avatar
+                                            displayName = userDetails_For_Notification.displayName
+                                        }
+
+                                        val currentChatPartner =
+                                            getSharedPreferences("chatTracker", MODE_PRIVATE).getString(
+                                                "chatPartnerID",
+                                                null
                                             )
-                                        } else {
-                                            showNotification(
-                                                title = displayName,
-                                                body = lastMessage,
-                                                icon = avatar,
-                                                senderID = lastMessageSenderID
-                                            )
+
+                                        if (lastMessageSenderID != currentChatPartner && lastMessageSenderID != currentUser.uid) {
+                                            if (lastMessage.length > 30) {
+                                                showNotification(
+                                                    title = displayName,
+                                                    body = lastMessage.substring(0, 30) + "...",
+                                                    icon = avatar,
+                                                    senderID = lastMessageSenderID,
+                                                    messageID = lastMessageID
+                                                )
+                                            } else {
+                                                showNotification(
+                                                    title = displayName,
+                                                    body = lastMessage,
+                                                    icon = avatar,
+                                                    senderID = lastMessageSenderID,
+                                                    messageID = lastMessageID
+                                                )
+                                            }
                                         }
                                     }
                                 }
@@ -125,8 +141,8 @@ class NotificationService : Service() {
             }
     }
 
-    private fun showNotification(title: String, body: String, icon: String, senderID: String) {
-        val channel = NotificationChannel("1", "Notification", NotificationManager.IMPORTANCE_HIGH)
+    private fun showNotification(title: String, body: String, icon: String, senderID: String, messageID: String) {
+        val channel = NotificationChannel("1", "Message Notifications", NotificationManager.IMPORTANCE_HIGH)
         val manager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.createNotificationChannel(channel)
 
@@ -148,30 +164,67 @@ class NotificationService : Service() {
                 }
 
                 Handler(Looper.getMainLooper()).post({
-                    val intent = Intent(this, ChatActivity::class.java).apply {
-                        putExtra("id", senderID)
-                        putExtra("fromNotification",true)
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    }
-                    val pendingIntent = PendingIntent.getActivity(
-                        this,
-                        0,
-                        intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                    )
-                    val builder = NotificationCompat.Builder(this, "1").apply {
-                        setContentTitle(title)
-                        setContentText(body)
-                        setSmallIcon(R.drawable.vector_icon_emoji)
-                        setLargeIcon(largeIconBitmap)
-                        setAutoCancel(true)
-                        setContentIntent(pendingIntent)
-                        build()
-                    }
+                    // Post the notification
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                         == PackageManager.PERMISSION_GRANTED
                     ) {
-                        manager.notify(1, builder.build())
+                        val notificationIntent = Intent(this, ChatActivity::class.java).apply {
+                            putExtra("id", senderID)
+                            putExtra("fromNotification", true)
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        }
+
+                        val notificationPendingIntent = PendingIntent.getActivity(
+                            this,
+                            senderID.hashCode(),
+                            notificationIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                        )
+
+                        val clearIntent = Intent(this@NotificationService, NotificationClearReceiver::class.java).apply {
+                            action = "clear_notification"
+                            putExtra("senderID", senderID)
+                        }
+                        val clearPendingIntent = PendingIntent.getBroadcast(
+                            this@NotificationService,
+                            0,
+                            clearIntent,
+                            PendingIntent.FLAG_IMMUTABLE
+                        )
+
+
+                        // Create the individual notification builder
+                        val builder = NotificationCompat.Builder(this, "1").apply {
+                            setContentTitle(title)
+                            setContentText(body)
+                            setSmallIcon(R.drawable.app_logo)
+                            setLargeIcon(largeIconBitmap)
+                            setAutoCancel(true)
+                            setContentIntent(notificationPendingIntent)
+                            setDeleteIntent(clearPendingIntent)
+                            setGroup("com.example.chatease.MESSAGE_GROUP") // Group key for notifications
+                        }
+
+                        // Add the notification to active notifications set
+                        ActiveNotificationManager.activeNotification.add(messageID)
+
+                        manager.notify(senderID.hashCode(), builder.build()) // Use unique ID for each notification
+
+                        // Create group summary notification if there are multiple notifications
+                        if (ActiveNotificationManager.activeNotification.size > 1) {
+                            val groupNotification = NotificationCompat.Builder(this, "1").apply {
+                                setContentTitle("You have new messages")
+                                setContentText("From: $senderID")
+                                setSmallIcon(R.drawable.app_logo)
+                                setStyle(NotificationCompat.InboxStyle().setSummaryText("New Messages"))
+                                setGroup("com.example.chatease.MESSAGE_GROUP") // Same group key as individual notifications
+                                setGroupSummary(true) // Mark this as the group summary
+                                setAutoCancel(true)
+                            }
+
+                            // Use the same ID for the group summary notification
+                            manager.notify(0, groupNotification.build()) // Group summary ID should be constant
+                        }
                     }
                 })
             } catch (e: Exception) {
@@ -187,3 +240,13 @@ class NotificationService : Service() {
         }
     }
 }
+
+class NotificationClearReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context?, intent: Intent?) {
+        val senderID = intent?.getStringExtra("senderID")
+        if (senderID != null) {
+            ActiveNotificationManager.activeNotification.remove(senderID)
+        }
+    }
+}
+

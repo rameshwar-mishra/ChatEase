@@ -69,5 +69,9 @@
             android:name=".trackers.NotificationService"
             android:enabled="true"
             android:exported="false" />
+        <receiver
+            android:name=".trackers.NotificationClearReceiver"
+            android:enabled="true"
+            android:exported="false"/>
     </application>
 </manifest>
