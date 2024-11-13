@@ -67,14 +67,21 @@ class MainActivity : AppCompatActivity() {
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {
+                Log.e("TOKEN","GOT TOKEN")
+
+                Log.e("TOKEN","CHECKING CONDITION currentFCMUserToken != task.result : ${currentFCMUserToken != task.result}")
+                Log.e("TOKEN","CHECKING CONDITION task.result.isNotEmpty() : ${task.result.isNotEmpty()}")
                 if (currentFCMUserToken != task.result && task.result.isNotEmpty()) {
+                    Log.e("TOKEN","CONDITION SATISFIED")
                     auth.currentUser?.let { currentUser ->
+                        Log.e("TOKEN","IM IN")
                         rtDB.getReference("users").child(currentUser.uid).updateChildren(
                             mapOf(
                                 "FCMUserToken" to task.result
                             )
                         ).addOnCompleteListener { task1 ->
                             if (task1.isSuccessful) {
+                                Log.e("TOKEN","ADDED TOKEN TO THE DATABASE")
                                 getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE)
                                     .edit().putString("FCMUserToken", task.result).apply()
                             }
