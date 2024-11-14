@@ -7,7 +7,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
+import android.util.Log
 import com.example.chatease.activities.SignInActivity
 import com.example.chatease.activities.SignUpActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -25,6 +28,7 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
     private var currentUser: FirebaseUser? = null
     private lateinit var auth: FirebaseAuth
     private var activityCount = AtomicInteger(0)
+    private var counter = AtomicInteger(0)
     private var lastStatus: String? = null
     private var isActivityChangingConfiguration = false
     private var notificationService: NotificationService? = null
@@ -71,10 +75,7 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
                         }
                     }
 
-                    override fun onCancelled(error: DatabaseError) {
-
-                    }
-
+                    override fun onCancelled(error: DatabaseError) {}
                 })
         }
     }
@@ -84,10 +85,7 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
             val userRef = rtDB.getReference("users").child(user.uid)
             userRef.child("status").onDisconnect().setValue("Offline")
             userRef.child("lastHeartBeat").onDisconnect().setValue(ServerValue.TIMESTAMP)
-
-            updateStatus("Online")
         }
-
     }
 
     override fun onActivityStarted(activity: Activity) {
@@ -95,8 +93,14 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
             if (!isActivityChangingConfiguration && activity !is SignInActivity && activity !is SignUpActivity) {
                 if (activityCount.incrementAndGet() == 1) {
                     // The service will start here as the app is in foreground
-                    startNotificationService(activity)
-                    updateStatus("Online")
+                    Log.e("DELAYED","STARTING")
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        Log.e("DELAYED","YES")
+                        if (!ActiveNotificationManager.hasMessageArrived.get()) {
+                            startNotificationService(activity)
+                            updateStatus("Online")
+                        }
+                    }, 2000L)
                 }
             }
         }
@@ -107,6 +111,7 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
             isActivityChangingConfiguration = activity.isChangingConfigurations
             if (!isActivityChangingConfiguration && activity !is SignInActivity && activity !is SignUpActivity) {
                 if (activityCount.decrementAndGet() == 0) {
+                    Log.d("TEST STOP", activity.toString())
                     // The service will stop here as the app is in background
                     stopNotificationService(activity)
                     updateStatus("Offline")
@@ -133,7 +138,8 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
                 stopService(intent)
                 try {
                     activity.unbindService(it)
-                } catch (e: Exception) {}
+                } catch (e: Exception) {
+                }
 
                 serviceBound = false
             }

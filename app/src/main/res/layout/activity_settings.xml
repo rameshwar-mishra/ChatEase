@@ -33,7 +33,10 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/_30sdp"
+        android:layout_marginLeft="@dimen/_13sdp"
+        android:layout_marginRight="@dimen/_13sdp"
+        android:layout_marginBottom="@dimen/_13sdp"
+        android:layout_marginTop="@dimen/_60sdp"
         >
 
         <LinearLayout
@@ -63,10 +66,8 @@
                 android:id="@+id/textInputLayoutDisplayName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="@dimen/_13sdp"
-                android:layout_marginLeft="@dimen/_13sdp"
-                android:layout_marginBottom="@dimen/_13sdp"
-                android:layout_marginTop="@dimen/_30sdp"
+               android:layout_marginTop="@dimen/_10sdp"
+
                 android:hint="Display Name"
                 app:counterEnabled="true"
                 app:counterMaxLength="30"
@@ -86,10 +87,6 @@
                 android:id="@+id/textInputLayoutUserName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="@dimen/_13sdp"
-                android:layout_marginLeft="@dimen/_13sdp"
-                android:layout_marginBottom="@dimen/_13sdp"
-                android:layout_marginTop="@dimen/_15sdp"
                 android:hint="Username"
                 app:counterEnabled="true"
                 app:counterMaxLength="30"
@@ -111,10 +108,7 @@
                 android:id="@+id/textInputLayoutUserBio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/_13sdp"
-                android:layout_marginTop="@dimen/_15sdp"
-                android:layout_marginRight="@dimen/_13sdp"
-                android:layout_marginBottom="@dimen/_13sdp"
+
                 android:hint="Bio"
                 app:counterEnabled="true"
                 app:counterMaxLength="100"

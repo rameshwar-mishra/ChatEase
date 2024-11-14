@@ -216,7 +216,6 @@ class SettingsActivity : AppCompatActivity() {
                     .setTitle("Sign Out")
                     .setMessage("Do you want to Sign Out From the App?")
                     .setIcon(R.drawable.vector_icon_warning)
-                    .setCancelable(false)
                     .setNegativeButton("No", DialogInterface.OnClickListener { dialog, which ->
                         dialog.cancel()
                     })

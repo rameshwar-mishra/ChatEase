@@ -69,9 +69,18 @@
             android:name=".trackers.NotificationService"
             android:enabled="true"
             android:exported="false" />
+        <service
+            android:name=".trackers.FCMMessageService"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
         <receiver
             android:name=".trackers.NotificationClearReceiver"
             android:enabled="true"
-            android:exported="false"/>
+            android:exported="false" />
     </application>
 </manifest>
