@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if(item.itemId == R.id.signOut) {
+        if(item.itemId == R.id.settingsIcon) {
             auth.signOut()
             startActivity(Intent(this@MainActivity,SignInActivity::class.java))
             finish()

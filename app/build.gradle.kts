@@ -78,7 +78,6 @@ dependencies {
     // Libraries of LifeCycle Observer
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1") // For Latest versions
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0") // For older versions
-
     // For handling FCM OAuth Key Registration and Regeneration
     implementation("com.google.auth:google-auth-library-oauth2-http:1.11.0")
 

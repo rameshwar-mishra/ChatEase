@@ -227,6 +227,7 @@ class SettingsActivity : AppCompatActivity() {
                             )
                         )
                         auth.signOut()
+                        getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE).edit().clear().apply()
                         startActivity(Intent(this@SettingsActivity, SignInActivity::class.java))
                         finish()
                     })

@@ -1,6 +1,5 @@
 package com.example.chatease.trackers
 
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -11,10 +10,8 @@ class FCMMessageService : FirebaseMessagingService() {
     private val rtDB = FirebaseDatabase.getInstance()
 
     override fun onMessageReceived(message: RemoteMessage) {
-        ActiveNotificationManager.hasMessageArrived.set(true)
-        Log.d("RECEIVER", "ACTIVE")
+        TrackerSingletonObject.hasMessageArrived.set(true)
         if (message.data.isNotEmpty()) {
-            Log.d("RECEIVER", "DATA")
             createNotification(
                 senderID = message.data["senderID"] ?: "",
                 lastMessage = message.data["lastMessage"] ?: "",
@@ -44,7 +41,6 @@ class FCMMessageService : FirebaseMessagingService() {
     }
 
     private fun createNotification(senderID: String, messageID: String, lastMessage: String) {
-        Log.d("RECEIVER", "CREATE")
         rtDB.getReference("users").child(senderID)
             .get()
             .addOnCompleteListener { task ->
@@ -54,7 +50,6 @@ class FCMMessageService : FirebaseMessagingService() {
                     if (lastMessageSubString.length > 30) {
                         lastMessageSubString = lastMessageSubString.substring(0, 30)
                     }
-                    Log.d("RECEIVER", "LISTENER")
                     Notification().showNotification(
                         context = this@FCMMessageService,
                         title = task.result.child("displayName").getValue(String::class.java) ?: "",
