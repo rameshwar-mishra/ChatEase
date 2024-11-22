@@ -84,4 +84,7 @@ dependencies {
 
     // For handling HTTP requests
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
+
+    // Material UI Components
+    implementation("com.google.android.material:material:1.9.0")
 }

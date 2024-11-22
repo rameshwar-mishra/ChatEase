@@ -67,21 +67,14 @@ class MainActivity : AppCompatActivity() {
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Log.e("TOKEN","GOT TOKEN")
-
-                Log.e("TOKEN","CHECKING CONDITION currentFCMUserToken != task.result : ${currentFCMUserToken != task.result}")
-                Log.e("TOKEN","CHECKING CONDITION task.result.isNotEmpty() : ${task.result.isNotEmpty()}")
                 if (currentFCMUserToken != task.result && task.result.isNotEmpty()) {
-                    Log.e("TOKEN","CONDITION SATISFIED")
                     auth.currentUser?.let { currentUser ->
-                        Log.e("TOKEN","IM IN")
                         rtDB.getReference("users").child(currentUser.uid).updateChildren(
                             mapOf(
                                 "FCMUserToken" to task.result
                             )
                         ).addOnCompleteListener { task1 ->
                             if (task1.isSuccessful) {
-                                Log.e("TOKEN","ADDED TOKEN TO THE DATABASE")
                                 getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE)
                                     .edit().putString("FCMUserToken", task.result).apply()
                             }
@@ -255,47 +248,6 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-
-
-//        rtDB.getReference("users").child(otherParticipant)
-//            .addListenerForSingleValueEvent(object : ValueEventListener {
-//                override fun onDataChange(userData: DataSnapshot) {
-//                    if (lastMessageSender == otherParticipant) {
-//                        updateRecentChatDataList(
-//                            userID = otherParticipant,
-//                            displayName = userData.child("displayName").getValue(String::class.java) ?: "",
-//                            avatarUrl = userData.child("avatar").getValue(String::class.java) ?: "",
-//                            lastMessage = lastMessage,
-//                            senderDisplayName = userData.child("displayName").getValue(String::class.java) ?: "",
-//                            formattedTimestamp = formattedTimestamp,
-//                            lastMessageTimestamp = lastMessageTimestamp,
-//                            isLastMessageReadByMe = documentMetaData.child("unRead_By_${auth.currentUser!!.uid}")
-//                                .getValue(Boolean::class.java) ?: true
-//                        )
-//                    } else {
-//                        updateRecentChatDataList(
-//                            userID = otherParticipant,
-//                            displayName = userData.child("displayName").getValue(String::class.java) ?: "",
-//                            avatarUrl = userData.child("avatar").getValue(String::class.java) ?: "",
-//                            lastMessage = lastMessage,
-//                            senderDisplayName = "You",
-//                            formattedTimestamp = formattedTimestamp,
-//                            lastMessageTimestamp = lastMessageTimestamp,
-//                            isLastMessageReadByMe = documentMetaData.child("unRead_By_${auth.currentUser!!.uid}")
-//                                .getValue(Boolean::class.java) ?: true
-//                        )
-//                    }
-//
-//                }
-//
-//                override fun onCancelled(error: DatabaseError) {
-//
-//                }
-//
-//            })
-        // Fetch user details of both participants based on the last message sender
-        // Use the cached user data in userProfileCache
-
     }
 
 
