@@ -255,47 +255,6 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-
-
-//        rtDB.getReference("users").child(otherParticipant)
-//            .addListenerForSingleValueEvent(object : ValueEventListener {
-//                override fun onDataChange(userData: DataSnapshot) {
-//                    if (lastMessageSender == otherParticipant) {
-//                        updateRecentChatDataList(
-//                            userID = otherParticipant,
-//                            displayName = userData.child("displayName").getValue(String::class.java) ?: "",
-//                            avatarUrl = userData.child("avatar").getValue(String::class.java) ?: "",
-//                            lastMessage = lastMessage,
-//                            senderDisplayName = userData.child("displayName").getValue(String::class.java) ?: "",
-//                            formattedTimestamp = formattedTimestamp,
-//                            lastMessageTimestamp = lastMessageTimestamp,
-//                            isLastMessageReadByMe = documentMetaData.child("unRead_By_${auth.currentUser!!.uid}")
-//                                .getValue(Boolean::class.java) ?: true
-//                        )
-//                    } else {
-//                        updateRecentChatDataList(
-//                            userID = otherParticipant,
-//                            displayName = userData.child("displayName").getValue(String::class.java) ?: "",
-//                            avatarUrl = userData.child("avatar").getValue(String::class.java) ?: "",
-//                            lastMessage = lastMessage,
-//                            senderDisplayName = "You",
-//                            formattedTimestamp = formattedTimestamp,
-//                            lastMessageTimestamp = lastMessageTimestamp,
-//                            isLastMessageReadByMe = documentMetaData.child("unRead_By_${auth.currentUser!!.uid}")
-//                                .getValue(Boolean::class.java) ?: true
-//                        )
-//                    }
-//
-//                }
-//
-//                override fun onCancelled(error: DatabaseError) {
-//
-//                }
-//
-//            })
-        // Fetch user details of both participants based on the last message sender
-        // Use the cached user data in userProfileCache
-
     }
 
 

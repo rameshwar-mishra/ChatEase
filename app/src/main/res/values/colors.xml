@@ -44,5 +44,6 @@
     <color name="textColors">#000000</color>
     <color name="signUpCardView">#FFFFFF</color>
     <color name="backgroundColor">@color/white</color>
+    <color name="greenSwitchTrack">#18C418</color>
 
 </resources>

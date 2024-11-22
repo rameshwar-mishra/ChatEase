@@ -387,7 +387,8 @@ class SignUpActivity : AppCompatActivity() {
                                                 "avatar" to urlTask.result.toString(),
                                                 "typing" to false,
                                                 "status" to "Offline",
-                                                "lastHeartBeat" to ""
+                                                "lastHeartBeat" to "",
+                                                "lastSeenAndOnlineSetting" to true
                                             )
 
                                             //Trying to store the userdata in the Firebase Firestore
@@ -437,7 +438,8 @@ class SignUpActivity : AppCompatActivity() {
                             "avatar" to "",
                             "typing" to false,
                             "status" to "offline",
-                            "lastHeartBeat" to ""
+                            "lastHeartBeat" to "",
+                            "lastSeenAndOnlineSetting" to true
                         )
 
                         //Trying to store the userdata in the Firebase Firestore
