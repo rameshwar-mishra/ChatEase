@@ -1,42 +1,29 @@
-package com.example.chatease.activities
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.Settings_AccountActivity">
 
-import android.content.Intent
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import com.example.chatease.databinding.ActivitySettingsBinding
-import com.example.chatease.listview_adapters.SettingsAdapter
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/activityToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/toolbarborderlayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-class SettingsActivity : AppCompatActivity() {
-    lateinit var binding: ActivitySettingsBinding
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivitySettingsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/activityToolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        />
 
-        val toolbar = binding.activityToolbar // Setting up the toolbar
-        setSupportActionBar(toolbar) // Setting the toolbar as the app bar
-        supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enabling the back button
-        supportActionBar?.title = "Settings" // Setting title for the toolbar
-
-        val itemList = listOf("Account", "Chats", "Privacy")
-
-        binding.listView.adapter = SettingsAdapter(this@SettingsActivity, itemList)
-
-        binding.listView.setOnItemClickListener { parent, view, position, id ->
-
-            when (position) {
-                0 -> {
-                    startActivity(Intent(this@SettingsActivity,Settings_AccountActivity::class.java))
-                }
-
-                1 -> {
-                    startActivity(Intent(this@SettingsActivity,Settings_ChatActivity::class.java))
-                }
-
-                2 -> {
-                    startActivity(Intent(this@SettingsActivity,Settings_PrivacyActivity::class.java))
-                }
-            }
-        }
-    }
-}
+</androidx.constraintlayout.widget.ConstraintLayout>
