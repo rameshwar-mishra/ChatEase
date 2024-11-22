@@ -1,168 +1,42 @@
-<?xml version="1.0" encoding="utf-8"?>
+package com.example.chatease.activities
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".activities.SettingsActivity">
+import android.content.Intent
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import com.example.chatease.databinding.ActivitySettingsBinding
+import com.example.chatease.listview_adapters.SettingsAdapter
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/userProfileActivityToolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:background="@drawable/toolbarborderlayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+class SettingsActivity : AppCompatActivity() {
+    lateinit var binding: ActivitySettingsBinding
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivitySettingsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/_50sdp"
-        >
+        val toolbar = binding.activityToolbar // Setting up the toolbar
+        setSupportActionBar(toolbar) // Setting the toolbar as the app bar
+        supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enabling the back button
+        supportActionBar?.title = "Settings" // Setting title for the toolbar
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+        val itemList = listOf("Account", "Chats", "Privacy")
 
-            <FrameLayout
-                android:id="@+id/frameUserAvatar"
-                android:layout_width="@dimen/_70sdp"
-                android:layout_height="@dimen/_70sdp"
-                android:layout_gravity="center"
-                android:layout_marginTop="@dimen/_40sdp"
-                >
+        binding.listView.adapter = SettingsAdapter(this@SettingsActivity, itemList)
 
-                <com.makeramen.roundedimageview.RoundedImageView
-                    android:id="@+id/userAvatar"
-                    android:layout_width="@dimen/_70sdp"
-                    android:layout_height="@dimen/_70sdp"
-                    android:scaleType="centerCrop"
-                    android:src="@color/black"
-                    app:riv_oval="true" />
-            </FrameLayout>
+        binding.listView.setOnItemClickListener { parent, view, position, id ->
 
+            when (position) {
+                0 -> {
+                    startActivity(Intent(this@SettingsActivity,Settings_AccountActivity::class.java))
+                }
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textInputLayoutDisplayName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="@dimen/_13sdp"
-                android:layout_marginLeft="@dimen/_13sdp"
-                android:layout_marginBottom="@dimen/_13sdp"
-                android:layout_marginTop="@dimen/_30sdp"
-                android:hint="Display Name"
-                app:counterEnabled="true"
-                app:counterMaxLength="30"
-                app:helperTextTextAppearance="@style/HelperTextStyle"
-                app:hintTextAppearance="@style/HelperTextStyle"
-                >
+                1 -> {
+                    startActivity(Intent(this@SettingsActivity,Settings_ChatActivity::class.java))
+                }
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/editTextDisplayName"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="Goku"
-                    android:textSize="@dimen/_13sdp" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textInputLayoutUserName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="@dimen/_13sdp"
-                android:layout_marginLeft="@dimen/_13sdp"
-                android:layout_marginBottom="@dimen/_13sdp"
-                android:layout_marginTop="@dimen/_15sdp"
-                android:hint="Username"
-                app:counterEnabled="true"
-                app:counterMaxLength="30"
-                app:helperTextTextAppearance="@style/HelperTextStyle"
-                app:hintTextAppearance="@style/HintTextStyle"
-                tools:layout_editor_absoluteX="13dp"
-                tools:layout_editor_absoluteY="357dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/editTextUserName"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="goku"
-                    android:textSize="@dimen/_13sdp" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textInputLayoutUserBio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/_13sdp"
-                android:layout_marginTop="@dimen/_15sdp"
-                android:layout_marginRight="@dimen/_13sdp"
-                android:layout_marginBottom="@dimen/_13sdp"
-                android:hint="Bio"
-                app:counterEnabled="true"
-                app:counterMaxLength="100"
-                app:helperTextTextAppearance="@style/HelperTextStyle"
-                app:hintTextAppearance="@style/HintTextStyle"
-                tools:layout_editor_absoluteX="16dp"
-                tools:layout_editor_absoluteY="482dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/editTextUserBio"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="Goku"
-                    android:textSize="@dimen/_13sdp" />
-            </com.google.android.material.textfield.TextInputLayout>
-            <FrameLayout
-                android:id="@+id/frameLayoutApplyButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_20sdp"
-                android:layout_gravity="center"
-                >
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/applyChangesButton"
-                    android:layout_width="@dimen/_160sdp"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="#FF5722"
-                    android:text="Apply Changes"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/_13ssp"
-                    app:cornerRadius="0dp"
-                    tools:layout_editor_absoluteX="133dp"
-                    tools:layout_editor_absoluteY="655dp" />
-                <ProgressBar
-                    android:id="@+id/applyButtonProgressBar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:indeterminate="true"
-                    android:layout_gravity="center"
-                    android:indeterminateTint="@color/dodger_blue"
-                    android:visibility="gone"
-                    />
-            </FrameLayout>
-
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/changePasswordButton"
-                android:layout_width="@dimen/_160sdp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:backgroundTint="#FF5722"
-                android:text="Change Password"
-                android:textColor="@color/white"
-                android:textSize="@dimen/_13ssp"
-                app:cornerRadius="0dp" />
-        </LinearLayout>
-
-
-    </FrameLayout>
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+                2 -> {
+                    startActivity(Intent(this@SettingsActivity,Settings_PrivacyActivity::class.java))
+                }
+            }
+        }
+    }
+}

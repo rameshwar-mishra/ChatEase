@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.Settings_PrivacyActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/activityToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/toolbarborderlayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.materialswitch.MaterialSwitch
+        android:id="@+id/material_switch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Some Feature"
+        android:paddingStart="20dp"
+        android:paddingEnd="10dp"
+        android:textSize="19sp"
+        android:checked="false"
+        app:trackTint="@color/color_material_switch_track"
+        app:thumbTint="@color/color_material_switch_thumb"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/activityToolbar"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

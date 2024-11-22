@@ -135,6 +135,10 @@ class ChatActivity : AppCompatActivity() {
         var previousAvatarUrl: String? = null
         var otherUserFCMToken: String? = null
         var otherUserPresenceStatus: String? = null
+        val lastSeenAndOnlinePersonalSetting = getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE)
+            .getBoolean("lastSeenAndOnlineSetting", false)
+
+        var lastSeenAndOnlineOtherUserSetting = false
 
         rtDB.getReference("users").child(otherUserId!!).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -142,14 +146,31 @@ class ChatActivity : AppCompatActivity() {
                     // Setting the display name from intent extra
                     binding.textViewDisplayName.text = snapshot.child("displayName").getValue(String::class.java) ?: ""
                     otherUserPresenceStatus = snapshot.child("status").getValue(String::class.java)
+                    lastSeenAndOnlineOtherUserSetting = snapshot.child("lastSeenAndOnlineSetting")
+                        .getValue(Boolean::class.java) ?: false
 
-                    if (otherUserPresenceStatus == "Offline") {
-                        val lastHeartBeatTime = (snapshot.child("lastHeartBeat").getValue(Long::class.java) ?: 0L) / 1000
 
-                        binding.textViewUserPresenceStatus.text = "Last Seen at " +
-                                getRelativeTime(Timestamp(lastHeartBeatTime, 0)) // Format the timestamp for display
+                    Log.d("test", lastSeenAndOnlineOtherUserSetting.toString())
+                    Log.d("test1", lastSeenAndOnlinePersonalSetting.toString())
+
+                    if (lastSeenAndOnlinePersonalSetting && lastSeenAndOnlineOtherUserSetting) {
+
+                        if (binding.textViewUserPresenceStatus.visibility == View.GONE) {
+                            binding.textViewUserPresenceStatus.visibility = View.VISIBLE
+                        }
+
+                        if (otherUserPresenceStatus == "Offline") {
+                            val lastHeartBeatTime = (snapshot.child("lastHeartBeat").getValue(Long::class.java) ?: 0L) / 1000
+
+                            binding.textViewUserPresenceStatus.text = "Last Seen at " +
+                                    getRelativeTime(Timestamp(lastHeartBeatTime, 0)) // Format the timestamp for display
+                        } else {
+                            binding.textViewUserPresenceStatus.text = otherUserPresenceStatus
+                        }
+
                     } else {
-                        binding.textViewUserPresenceStatus.text = otherUserPresenceStatus
+                        Log.d("test1", "WORKS")
+                        binding.textViewUserPresenceStatus.visibility = View.GONE
                     }
 
                     otherUserFCMToken = snapshot.child("FCMUserToken").getValue(String::class.java) ?: null
@@ -168,16 +189,6 @@ class ChatActivity : AppCompatActivity() {
                                 .into(binding.roundedImageViewDisplayImage)
                         }
                     }
-
-//                    if (otherUserId != currentUserId) {
-//                        if (snapshot.child("typing_of_$otherUserId").getValue(Boolean::class.java) == true) {
-//                            binding.textViewUserPresenceStatus.visibility = View.INVISIBLE
-//                            binding.textViewTypingStatus.visibility = View.VISIBLE
-//                        } else {
-//                            binding.textViewUserPresenceStatus.visibility = View.VISIBLE
-//                            binding.textViewTypingStatus.visibility = View.INVISIBLE
-//                        }
-//                    }
                 }
             }
 
@@ -201,10 +212,17 @@ class ChatActivity : AppCompatActivity() {
         typingListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.child("typing_of_$otherUserId").getValue(Boolean::class.java) == true) {
-                    binding.textViewUserPresenceStatus.visibility = View.INVISIBLE
+                    if (lastSeenAndOnlinePersonalSetting && lastSeenAndOnlineOtherUserSetting) {
+                        binding.textViewUserPresenceStatus.visibility = View.INVISIBLE
+                    }
+
                     binding.textViewTypingStatus.visibility = View.VISIBLE
                 } else {
-                    binding.textViewUserPresenceStatus.visibility = View.VISIBLE
+
+                    if (lastSeenAndOnlinePersonalSetting && lastSeenAndOnlineOtherUserSetting) {
+                        binding.textViewUserPresenceStatus.visibility = View.VISIBLE
+                    }
+
                     binding.textViewTypingStatus.visibility = View.INVISIBLE
                 }
             }
@@ -387,16 +405,15 @@ class ChatActivity : AppCompatActivity() {
                         hasRead = true
                         // Update read status and timestamp in the database
                         if (TrackerSingletonObject.isAppForeground.get()) {
+                            // Update metadata to reflect that the user has read the last message
                             markMessageAsRead(conversationID, snapshot.key!!)
+                            updateMetaData(
+                                convoID = conversationID,
+                                currentUserID = currentUserId
+                            )
                         } else {
                             unReadMessagesSet.add(snapshot.key!!)
                         }
-
-                        // Update metadata to reflect that the user has read the last message
-                        updateMetaData(
-                            convoID = conversationID,
-                            currentUserID = currentUserId
-                        )
 
                     } else if (!isRead && !hasRead && (timestampLong > currentTimestamp)) {
                         // If the message is unread but was sent after the user opened the chat:
@@ -412,15 +429,15 @@ class ChatActivity : AppCompatActivity() {
                         hasRead = true
                         // Update read status and timestamp in the database
                         if (TrackerSingletonObject.isAppForeground.get()) {
+                            // Update metadata to reflect that the user has read the last message
                             markMessageAsRead(conversationID, snapshot.key!!)
+                            updateMetaData(
+                                convoID = conversationID,
+                                currentUserID = currentUserId
+                            )
                         } else {
                             unReadMessagesSet.add(snapshot.key!!)
                         }
-                        // Update metadata to reflect that the user has read the last message
-                        updateMetaData(
-                            convoID = conversationID,
-                            currentUserID = currentUserId
-                        )
                     } else if (!isRead && hasRead) {
                         // If the message is unread in the database but is not the first unread message:
 
@@ -430,17 +447,16 @@ class ChatActivity : AppCompatActivity() {
                         // BUT the time of the message sent is after the user opened the chat activity
 
                         // Add the message without marking it as truly unread
-                        messagesList.add(messageObject)
                         if (TrackerSingletonObject.isAppForeground.get()) {
+                            // Update metadata to reflect that the user has read the last message
                             markMessageAsRead(conversationID, snapshot.key!!)
+                            updateMetaData(
+                                convoID = conversationID,
+                                currentUserID = currentUserId
+                            )
                         } else {
                             unReadMessagesSet.add(snapshot.key!!)
                         }
-                        // Update metadata to reflect that the user has read the last message
-                        updateMetaData(
-                            convoID = conversationID,
-                            currentUserID = currentUserId
-                        )
                     } else if (isRead) {
                         // If the message is already marked as read:
                         messagesList.add(messageObject)
@@ -642,6 +658,10 @@ class ChatActivity : AppCompatActivity() {
 
                     for (mesaageId in unReadMessagesSet) {
                         markMessageAsRead(convoID, messageID = mesaageId)
+                        updateMetaData(
+                            convoID = convoID,
+                            currentUserID = currentUser.uid
+                        )
                     }
                 }
             }
