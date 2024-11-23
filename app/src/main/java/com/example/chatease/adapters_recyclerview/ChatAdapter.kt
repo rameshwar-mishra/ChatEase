@@ -1,12 +1,12 @@
-package com.example.chatease.recyclerview_adapters
+package com.example.chatease.adapters_recyclerview
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.chatease.databinding.ReceiverMessageLayoutBinding
-import com.example.chatease.databinding.SenderMessageLayoutBinding
-import com.example.chatease.databinding.UnreadMessageLayoutBinding
+import com.example.chatease.databinding.LayoutReceiverMessageBinding
+import com.example.chatease.databinding.LayoutSenderMessageBinding
+import com.example.chatease.databinding.LayoutUnreadMessageBinding
 import com.example.chatease.dataclass.MessageUserData
 
 // Adapter for managing chat messages in the RecyclerView
@@ -16,12 +16,12 @@ class ChatAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     // ViewHolder for messages sent by the user
-    class SenderViewHolder(val binding: SenderMessageLayoutBinding) : RecyclerView.ViewHolder(binding.root) {}
+    class SenderViewHolder(val binding: LayoutSenderMessageBinding) : RecyclerView.ViewHolder(binding.root) {}
 
     // ViewHolder for messages received from other users
-    class ReceiverViewHolder(val binding: ReceiverMessageLayoutBinding) : RecyclerView.ViewHolder(binding.root) {}
+    class ReceiverViewHolder(val binding: LayoutReceiverMessageBinding) : RecyclerView.ViewHolder(binding.root) {}
 
-    class UnreadViewHolder(val binding: UnreadMessageLayoutBinding) : RecyclerView.ViewHolder(binding.root) {}
+    class UnreadViewHolder(val binding: LayoutUnreadMessageBinding) : RecyclerView.ViewHolder(binding.root) {}
 
     companion object {
         const val IS_SENDER = 1 // Constant to represent sender view type
@@ -44,15 +44,15 @@ class ChatAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == IS_SENDER) {
             // Inflate the layout for sent messages
-            val view = SenderMessageLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            val view = LayoutSenderMessageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             SenderViewHolder(view)
         } else if (viewType == IS_RECEIVER) {
             // Inflate the layout for received messages
-            val view = ReceiverMessageLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            val view = LayoutReceiverMessageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             ReceiverViewHolder(view)
         } else {
             // Inflate the layout for unread message indicator/separator
-            val view = UnreadMessageLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            val view = LayoutUnreadMessageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             UnreadViewHolder(view)
         }
     }

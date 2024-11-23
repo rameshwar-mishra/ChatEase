@@ -1,6 +1,7 @@
 package com.example.chatease.activities
 
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -65,7 +66,7 @@ class Settings_PrivacyActivity : AppCompatActivity() {
                 if (currentValue) {
                     auth.currentUser?.let { currentUser ->
 
-                        rtDB.getReference("users/$currentUser")
+                        rtDB.getReference("users/${currentUser.uid}")
                             .updateChildren(
                                 mapOf(
                                     "lastSeenAndOnlineSetting" to false
@@ -83,5 +84,17 @@ class Settings_PrivacyActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+            }
+
+            else -> return super.onOptionsItemSelected(item)
+
+        }
+        return true
     }
 }

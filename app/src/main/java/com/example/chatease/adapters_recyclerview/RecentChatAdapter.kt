@@ -1,4 +1,4 @@
-package com.example.chatease.recyclerview_adapters
+package com.example.chatease.adapters_recyclerview
 
 import android.content.Context
 import android.content.Intent
@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.chatease.R
 import com.example.chatease.activities.ChatActivity
-import com.example.chatease.databinding.RecentChatUserLayoutBinding
+import com.example.chatease.databinding.LayoutRecentChatUserBinding
 import com.example.chatease.dataclass.RecentChatData
 
 class RecentChatAdapter(
@@ -19,11 +19,11 @@ class RecentChatAdapter(
 ) : RecyclerView.Adapter<RecentChatAdapter.RecentChatViewHolder>() {
 
     // ViewHolder class for binding recent chat layout
-    class RecentChatViewHolder(val binding: RecentChatUserLayoutBinding) : RecyclerView.ViewHolder(binding.root) {}
+    class RecentChatViewHolder(val binding: LayoutRecentChatUserBinding) : RecyclerView.ViewHolder(binding.root) {}
 
     // Create new ViewHolder instances
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecentChatViewHolder {
-        val view = RecentChatUserLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val view = LayoutRecentChatUserBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return RecentChatViewHolder(view)
     }
 

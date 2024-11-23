@@ -1,4 +1,4 @@
-package com.example.chatease.recyclerview_adapters
+package com.example.chatease.adapters_recyclerview
 
 import android.app.Activity
 import android.content.Context
@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.chatease.R
 import com.example.chatease.activities.ChatActivity
-import com.example.chatease.databinding.SearchContentBinding
-import com.example.chatease.databinding.SearchContentNotFoundBinding
+import com.example.chatease.databinding.LayoutSearchContentBinding
+import com.example.chatease.databinding.LayoutSearchContentNotFoundBinding
 import com.example.chatease.dataclass.SearchUserData
 
 // Adapter for displaying search results in a RecyclerView
@@ -49,23 +49,24 @@ class SearchUserAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == isFound) {
             // Inflate layout for user profile if results were found
-            val view = SearchContentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+
+            val view = LayoutSearchContentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             UserProfileViewHolder(view)
         } else {
             // Inflate layout for "No Match Found" message if no results were found
-            val view = SearchContentNotFoundBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            val view = LayoutSearchContentNotFoundBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             UserNotFoundHolder(view)
         }
     }
 
     // ViewHolder for user profile items
     class UserProfileViewHolder(
-        val binding: SearchContentBinding
+        val binding: LayoutSearchContentBinding
     ) : RecyclerView.ViewHolder(binding.root)
 
     // ViewHolder for "No Match Found" Layout
     class UserNotFoundHolder(
-        private val binding: SearchContentNotFoundBinding
+        private val binding: LayoutSearchContentNotFoundBinding
     ) : RecyclerView.ViewHolder(binding.root)
 
     // Returns the total number of items in the adapter

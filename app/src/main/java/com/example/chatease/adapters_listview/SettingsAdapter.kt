@@ -1,4 +1,4 @@
-package com.example.chatease.listview_adapters
+package com.example.chatease.adapters_listview
 
 import android.content.Context
 import android.view.LayoutInflater

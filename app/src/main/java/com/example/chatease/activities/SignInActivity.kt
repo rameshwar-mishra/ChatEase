@@ -20,7 +20,6 @@ class SignInActivity : AppCompatActivity() {
     private val rtDB = FirebaseDatabase.getInstance()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
         binding = ActivitySignInBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -47,6 +46,10 @@ class SignInActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             signIn()
+        }
+
+        binding.textViewForgetPassword.setOnClickListener {
+            startActivity(Intent(this,ForgetPasswordActivity::class.java))
         }
 
         //A textView of "Don't have an Account? Sign Up" using as a Button
