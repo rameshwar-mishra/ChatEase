@@ -230,11 +230,15 @@ class Settings_AccountActivity : AppCompatActivity() {
                         finish()
                     }
                 alertDialog.show()
-                return true
+            }
+
+            android.R.id.home -> {
+                onBackPressed()
             }
 
             else -> return super.onOptionsItemSelected(item)
         }
+        return true
     }
 
 

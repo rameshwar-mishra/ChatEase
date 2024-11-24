@@ -28,7 +28,6 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
     private var currentUser: FirebaseUser? = null
     private lateinit var auth: FirebaseAuth
     private var activityCount = AtomicInteger(0)
-    private var counter = AtomicInteger(0)
     private var lastStatus: String? = null
     private var isActivityChangingConfiguration = false
     private var notificationService: NotificationService? = null
@@ -38,6 +37,7 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
     override fun onCreate() {
         super.onCreate()
         rtDB = FirebaseDatabase.getInstance()
+        rtDB.setPersistenceEnabled(true)
         auth = FirebaseAuth.getInstance()
         currentUser = auth.currentUser
         serviceConnection = object : ServiceConnection {

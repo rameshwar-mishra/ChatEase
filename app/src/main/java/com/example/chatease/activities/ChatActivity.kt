@@ -18,9 +18,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.chatease.R
+import com.example.chatease.adapters_recyclerview.ChatAdapter
 import com.example.chatease.databinding.ActivityChatBinding
 import com.example.chatease.dataclass.MessageUserData
-import com.example.chatease.recyclerview_adapters.ChatAdapter
 import com.example.chatease.trackers.TrackerSingletonObject
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.auth.oauth2.ServiceAccountCredentials
@@ -149,10 +149,6 @@ class ChatActivity : AppCompatActivity() {
                     lastSeenAndOnlineOtherUserSetting = snapshot.child("lastSeenAndOnlineSetting")
                         .getValue(Boolean::class.java) ?: false
 
-
-                    Log.d("test", lastSeenAndOnlineOtherUserSetting.toString())
-                    Log.d("test1", lastSeenAndOnlinePersonalSetting.toString())
-
                     if (lastSeenAndOnlinePersonalSetting && lastSeenAndOnlineOtherUserSetting) {
 
                         if (binding.textViewUserPresenceStatus.visibility == View.GONE) {
@@ -169,7 +165,6 @@ class ChatActivity : AppCompatActivity() {
                         }
 
                     } else {
-                        Log.d("test1", "WORKS")
                         binding.textViewUserPresenceStatus.visibility = View.GONE
                     }
 
