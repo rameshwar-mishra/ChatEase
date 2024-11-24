@@ -34,8 +34,8 @@
 
                 <com.makeramen.roundedimageview.RoundedImageView
                     android:id="@+id/roundedImageViewDisplayImage"
-                    android:layout_width="@dimen/_35sdp"
-                    android:layout_height="@dimen/_35sdp"
+                    android:layout_width="@dimen/_32sdp"
+                    android:layout_height="@dimen/_32sdp"
                     android:scaleType="centerCrop"
                     android:src="@color/black"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -112,21 +112,21 @@
 
             <EditText
                 android:id="@+id/editTextMessage"
-                android:layout_width="@dimen/_250sdp"
+                android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:background="@android:color/transparent"
                 android:hint="Message"
-                android:paddingLeft="@dimen/_10sdp"
+                android:paddingStart="@dimen/_10sdp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/buttonSend"
                 app:layout_constraintVertical_bias="0.5" />
 
             <FrameLayout
                 android:id="@+id/buttonSend"
-                android:layout_width="50dp"
+                android:layout_width="60dp"
                 android:layout_height="match_parent"
-                android:layout_marginEnd="10dp"
                 android:clickable="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -141,23 +141,6 @@
                     android:layout_gravity="center"
                     android:src="@drawable/vector_icon_send" />
             </FrameLayout>
-
-            <!--            <FrameLayout-->
-            <!--                android:id="@+id/buttonAttachment"-->
-            <!--                android:layout_width="0dp"-->
-            <!--                android:layout_height="match_parent"-->
-            <!--                android:layout_marginEnd="10dp"-->
-            <!--                app:layout_constraintBottom_toBottomOf="parent"-->
-            <!--                app:layout_constraintEnd_toStartOf="@+id/buttonSend"-->
-            <!--                app:layout_constraintTop_toTopOf="parent"-->
-            <!--                app:layout_constraintVertical_bias="0.0">-->
-
-            <!--                <ImageView-->
-            <!--                    android:layout_width="match_parent"-->
-            <!--                    android:layout_height="wrap_content"-->
-            <!--                    android:layout_gravity="center"-->
-            <!--                    android:src="@drawable/vector_icon_attachfile" />-->
-            <!--            </FrameLayout>-->
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -21,27 +21,19 @@
         <activity
             android:name=".activities.Settings_PrivacyActivity"
             android:exported="false"
-            android:parentActivityName=".activities.SettingsActivity"/>
+            android:parentActivityName=".activities.MainActivity"/>
         <activity
             android:name=".activities.Settings_ChatActivity"
             android:exported="false"
-            android:parentActivityName=".activities.SettingsActivity"/>
+            android:parentActivityName=".activities.MainActivity"/>
         <activity
             android:name=".activities.Settings_AccountActivity"
             android:exported="false"
-            android:parentActivityName=".activities.SettingsActivity"/>
+            android:parentActivityName=".activities.MainActivity"/>
         <activity
             android:name=".activities.UpdatePasswordActivity"
             android:exported="false"
-            android:parentActivityName=".activities.SettingsActivity" />
-        <activity
-            android:name=".activities.ForgetPasswordActivity"
-            android:exported="false"
-            android:parentActivityName=".activities.SignInActivity" />
-        <activity
-            android:name=".activities.UpdatePasswordActivity"
-            android:exported="false"
-            android:parentActivityName=".activities.SettingsActivity" />
+            android:parentActivityName=".activities.Settings_AccountActivity"/>
         <activity
             android:name=".activities.ForgetPasswordActivity"
             android:exported="false"
@@ -53,10 +45,6 @@
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity
-            android:name=".activities.SettingsActivity"
-            android:exported="false"
-            android:parentActivityName=".activities.MainActivity" />
         <activity
             android:name=".activities.ChatActivity"
             android:exported="false"
@@ -103,4 +91,5 @@
             android:enabled="true"
             android:exported="false" />
     </application>
+
 </manifest>

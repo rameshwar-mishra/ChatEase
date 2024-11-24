@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.chatease.R
 import com.example.chatease.databinding.ActivitySearchBinding
 import com.example.chatease.dataclass.SearchUserData
-import com.example.chatease.recyclerview_adapters.SearchUserAdapter
+import com.example.chatease.adapters_recyclerview.SearchUserAdapter
 import com.google.firebase.database.FirebaseDatabase
 
 class SearchActivity : AppCompatActivity() {

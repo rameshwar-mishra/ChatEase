@@ -15,7 +15,6 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -73,7 +72,7 @@ class Settings_AccountActivity : AppCompatActivity() {
         val toolbar = binding.userProfileActivityToolbar // Setting up the toolbar
         setSupportActionBar(toolbar) // Setting the toolbar as the app bar
         supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enabling the back button
-        supportActionBar?.setDisplayShowTitleEnabled(false)
+        supportActionBar?.title = "Account" // Setting title for the toolbar
 
         userId = auth.currentUser?.uid ?: "" // Getting the current user's ID
 
@@ -231,11 +230,15 @@ class Settings_AccountActivity : AppCompatActivity() {
                         finish()
                     }
                 alertDialog.show()
-                return true
+            }
+
+            android.R.id.home -> {
+                onBackPressed()
             }
 
             else -> return super.onOptionsItemSelected(item)
         }
+        return true
     }
 
 

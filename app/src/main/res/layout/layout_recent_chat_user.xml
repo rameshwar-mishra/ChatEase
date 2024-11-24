@@ -2,7 +2,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/recentChatUserLayout"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
@@ -15,17 +14,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="60dp">
-
 
             <com.makeramen.roundedimageview.RoundedImageView
                 android:id="@+id/userAvatar"
                 android:layout_width="46dp"
                 android:layout_height="46dp"
-                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="4dp"
                 android:scaleType="centerCrop"
                 android:src="@color/black"
@@ -39,7 +36,7 @@
                 android:id="@+id/displayName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
+                android:layout_marginStart="20dp"
                 android:layout_marginTop="4dp"
                 android:text="Goku"
                 android:textSize="19sp"
@@ -50,7 +47,7 @@
                 android:id="@+id/userLastMessage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
+                android:layout_marginStart="20dp"
                 android:layout_marginTop="6dp"
                 android:text="Last Message"
                 android:textColor="#746C6C"
@@ -63,7 +60,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:layout_marginRight="16dp"
+                android:layout_marginEnd="16dp"
                 android:text="12:00"
                 android:textSize="12sp"
                 app:layout_constraintRight_toRightOf="parent"
