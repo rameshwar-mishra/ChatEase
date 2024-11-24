@@ -16,7 +16,7 @@ class SettingsActivity : AppCompatActivity() {
         val toolbar = binding.activityToolbar // Setting up the toolbar
         setSupportActionBar(toolbar) // Setting the toolbar as the app bar
         supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enabling the back button
-        supportActionBar?.title = "Settings" // Setting title for the toolbar
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
         val itemList = listOf("Account", "Chats", "Privacy")
 

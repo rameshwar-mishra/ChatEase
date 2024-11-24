@@ -15,7 +15,17 @@
         android:background="@drawable/toolbarborderlayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recent Chat"
+            android:textStyle="bold"
+            android:textSize="@dimen/_16ssp"
+            android:layout_gravity="center"
+            />
+    </androidx.appcompat.widget.Toolbar>
 
 
     <androidx.recyclerview.widget.RecyclerView

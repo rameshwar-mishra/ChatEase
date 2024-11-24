@@ -32,8 +32,7 @@ class UserProfileActivity : AppCompatActivity() {
         val toolbar = binding.userProfileActivityToolbar // Get reference to toolbar
         setSupportActionBar(toolbar) // Set toolbar as the action bar for the activity
         supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enable back button in toolbar
-        supportActionBar?.title = "User Profile" // Set the title of the toolbar
-
+        supportActionBar?.setDisplayShowTitleEnabled(false)
         userId = intent.getStringExtra("id") ?: "" // Get the user ID from the intent extras
 
         // Fetch user data from Firestore using the user ID

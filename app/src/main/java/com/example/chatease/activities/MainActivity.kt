@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity() {
         // Set up the toolbar for the activity
         val toolbar = binding.toolbar
         setSupportActionBar(toolbar)
-
+        supportActionBar?.setDisplayShowTitleEnabled(false)
         // Initialize the RecyclerView and set its layout manager to display items vertically
         recyclerView = findViewById(R.id.recyclerViewRecentChat)
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
@@ -306,7 +306,7 @@ class MainActivity : AppCompatActivity() {
         adapter.notifyDataSetChanged()
     }
 
-    // Inflate the options menu for the activity
+//     Inflate the options menu for the activity
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_signout, menu) // Inflate the sign-out menu
         return true

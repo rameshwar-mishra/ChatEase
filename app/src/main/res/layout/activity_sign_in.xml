@@ -23,7 +23,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="@dimen/_16sdp"
-            app:boxStrokeColor="@color/defaultColor"
             app:boxStrokeErrorColor="@color/red"
             app:boxStrokeWidth="2dp"
             app:endIconMode="clear_text"
@@ -43,7 +42,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="@dimen/_16sdp"
-            app:boxStrokeColor="@color/defaultColor"
             app:boxStrokeErrorColor="@color/red"
             app:boxStrokeWidth="2dp"
             app:endIconMode="password_toggle">

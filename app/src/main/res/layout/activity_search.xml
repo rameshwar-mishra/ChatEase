@@ -12,7 +12,9 @@
         android:id="@+id/toolbar"
         android:background="@drawable/toolbarborderlayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:navigationIcon="@drawable/vector_icon_back_arrow"
+        >
 
         <EditText
             android:id="@+id/editTextSearch"
