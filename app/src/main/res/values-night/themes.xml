@@ -14,8 +14,8 @@
     </style>
 
     <style name="bottomNavigationView" parent="Widget.Material3.BottomNavigationView">
-            <item name="backgroundTint">@android:color/background_dark</item>
-</style>
+        <item name="backgroundTint">@android:color/background_dark</item>
+    </style>
 
     <style name="HelperTextStyle" parent="TextAppearance.AppCompat.Small">
         <item name="android:textSize">@dimen/_14ssp</item>

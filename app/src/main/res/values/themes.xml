@@ -20,7 +20,7 @@
     <style name="TextInputErrorMessage" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:textSize">@dimen/_25ssp</item>
     </style>
-<!--Setting Default Values for Material CardView-->
+    <!--Setting Default Values for Material CardView-->
     <style name="CustomCardViewDesign" parent="Widget.MaterialComponents.CardView">
         <item name="cardCornerRadius">0dp</item>
         <item name="strokeWidth">0dp</item>

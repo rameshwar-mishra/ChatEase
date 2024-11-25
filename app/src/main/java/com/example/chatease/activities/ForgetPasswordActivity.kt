@@ -61,4 +61,3 @@ class ForgetPasswordActivity : AppCompatActivity() {
             }
     }
 }
-

@@ -136,9 +136,9 @@ class ChatActivity : AppCompatActivity() {
         var otherUserFCMToken: String? = null
         var otherUserPresenceStatus: String? = null
         val lastSeenAndOnlinePersonalSetting = getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE)
-            .getBoolean("lastSeenAndOnlineSetting", false)
+            .getBoolean("lastSeenAndOnlineSetting", true)
 
-        var lastSeenAndOnlineOtherUserSetting = false
+        var lastSeenAndOnlineOtherUserSetting = true
 
         rtDB.getReference("users").child(otherUserId!!).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -147,7 +147,7 @@ class ChatActivity : AppCompatActivity() {
                     binding.textViewDisplayName.text = snapshot.child("displayName").getValue(String::class.java) ?: ""
                     otherUserPresenceStatus = snapshot.child("status").getValue(String::class.java)
                     lastSeenAndOnlineOtherUserSetting = snapshot.child("lastSeenAndOnlineSetting")
-                        .getValue(Boolean::class.java) ?: false
+                        .getValue(Boolean::class.java) ?: true
 
                     if (lastSeenAndOnlinePersonalSetting && lastSeenAndOnlineOtherUserSetting) {
 
