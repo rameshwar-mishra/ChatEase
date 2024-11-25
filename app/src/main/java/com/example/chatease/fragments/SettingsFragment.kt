@@ -29,7 +29,7 @@ class SettingsFragment : Fragment() {
 
         val toolbar = binding.activityToolbar // Setting up the toolbar
         (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar) // Setting the toolbar as the app bar
-        (requireActivity() as AppCompatActivity).supportActionBar?.title = "Settings" // Setting title for the toolbar
+        (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)// Setting title for the toolbar
 
         val itemList = listOf("Account", "Chats", "Privacy")
 

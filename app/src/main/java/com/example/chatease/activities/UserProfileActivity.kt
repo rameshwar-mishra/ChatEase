@@ -86,9 +86,4 @@ class UserProfileActivity : AppCompatActivity() {
         finish() // Close the current activity
     }
 
-    // Inflate menu options for user profile
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_chat_options, menu) // Inflate the menu resource into the toolbar
-        return true // Return true to display the menu
-    }
 }

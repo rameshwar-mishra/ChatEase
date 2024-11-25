@@ -33,8 +33,7 @@
         android:layout_width="@dimen/_100sdp"
         android:layout_height="@dimen/_100sdp"
         android:layout_marginTop="32dp"
-
-        android:src="@color/black"
+        android:src="#8B4343"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -57,12 +56,12 @@
         android:id="@+id/messageUserButton"
         android:layout_width="@dimen/_100sdp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="30dp"
         android:backgroundTint="#FF5722"
         android:text="Message"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
-        android:visibility="gone"
+    android:visibility="gone"
         app:cornerRadius="0dp"
         app:layout_constraintEnd_toStartOf="@+id/addFriendButton"
         app:layout_constraintHorizontal_bias="0.5"
@@ -73,12 +72,12 @@
         android:id="@+id/addFriendButton"
         android:layout_width="@dimen/_100sdp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="30dp"
         android:backgroundTint="#FF5722"
         android:text="Add Friend"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
-        android:visibility="gone"
+
         app:cornerRadius="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -109,19 +108,76 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/userName" />
+<com.google.android.material.card.MaterialCardView
+    android:id="@+id/cardViewFriendRequest"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:layout_constraintTop_toBottomOf="@+id/addFriendButton"
+    app:layout_constraintStart_toStartOf="parent"
+    android:layout_marginTop="30dp"
+    app:strokeWidth="1dp"
+    >
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/_5sdp"
+        >
+        <TextView
+            android:id="@+id/textViewFriendRequestSender"
+            android:layout_width="match_parent"
+            android:layout_margin="@dimen/_2sdp"
+            android:layout_height="wrap_content"
+            android:text="Goku sent you a friend Request"
+            android:textSize="@dimen/_14ssp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            />
 
-    <androidx.cardview.widget.CardView
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/friendRequestAcceptButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="#9EFA9A17"
+            android:text="Accept"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_10ssp"
+            app:cornerRadius="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textViewFriendRequestSender" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/friendRequestDeclineButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:backgroundTint="#3E3D3D"
+            android:layout_marginTop="10dp"
+            android:text="Decline"
+            android:textColor="@color/white"
+            app:cornerRadius="10dp"
+            app:layout_constraintStart_toEndOf="@id/friendRequestAcceptButton"
+            app:layout_constraintTop_toBottomOf="@id/textViewFriendRequestSender" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardViewBio"
         android:layout_width="match_parent"
         android:layout_height="@dimen/_50sdp"
-        android:layout_marginTop="56dp"
-        android:backgroundTint="#FFFFFF"
-        android:outlineSpotShadowColor="#FF9800"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="10dp"
+        app:strokeWidth="1dp"
+        app:cardCornerRadius="2dp"
+        app:strokeColor="@color/toolbarBorderColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addFriendButton"
-        tools:ignore="UnusedAttribute">
+        app:layout_constraintTop_toBottomOf="@+id/cardViewFriendRequest"
+        tools:ignore="UnusedAttribute"
+        >
 
         <TextView
             android:id="@+id/textViewBioText"
@@ -133,7 +189,7 @@
             android:textSize="@dimen/_12ssp"
             tools:layout_editor_absoluteX="35dp"
             tools:layout_editor_absoluteY="292dp" />
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -100,6 +100,7 @@ class RecentChatFragment : Fragment() {
         val toolbar = binding.toolbar
 
         (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
+        (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
 
         // Initialize the RecyclerView and set its layout manager to display items vertically
         recyclerView = view.findViewById(R.id.recyclerViewRecentChat)

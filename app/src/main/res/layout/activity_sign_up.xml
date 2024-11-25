@@ -243,7 +243,7 @@
                     android:layout_gravity="center|center_vertical"
                     android:text="Already have an account? Sign in"
                     android:textColor="@color/secondaryText"
-                    android:textSize="15dp"
+                    android:textSize="@dimen/_12ssp"
                     android:layout_marginTop="15dp"
                     />
 

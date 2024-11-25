@@ -45,4 +45,5 @@
     <color name="signUpCardView">#0E0202</color>
     <color name="backgroundColor">#000014</color>
     <color name="greenSwitchTrack">#18C418</color>
+    <color name="toolbarBorderColor">#333333</color>
 </resources>
