@@ -72,7 +72,7 @@ class Settings_AccountActivity : AppCompatActivity() {
         val toolbar = binding.userProfileActivityToolbar // Setting up the toolbar
         setSupportActionBar(toolbar) // Setting the toolbar as the app bar
         supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enabling the back button
-        supportActionBar?.title = "Account" // Setting title for the toolbar
+        supportActionBar?.setDisplayShowTitleEnabled(false)// Setting title for the toolbar
 
         userId = auth.currentUser?.uid ?: "" // Getting the current user's ID
 

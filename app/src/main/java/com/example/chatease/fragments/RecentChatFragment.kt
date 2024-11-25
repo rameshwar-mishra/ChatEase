@@ -41,14 +41,10 @@ class RecentChatFragment : Fragment() {
     private val auth = FirebaseAuth.getInstance()
 
     // Realtime database instance to interact with Firebase Realtime database
-
     private val rtDB = FirebaseDatabase.getInstance()
 
     // RecyclerView for displaying recent chats
     private lateinit var recyclerView: RecyclerView
-
-    // Variable to hold modified chat data temporarily
-    private var modifiedChatData: RecentChatData? = null
 
     // Mutable list to hold recent chat data
     private var recentChatDataList = mutableListOf<RecentChatData>()
@@ -94,7 +90,6 @@ class RecentChatFragment : Fragment() {
                 }
             }
         }
-
 
         // Set up the toolbar for the activity
         val toolbar = binding.toolbar

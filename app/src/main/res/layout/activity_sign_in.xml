@@ -15,15 +15,22 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:gravity="center_horizontal"
         android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Welcome Back!"
+            android:gravity="center"
+            android:textSize="@dimen/_20ssp"
+            >
+
+        </TextView>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/editLayoutEmail"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="@dimen/_16sdp"
-            app:boxStrokeColor="@color/defaultColor"
             app:boxStrokeErrorColor="@color/red"
             app:boxStrokeWidth="2dp"
             app:endIconMode="clear_text"
@@ -43,7 +50,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="@dimen/_16sdp"
-            app:boxStrokeColor="@color/defaultColor"
             app:boxStrokeErrorColor="@color/red"
             app:boxStrokeWidth="2dp"
             app:endIconMode="password_toggle">
@@ -67,6 +73,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
+                android:padding="@dimen/_8sdp"
                 android:layout_gravity="center|center_vertical"
                 android:backgroundTint="@color/dark_blue"
                 android:text="SIGN IN"
@@ -90,7 +97,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center|center_vertical"
             android:layout_marginTop="@dimen/_10sdp"
-            android:text="Forget Password"
+            android:text="Forget Password?"
             android:textColor="@color/secondaryText"
             android:textSize="@dimen/_12ssp" />
         <TextView
@@ -103,15 +110,6 @@
             android:textColor="@color/secondaryText"
             android:textSize="@dimen/_12ssp" />
 
-        <!--        <com.google.android.material.button.MaterialButton-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="@dimen/_45sdp"-->
-        <!--            android:layout_marginTop="@dimen/_10sdp"-->
-        <!--            app:cornerRadius="@dimen/_8sdp"-->
-        <!--            android:text="SIGN UP"-->
-        <!--            android:textSize="@dimen/_13sdp">-->
-
-        <!--        </com.google.android.material.button.MaterialButton>-->
     </LinearLayout>
 
 </ScrollView>

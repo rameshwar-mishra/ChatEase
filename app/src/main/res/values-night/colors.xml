@@ -36,7 +36,7 @@
     <color name="silver">#C0C0C0</color>
     <color name="defaultColor">#808080</color>
     <color name="primaryText">#212121</color>
-    <color name="secondaryText">#A8A6A6</color>
+    <color name="secondaryText">#A69A9A</color>
     <color name="inputBackground">#ECECEC</color>
     <color name="toolbarColor">#373636</color>
     <color name="icon_color">#FFFFFF</color>
@@ -45,4 +45,5 @@
     <color name="signUpCardView">#0E0202</color>
     <color name="backgroundColor">#000014</color>
     <color name="greenSwitchTrack">#18C418</color>
+    <color name="toolbarBorderColor">#333333</color>
 </resources>

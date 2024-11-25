@@ -3,14 +3,18 @@
     <style name="Base.Theme.ChatEase" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <item name="android:statusBarColor">@color/item_background</item>
-        <item name="cardViewStyle">@style/StyleCard</item>
-<!--        <item name="android:windowBackground">#000014</item>-->
+        <item name="android:windowBackground">@android:color/background_dark</item>
         <item name="itemBackground">@color/white</item>
         <item name="icon_background">@color/icon_color</item>
         <item name="textColors">@color/textColors</item>
         <item name="colorCard">@color/signUpCardView</item>
         <item name="textAppearanceCaption">@style/TextInputErrorMessage</item>
-<!--        <item name="android:navigationBarColor">#000014</item>-->
+        <item name="materialCardViewStyle">@style/CustomCardViewDesign</item>
+        <item name="bottomNavigationStyle">@style/bottomNavigationView</item>
+    </style>
+
+    <style name="bottomNavigationView" parent="Widget.Material3.BottomNavigationView">
+        <item name="backgroundTint">@android:color/background_dark</item>
     </style>
 
     <style name="HelperTextStyle" parent="TextAppearance.AppCompat.Small">
@@ -21,9 +25,13 @@
         <item name="android:textSize">@dimen/_14ssp</item>
     </style>
 
-    <style name="StyleCard" parent="Widget.MaterialComponents.CardView">
-        <item name="cardBackgroundColor">@android:color/transparent</item>
-        <item name="android:borderlessButtonStyle">@android:color/darker_gray</item>
+    <!--Setting Default Values for Material CardView-->
+    <style name="CustomCardViewDesign" parent="Widget.MaterialComponents.CardView">
+        <item name="cardCornerRadius">0dp</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="strokeColor">@android:color/transparent</item>
+        <item name="cardBackgroundColor">@android:color/background_dark</item>
     </style>
+
 
 </resources>
