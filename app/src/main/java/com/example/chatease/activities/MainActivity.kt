@@ -9,6 +9,10 @@ import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.example.chatease.R
 import com.example.chatease.adapters_fragment.FragmentAdapter
 import com.example.chatease.databinding.ActivityMainBinding
+import com.example.chatease.fragments.FriendsFragment
+import com.example.chatease.fragments.GroupsFragment
+import com.example.chatease.fragments.RecentChatFragment
+import com.example.chatease.fragments.SettingsFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,7 +25,6 @@ class MainActivity : AppCompatActivity() {
         // Inflate the layout and set it as the content view using view binding
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        resources
         // Set up window insets to ensure layout is not obscured by system bars (like status bar)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -29,8 +32,15 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        val fragments = listOf(
+            RecentChatFragment(),
+            GroupsFragment(),
+            FriendsFragment(),
+            SettingsFragment()
+        )
+
         // Setting up the adapter
-        binding.viewpager2MainActivity.adapter = FragmentAdapter(this)
+        binding.viewpager2MainActivity.adapter = FragmentAdapter(this, fragmentList = fragments)
 
         // Handling Bottom Navigation clicks
         binding.bottomNavigationView.setOnItemSelectedListener { item ->
@@ -41,7 +51,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_settings -> 3
                 else -> 0
             }
-            binding.viewpager2MainActivity.setCurrentItem(index,false)
+            binding.viewpager2MainActivity.setCurrentItem(index, false)
             true
         }
 

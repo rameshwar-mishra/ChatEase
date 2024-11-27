@@ -282,8 +282,6 @@ class SignUpActivity : AppCompatActivity() {
             }
         } else if (resultCode == UCrop.RESULT_ERROR) {
             showToast("Cropping failed, Choose any other image")
-//            val cropError = UCrop.getError(data!!)
-//            Log.e("UCrop Error", "Cropping failed: ${cropError?.message}")
         }
     }
 
