@@ -31,7 +31,6 @@ class UserProfileActivity : AppCompatActivity() {
     private lateinit var listenerRequestAcceptedObject: ValueEventListener
     private var otherUserId: String = "" // Variable to store the user ID
     private var fromFriendsFragment = false
-    private var displayName = ""
     private lateinit var binding: ActivityUserProfileBinding // View binding for UserProfileActivity layout
     private var addFriendButtonStatus = ""
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -130,19 +129,19 @@ class UserProfileActivity : AppCompatActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        if (fromFriendsFragment) {
-
-        }
-    }
+//    override fun onBackPressed() {
+//        super.onBackPressed()
+//        if (fromFriendsFragment) {
+//
+//        }
+//    }
 
     private fun fetchOtherUserDetails() {
         CoroutineScope(Dispatchers.IO).launch {
             rtDb.getReference("users").child(otherUserId).get().addOnCompleteListener { task ->
                 if (task.isSuccessful) { // Check if Firestore data retrieval was successful
                     val userName = task.result.child("userName").getValue(String::class.java) ?: "" // Get
-                    displayName = task.result.child("displayName").getValue(String::class.java) ?: ""
+                    var displayName = task.result.child("displayName").getValue(String::class.java) ?: ""
                     val userAvatar = task.result.child("avatar").getValue(String::class.java) ?: "" // Get
                     val userBio = task.result.child("userBio").getValue(String::class.java) ?: "" // Get e
 
@@ -157,6 +156,7 @@ class UserProfileActivity : AppCompatActivity() {
 
                         binding.userName.text = "@$userName" // Set username text in UI
                         binding.displayName.text = displayName // Set display name text in UI
+                        binding.textViewFriendRequestSender.text = "$displayName sent you a friend Request"
                         binding.textViewBioText.text = userBio // Set user bio text in UI
                     }
                 }
@@ -317,7 +317,6 @@ class UserProfileActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.Main).launch {
             if (status && binding.cardViewFriendRequest.visibility == View.GONE) {
                 binding.addFriendButton.visibility = View.GONE
-                binding.textViewFriendRequestSender.text = "$displayName sent you a friend Request"
                 binding.cardViewFriendRequest.visibility = View.VISIBLE
             } else if (!status) {
                 binding.addFriendButton.visibility = View.VISIBLE

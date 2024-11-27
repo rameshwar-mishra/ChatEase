@@ -194,7 +194,14 @@ class FrndRequestResponseAdapter(
 
     private fun addIDInRequestAccepted(currentUserID: String, position: Int, otherUserId: String, displayName: String) {
         CoroutineScope(Dispatchers.IO).launch {
-            val isSuccessful = async { addIdInOtherUserDB(currentUserID, position) }.await()
+            val isSuccessful = async {
+                addIdInOtherUserDB(
+                    currentUserID = currentUserID,
+                    position = position,
+                    otherUserId = otherUserId
+                )
+            }.await()
+
             if (isSuccessful) {
                 rtDB.getReference("users/$currentUserID/friends/requestAccepted").updateChildren(
                     mapOf(
@@ -211,10 +218,10 @@ class FrndRequestResponseAdapter(
         }
     }
 
-    private suspend fun addIdInOtherUserDB(currentUserID: String, position: Int): Boolean {
+    private suspend fun addIdInOtherUserDB(currentUserID: String, position: Int, otherUserId: String): Boolean {
         return withContext(Dispatchers.IO) {
             suspendCancellableCoroutine { coroutine ->
-                rtDB.getReference("users/${userDataList[position].userID}/friends/requestAccepted").updateChildren(
+                rtDB.getReference("users/$otherUserId/friends/requestAccepted").updateChildren(
                     mapOf(
                         currentUserID to true
                     )

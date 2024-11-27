@@ -31,14 +31,14 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardViewFriendRequest"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="65dp"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
             android:backgroundTint="@color/cardViewColor"
             app:cardCornerRadius="10dp"
-            app:layout_constraintBottom_toTopOf="@id/recyclerViewFriends"
+            app:layout_constraintBottom_toTopOf="@id/textViewFriendsCounter"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/toolbar"
             app:strokeColor="@color/toolbarBorderColor"
@@ -73,7 +73,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Friend Requests"
-                    android:textSize="19sp"
+                    android:textSize="18sp"
+                    android:layout_marginTop="2dp"
                     app:layout_constraintStart_toStartOf="@id/guidelineStartFriendRequest"
                     app:layout_constraintTop_toTopOf="@id/guidelineTopFriendRequest" />
 
@@ -81,7 +82,7 @@
                     android:id="@+id/imageViewForwardArrow"
                     android:layout_width="18dp"
                     android:layout_height="15dp"
-                    android:layout_marginTop="7dp"
+                    android:layout_marginTop="3dp"
                     android:src="@drawable/vector_icon_forward_arrow"
                     app:layout_constraintStart_toEndOf="@id/guidelineEndFriendRequest"
                     app:layout_constraintTop_toTopOf="@id/guidelineTopFriendRequest" />
@@ -90,18 +91,29 @@
 
         </com.google.android.material.card.MaterialCardView>
 
+        <TextView
+            android:id="@+id/textViewFriendsCounter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="All Friends - 1"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/recyclerViewFriends"
+            />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewFriends"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="5dp"
             android:layout_marginEnd="10dp"
-            android:layout_marginBottom="10dp"
             android:padding="5dp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cardViewFriendRequest" />
+            app:layout_constraintTop_toBottomOf="@id/textViewFriendsCounter" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

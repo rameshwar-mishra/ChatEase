@@ -105,7 +105,12 @@ class FriendsFragment : Fragment() {
                                 Log.d("userData Index", index.toString())
                                 if (userDataList[index].userID == snapshot.key) {
                                     userDataList.removeAt(index)
-                                    adapter.notifyItemChanged(index)
+                                    adapter.notifyItemRemoved(index)
+                                    if(userDataList.size == 0) {
+                                        binding.textViewFriendsCounter.visibility = View.GONE
+                                    } else {
+                                        binding.textViewFriendsCounter.text = "All Friends - ${userDataList.size}"
+                                    }
                                     break
                                 }
                             }
@@ -144,6 +149,8 @@ class FriendsFragment : Fragment() {
                     userAvatar = snapshot.child("avatar").getValue(String::class.java) ?: "" // Get user avatar
                 )
                 userDataList.add(userProfile)
+                binding.textViewFriendsCounter.visibility = View.VISIBLE
+                binding.textViewFriendsCounter.text = "All Friends - ${userDataList.size}"
                 adapter.notifyItemInserted(userDataList.size - 1)
             }
         }
