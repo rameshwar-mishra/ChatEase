@@ -3,7 +3,8 @@
     <style name="Base.Theme.ChatEase" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!--         <item name="colorPrimary">@color/dark_blue</item>-->
-        <item name="android:statusBarColor">@color/item_background</item>
+        <item name="android:statusBarColor">@android:color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
         <item name="icon_background">@color/icon_color</item>
         <item name="android:windowBackground">@android:color/white</item>
         <item name="itemBackground">@color/black</item>
@@ -12,6 +13,8 @@
         <item name="textAppearanceCaption">@style/TextInputErrorMessage</item>
         <item name="materialCardViewStyle">@style/CustomCardViewDesign</item>
         <item name="bottomNavigationStyle">@style/bottomNavigationView</item>
+        <item name="android:navigationBarColor">#FBFBFB</item>
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
 
     <style name="bottomNavigationView" parent="Widget.Material3.BottomNavigationView">

@@ -11,6 +11,7 @@
         <item name="textAppearanceCaption">@style/TextInputErrorMessage</item>
         <item name="materialCardViewStyle">@style/CustomCardViewDesign</item>
         <item name="bottomNavigationStyle">@style/bottomNavigationView</item>
+        <item name="android:fontFamily">@font/mulish_semibold</item>
     </style>
 
     <style name="bottomNavigationView" parent="Widget.Material3.BottomNavigationView">
