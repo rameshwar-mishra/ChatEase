@@ -1,47 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/searchUserLinearLayout"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/searchUserLinearLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_60sdp"
+        android:layout_height="@dimen/_50sdp"
         app:cardCornerRadius="0dp"
         app:strokeWidth="0dp"
-        >
+        app:cardBackgroundColor="@color/cardViewColor">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.5">
+            android:layout_height="match_parent">
 
             <com.makeramen.roundedimageview.RoundedImageView
                 android:id="@+id/roundedImageView"
-                android:layout_width="@dimen/_33sdp"
-                android:layout_height="@dimen/_33sdp"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:layout_marginStart="16dp"
                 android:scaleType="centerCrop"
+                app:riv_oval="true"
                 android:src="@drawable/vector_default_user_avatar"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.526"
-                app:riv_oval="true" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/textViewDisplayName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
-                android:layout_marginTop="16dp"
-                android:fontFamily="sans-serif"
+                android:layout_marginTop="12dp"
                 android:text="Display Name"
-                android:textSize="@dimen/_15ssp"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif"
                 app:layout_constraintStart_toEndOf="@+id/roundedImageView"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -50,12 +45,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="17dp"
-                android:fontFamily="sans-serif"
                 android:text="username"
                 android:textColor="#969393"
-                android:textSize="@dimen/_12ssp"
-                app:layout_constraintStart_toEndOf="@+id/roundedImageView"
-                app:layout_constraintTop_toBottomOf="@+id/textViewDisplayName" />
+                android:textSize="14sp"
+                android:fontFamily="sans-serif"
+                app:layout_constraintTop_toBottomOf="@+id/textViewDisplayName"
+                app:layout_constraintStart_toEndOf="@+id/roundedImageView" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

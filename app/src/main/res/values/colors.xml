@@ -46,4 +46,6 @@
     <color name="backgroundColor">@color/white</color>
     <color name="greenSwitchTrack">#18C418</color>
     <color name="toolbarBorderColor">#DADADA</color>
+    <color name="cardViewColor">#292732</color>
+
 </resources>

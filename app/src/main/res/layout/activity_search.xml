@@ -32,7 +32,9 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewSearch"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:padding="5dp"/>
 
         <ProgressBar
             android:id="@+id/progressBar"

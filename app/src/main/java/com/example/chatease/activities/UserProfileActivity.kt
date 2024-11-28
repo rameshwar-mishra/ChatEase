@@ -30,6 +30,7 @@ class UserProfileActivity : AppCompatActivity() {
     private lateinit var listenerRequestReceivedObject: ValueEventListener
     private lateinit var listenerRequestAcceptedObject: ValueEventListener
     private var otherUserId: String = "" // Variable to store the user ID
+    private var fromFriendsFragment = false
     private var displayName = ""
     private lateinit var binding: ActivityUserProfileBinding // View binding for UserProfileActivity layout
     private var addFriendButtonStatus = ""
@@ -51,6 +52,7 @@ class UserProfileActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowTitleEnabled(false) // Disable the title to be visible in the toolbar
 
         otherUserId = intent.getStringExtra("id") ?: "" // Get the user ID from the intent extras
+        fromFriendsFragment = intent.getBooleanExtra("FriendsFragment", false) // Get the user ID from the intent extras
 
         // Fetch user data from Firestore using the user ID
 
@@ -78,6 +80,16 @@ class UserProfileActivity : AppCompatActivity() {
         FirebaseAuth.getInstance().currentUser?.let { currentUser ->
             setAddFriendButton(currentUser.uid, otherUserId)
             addFriendStatusListener(currentUser.uid)
+        }
+
+        if (fromFriendsFragment) {
+            binding.messageUserButton.visibility = View.VISIBLE
+        }
+
+        binding.messageUserButton.setOnClickListener {
+            val intent = Intent(this@UserProfileActivity, ChatActivity::class.java)
+            intent.putExtra("id", otherUserId)
+            startActivity(intent)
         }
 
         binding.addFriendButton.setOnClickListener {
@@ -115,6 +127,13 @@ class UserProfileActivity : AppCompatActivity() {
                     whenUserDeclinesFriendRequest(currentUserID = currentUser.uid, otherUserID = otherUserId)
                 }
             }
+        }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        if (fromFriendsFragment) {
+
         }
     }
 
@@ -175,7 +194,11 @@ class UserProfileActivity : AppCompatActivity() {
                 if (snapshot.exists()) {
                     cardViewVisibility(status = true)
                 } else {
-                    cardViewVisibility(status = false)
+                    if (otherUserId == currentUserID) {
+                        binding.addFriendButton.visibility = View.GONE
+                    } else {
+                        cardViewVisibility(status = false)
+                    }
                 }
             }
 
@@ -206,12 +229,20 @@ class UserProfileActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         FirebaseAuth.getInstance().currentUser?.let { currentUser ->
-            rtDb.getReference("users/${currentUser.uid}/friends/requestSent/$otherUserId")
-                .removeEventListener(listenerRequestSentObject)
-            rtDb.getReference("users/${currentUser.uid}/friends/requestReceived/$otherUserId")
-                .removeEventListener(listenerRequestReceivedObject)
-            rtDb.getReference("users/${currentUser.uid}/friends/requestAccepted/$otherUserId")
-                .removeEventListener(listenerRequestAcceptedObject)
+            try {
+                listenerRequestSentObject.let {
+                    rtDb.getReference("users/${currentUser.uid}/friends/requestSent/$otherUserId")
+                        .removeEventListener(listenerRequestSentObject)
+                }
+                listenerRequestReceivedObject.let {
+                    rtDb.getReference("users/${currentUser.uid}/friends/requestReceived/$otherUserId")
+                        .removeEventListener(listenerRequestReceivedObject)
+                }
+                listenerRequestAcceptedObject.let {
+                    rtDb.getReference("users/${currentUser.uid}/friends/requestAccepted/$otherUserId")
+                        .removeEventListener(listenerRequestAcceptedObject)
+                }
+            } catch (exception : Exception) {}
         }
     }
 
@@ -288,7 +319,7 @@ class UserProfileActivity : AppCompatActivity() {
                 binding.addFriendButton.visibility = View.GONE
                 binding.textViewFriendRequestSender.text = "$displayName sent you a friend Request"
                 binding.cardViewFriendRequest.visibility = View.VISIBLE
-            } else {
+            } else if (!status) {
                 binding.addFriendButton.visibility = View.VISIBLE
                 binding.cardViewFriendRequest.visibility = View.GONE
             }

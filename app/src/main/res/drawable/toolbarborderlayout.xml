@@ -1,8 +1,9 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:gravity="bottom"
-        android:height=".8dp">
+    <item
+        android:height=".8dp"
+        android:gravity="bottom">
         <shape android:shape="rectangle">
-            <solid android:color="@color/toolbarBorderColor"/>
+            <solid android:color="@color/toolbarBorderColor" />
         </shape>
     </item>
 </layer-list>

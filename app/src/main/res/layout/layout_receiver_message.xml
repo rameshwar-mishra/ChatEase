@@ -32,7 +32,6 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5sp"
                 android:layout_weight="1"
-                android:fontFamily="@font/mulish_semibold"
                 android:paddingTop="5sp"
                 android:paddingRight="5sp"
                 android:text="This is received message"

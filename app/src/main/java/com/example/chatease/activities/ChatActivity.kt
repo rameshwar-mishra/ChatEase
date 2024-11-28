@@ -385,7 +385,7 @@ class ChatActivity : AppCompatActivity() {
                 if (sender != auth.currentUser?.uid) {
                     // This message wasn't sent by this user
                     if (!isRead && !hasRead && (timestampLong < currentTimestamp)) {
-
+                        Log.d("checkChat","yes3")
                         // If the message was sent before the user opened the chat and
                         // is unread both in the database and locally:
 
@@ -411,6 +411,7 @@ class ChatActivity : AppCompatActivity() {
                         }
 
                     } else if (!isRead && !hasRead && (timestampLong > currentTimestamp)) {
+                        Log.d("checkChat","yes")
                         // If the message is unread but was sent after the user opened the chat:
 
                         // (which indicates that this is the first message among all,
@@ -424,6 +425,7 @@ class ChatActivity : AppCompatActivity() {
                         hasRead = true
                         // Update read status and timestamp in the database
                         if (TrackerSingletonObject.isAppForeground.get()) {
+                            Log.d("checkChat","1")
                             // Update metadata to reflect that the user has read the last message
                             markMessageAsRead(conversationID, snapshot.key!!)
                             updateMetaData(
@@ -431,9 +433,11 @@ class ChatActivity : AppCompatActivity() {
                                 currentUserID = currentUserId
                             )
                         } else {
+                            Log.d("checkChat","2")
                             unReadMessagesSet.add(snapshot.key!!)
                         }
                     } else if (!isRead && hasRead) {
+                        Log.d("checkChat","yes4")
                         // If the message is unread in the database but is not the first unread message:
 
                         // (which indicates that this message is not the first unread message but
@@ -442,7 +446,9 @@ class ChatActivity : AppCompatActivity() {
                         // BUT the time of the message sent is after the user opened the chat activity
 
                         // Add the message without marking it as truly unread
+                        messagesList.add(messageObject)
                         if (TrackerSingletonObject.isAppForeground.get()) {
+                            Log.d("checkChat","yes5")
                             // Update metadata to reflect that the user has read the last message
                             markMessageAsRead(conversationID, snapshot.key!!)
                             updateMetaData(
@@ -450,9 +456,11 @@ class ChatActivity : AppCompatActivity() {
                                 currentUserID = currentUserId
                             )
                         } else {
+                            Log.d("checkChat","ye6")
                             unReadMessagesSet.add(snapshot.key!!)
                         }
                     } else if (isRead) {
+                        Log.d("checkChat","yes7")
                         // If the message is already marked as read:
                         messagesList.add(messageObject)
                     }

@@ -46,4 +46,5 @@
     <color name="backgroundColor">#000014</color>
     <color name="greenSwitchTrack">#18C418</color>
     <color name="toolbarBorderColor">#333333</color>
+    <color name="cardViewColor">#292732</color>
 </resources>

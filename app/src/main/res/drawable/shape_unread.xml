@@ -1,21 +1,7 @@
-<!--<shape xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--    android:shape="rectangle">-->
-<!--    <solid android:color="@color/red"/>-->
-<!--    <corners android:radius="8dp"/>-->
-<!--</shape>-->
 
 
-<!-- res/drawable/rectangle_with_notches.xml -->
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="200dp"
-    android:height="100dp"
-    android:viewportWidth="200"
-    android:viewportHeight="100">
-
-    <!-- Define the main shape with triangular notches on top-left and bottom-left -->
-    <path
-        android:fillColor="@color/red"
-    android:pathData="M 1,0 L 200,0 L 200,100 L 40,100 L 20,80 L 20,20 Z" />
-
-    <!-- Replace with your desired color -->
-</vector>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/red" />
+    <corners android:radius="8dp" />
+</shape>

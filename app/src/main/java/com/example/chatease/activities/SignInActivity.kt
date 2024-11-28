@@ -34,11 +34,6 @@ class SignInActivity : AppCompatActivity() {
 
         //Checking if the user is already logged in AND is not coming from the SignUpActivity
         //Open the MainActivity and close the SignInActivity
-        if (auth.currentUser != null && !fromSignUp) {
-            startActivity(Intent(this@SignInActivity, MainActivity::class.java))
-            finish()
-        }
-
         //SignIn Button
         binding.buttonSignIn.setOnClickListener {
             isLoading(true)
@@ -118,7 +113,10 @@ class SignInActivity : AppCompatActivity() {
                         )
                         .addOnSuccessListener {
                             isLoading(false)
-                            startActivity(Intent(this@SignInActivity, MainActivity::class.java))
+                            val intent = Intent(this@SignInActivity, MainActivity::class.java).apply {
+                                flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                            startActivity(intent)
                             finish()
                         }
                         .addOnFailureListener { e ->
