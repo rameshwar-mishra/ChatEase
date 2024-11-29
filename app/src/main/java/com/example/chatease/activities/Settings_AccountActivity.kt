@@ -249,7 +249,10 @@ class Settings_AccountActivity : AppCompatActivity() {
                         )
                         auth.signOut()
                         getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE).edit().clear().apply()
-                        startActivity(Intent(this@Settings_AccountActivity, SignInActivity::class.java))
+                        val intent = Intent(this@Settings_AccountActivity, WelcomeActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                        startActivity(intent)
                         finish()
                     }
                 alertDialog.show()

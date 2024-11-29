@@ -19,9 +19,17 @@
         android:theme="@style/Theme.ChatEase"
         tools:targetApi="31">
         <activity
+            android:name=".activities.WelcomeActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".activities.FriendRequestsActivity"
-            android:exported="false"
-            />
+            android:exported="false" />
         <activity
             android:name=".activities.Settings_PrivacyActivity"
             android:exported="false"
@@ -29,6 +37,7 @@
         <activity
             android:name=".activities.Settings_ChatActivity"
             android:exported="false"
+            android:theme="@style/ThemeChatActivity"
             android:parentActivityName=".activities.MainActivity" />
         <activity
             android:name=".activities.Settings_AccountActivity"
@@ -68,13 +77,8 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activities.SignInActivity"
-            android:exported="true"
+            android:exported="false"
             android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <service
@@ -94,6 +98,10 @@
             android:name=".trackers.NotificationClearReceiver"
             android:enabled="true"
             android:exported="false" />
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 
 </manifest>

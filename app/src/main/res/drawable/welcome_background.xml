@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Semi-transparent overlay -->
+    <item>
+        <bitmap
+            android:src="@drawable/welcome_background_image"
+            android:gravity="center" />
+    </item>
+    <item>
+        <color android:color="#20000000" /> <!-- Adjust alpha -->
+    </item>
+    <!-- Background image -->
+
+</layer-list>
