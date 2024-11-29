@@ -17,7 +17,10 @@
         <item name="android:windowLightNavigationBar">true</item>
         <item name="android:fontFamily">@font/roboto</item>
     </style>
-
+    <style name="ThemeChatActivity" parent="Base.Theme.ChatEase">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowDisablePreview">true</item>
+    </style>
     <style name="bottomNavigationView" parent="Widget.Material3.BottomNavigationView">
         <item name="backgroundTint">#FBFBFB</item>
     </style>
