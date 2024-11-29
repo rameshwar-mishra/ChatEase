@@ -8,7 +8,7 @@
             android:gravity="center" />
     </item>
     <item>
-        <color android:color="#10000000" /> <!-- Adjust alpha -->
+        <color android:color="#20000000" /> <!-- Adjust alpha -->
     </item>
     <!-- Background image -->
 

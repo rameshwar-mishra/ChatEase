@@ -13,21 +13,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.27" />
+        app:layout_constraintGuide_percent="0.33" />
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guidelineHorizontalTopHeadingView"
+        android:id="@+id/guidelineImageWidthStart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.395" />
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.4" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineImageWidthEnd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.6" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidelineHorizontalTopTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.51" />
+        app:layout_constraintGuide_percent="0.8" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidelineVerticalStart"
@@ -52,13 +59,18 @@
 
 
     <ImageView
-        android:layout_width="130dp"
-        android:layout_height="120dp"
+        android:id="@+id/appLogo"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:contentDescription="App Logo"
+        android:scaleType="centerCrop"
         android:src="@drawable/welcome_chat_logo"
-        app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
-        app:layout_constraintTop_toTopOf="@id/guidelineHorizontalLogoTop" />
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="@id/guidelineImageWidthEnd"
+        app:layout_constraintStart_toStartOf="@id/guidelineImageWidthStart"
+        app:layout_constraintTop_toTopOf="@id/guidelineHorizontalLogoTop"
+
+        />
 
     <TextView
         android:id="@+id/textViewWelcomeMainText"
@@ -73,19 +85,21 @@
         android:textSize="40sp"
         app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
         app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
-        app:layout_constraintTop_toTopOf="@id/guidelineHorizontalTopHeadingView" />
+        app:layout_constraintTop_toBottomOf="@id/appLogo" />
 
     <TextView
         android:id="@+id/textViewWelcomeText"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/roboto"
+        android:layout_height="0dp"
+        android:autoSizeMaxTextSize="21sp"
+        android:autoSizeMinTextSize="16sp"
+        android:autoSizeTextType="uniform"
+        android:fontFamily="@font/welcome_activity_heading_font"
         android:gravity="center"
         android:text="Connect easily with your family and friends over countries!"
         android:textColor="#D4D2D2"
-        android:textSize="16.8sp"
+        app:layout_constraintBottom_toTopOf="@id/guidelineHorizontalButtonTop"
         app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
         app:layout_constraintTop_toTopOf="@id/guidelineHorizontalTopTextView" />
 
@@ -93,7 +107,8 @@
         android:id="@+id/startMessagingButton"
         android:layout_width="0dp"
         android:layout_height="60dp"
-        android:backgroundTint="#BAFFFBFB"
+        android:layout_marginTop="3dp"
+        android:backgroundTint="#FFFFFF"
         android:fontFamily="@font/roboto"
         android:text="Start Messaging"
         android:textColor="#000000"
@@ -101,7 +116,6 @@
         android:textStyle="bold"
         app:cornerRadius="40dp"
         app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
         app:layout_constraintTop_toTopOf="@id/guidelineHorizontalButtonTop" />
 </androidx.constraintlayout.widget.ConstraintLayout>

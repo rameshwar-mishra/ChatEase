@@ -5,71 +5,87 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".activities.MainActivity"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".activities.MainActivity">
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/white"
-        app:cardCornerRadius="10sp"
         android:layout_gravity="right"
-        android:layout_marginEnd="20sp"
         android:layout_marginStart="80sp"
         android:layout_marginTop="7dp"
+        android:layout_marginEnd="20sp"
         android:layout_marginBottom="7dp"
-        app:cardBackgroundColor="#43444b"
-        >
+        android:background="@color/white"
+        android:backgroundTint="#43444b"
+        app:cardCornerRadius="10sp">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/textViewSenderMessage"
-                android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="5sp"
-                android:paddingTop="5sp"
-                android:paddingEnd="5sp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:text="This is sent message"
                 android:textSize="15sp"
-                android:text="This is sent message">
-            </TextView>
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineTop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.23" />
 
             <TextView
                 android:id="@+id/textViewTimeStamp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="0sp"
-                android:paddingEnd="5sp"
-                android:paddingBottom="5sp"
-                android:textSize="10sp"
+                android:layout_height="12dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="7dp"
                 android:text="09:46"
-                android:layout_gravity="bottom">
-            </TextView>
+                android:textSize="10sp"
+                app:layout_constraintStart_toEndOf="@id/textViewSenderMessage"
+                app:layout_constraintTop_toTopOf="@id/guidelineTop" />
+
             <ImageView
                 android:id="@+id/readIndicatorSingleTick"
+                android:layout_width="19dp"
+                android:layout_height="19dp"
+                android:layout_marginStart="1dp"
+                android:layout_marginTop="4dp"
                 android:layout_marginEnd="5dp"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_width="@dimen/_15sdp"
-                android:layout_height="wrap_content"
                 android:src="@drawable/vector_icon_single_tick"
                 android:visibility="visible"
-                />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/textViewTimeStamp"
+                app:layout_constraintTop_toTopOf="@id/guidelineTop" />
+
             <ImageView
                 android:id="@+id/readIndicatorDoubleTick"
+                android:layout_width="19dp"
+                android:layout_height="19dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
                 android:layout_marginEnd="5dp"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_width="@dimen/_20sdp"
-                android:layout_height="@dimen/_20sdp"
+                android:layout_marginBottom="1dp"
                 android:src="@drawable/vector_icon_double_tick"
                 android:visibility="gone"
-                />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/textViewTimeStamp"
+                app:layout_constraintTop_toTopOf="@id/guidelineTop" />
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.card.MaterialCardView>
 </LinearLayout>

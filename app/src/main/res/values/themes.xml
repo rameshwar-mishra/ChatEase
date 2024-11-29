@@ -15,6 +15,7 @@
         <item name="bottomNavigationStyle">@style/bottomNavigationView</item>
         <item name="android:navigationBarColor">#FBFBFB</item>
         <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:fontFamily">@font/roboto</item>
     </style>
 
     <style name="bottomNavigationView" parent="Widget.Material3.BottomNavigationView">
