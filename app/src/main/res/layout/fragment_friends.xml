@@ -98,7 +98,7 @@
             android:layout_marginStart="10dp"
             android:text="All Friends - 1"
             android:textSize="18sp"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toTopOf="@id/recyclerViewFriends"
             />
@@ -119,3 +119,4 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>
+
