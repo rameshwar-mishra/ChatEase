@@ -1,6 +1,5 @@
 package com.example.chatease.fragments
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.example.chatease.R
 import com.example.chatease.adapters_recyclerview.FrndRequestResponseAdapter
 import com.example.chatease.databinding.FragmentRequestReceivedBinding
-import com.example.chatease.dataclass.SearchUserData
+import com.example.chatease.dataclass.UserData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -27,8 +26,9 @@ class RequestReceivedFragment : Fragment() {
     private val rtDB = FirebaseDatabase.getInstance()
     private val auth = FirebaseAuth.getInstance()
     private lateinit var listenerObject: ChildEventListener
-    private val userDataList = mutableListOf<SearchUserData>()
+    private val userDataList = mutableListOf<UserData>()
     private lateinit var adapter: FrndRequestResponseAdapter
+    private lateinit var adapterDataObserver: AdapterDataObserver
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -46,7 +46,9 @@ class RequestReceivedFragment : Fragment() {
 
         binding.recyclerViewReceived.adapter = adapter
 
-        adapter.registerAdapterDataObserver(object : AdapterDataObserver() {
+        var addedBackground = false
+
+        adapterDataObserver = object : AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 updateBackground()
             }
@@ -56,13 +58,19 @@ class RequestReceivedFragment : Fragment() {
             }
 
             private fun updateBackground() {
-                if (adapter.itemCount == 0) {
-                    binding.recyclerViewReceived.setBackgroundColor(Color.TRANSPARENT)
-                } else {
-                    binding.recyclerViewReceived.background = ContextCompat.getDrawable(requireContext(),R.drawable.shape_friendlist)
+                val hasItems =adapter.itemCount > 0
+                if (hasItems && !addedBackground) {
+                    addedBackground = true
+                    binding.recyclerViewReceived.background =
+                        ContextCompat.getDrawable(requireContext(), R.drawable.shape_recyclerview_background)
+                } else if (!hasItems) {
+                    addedBackground = false
+                    binding.recyclerViewReceived.background = null
                 }
             }
-        })
+        }
+
+        adapter.registerAdapterDataObserver(adapterDataObserver)
 
         auth.currentUser?.let { currentUser ->
 
@@ -103,17 +111,21 @@ class RequestReceivedFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         auth.currentUser?.let { currentUser ->
-            listenerObject?.let {
+            listenerObject.let {
                 rtDB.getReference("users/${currentUser.uid}/friends/requestReceived")
                     .removeEventListener(listenerObject)
             }
+        }
+
+        adapterDataObserver?.let {
+            adapter.unregisterAdapterDataObserver(adapterDataObserver)
         }
     }
 
     private fun fetchUserData(userID: String) {
         CoroutineScope(Dispatchers.IO).launch {
             rtDB.getReference("users/$userID").get().addOnSuccessListener { snapshot ->
-                val userData = SearchUserData(
+                val userData = UserData(
                     userName = snapshot.child("userName").getValue(String::class.java) ?: "",
                     displayName = snapshot.child("displayName").getValue(String::class.java) ?: "",
                     userID = userID,

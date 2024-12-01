@@ -85,7 +85,7 @@ class SignUpActivity : AppCompatActivity() {
         registerActivityResultLauncher()
         binding.editTextUserName.setOnFocusChangeListener { v, hasFocus ->
             if (!hasFocus) {
-                if (binding.editTextUserName.text.isNotEmpty()) {
+                if (binding.editTextUserName.text!!.isNotEmpty()) {
                     if (!binding.editTextUserName.text.toString().matches(Regex("^[a-z0-9._]+$"))) {
                         binding.editLayoutUserName.error = "Username only contains a-z,0-9, . and _"
                     } else {

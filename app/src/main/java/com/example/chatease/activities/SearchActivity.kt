@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.example.chatease.R
 import com.example.chatease.adapters_recyclerview.SearchUserAdapter
 import com.example.chatease.databinding.ActivitySearchBinding
-import com.example.chatease.dataclass.SearchUserData
+import com.example.chatease.dataclass.UserData
 import com.google.firebase.database.FirebaseDatabase
 
 class SearchActivity : AppCompatActivity() {
@@ -53,7 +53,7 @@ class SearchActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enable back button on toolbar
 
         recyclerView.layoutManager = LinearLayoutManager(this@SearchActivity) // Set layout manager
-        val searchUserList = mutableListOf<SearchUserData>() // List to hold user search results
+        val searchUserList = mutableListOf<UserData>() // List to hold user search results
         val adapter = SearchUserAdapter(
             this@SearchActivity, userData = searchUserList
         ) // Initialize adapter for RecyclerView
@@ -74,7 +74,7 @@ class SearchActivity : AppCompatActivity() {
                 } else {
                     params.height = ViewGroup.LayoutParams.WRAP_CONTENT
                     recyclerView.layoutParams = params
-                    recyclerView.background = ContextCompat.getDrawable(this@SearchActivity, R.drawable.shape_friendlist)
+                    recyclerView.background = ContextCompat.getDrawable(this@SearchActivity, R.drawable.shape_recyclerview_background)
                 }
             }
         })
@@ -116,7 +116,7 @@ class SearchActivity : AppCompatActivity() {
                                                 // Loop through results and add to the list if found
                                                 for (document in search.result.children) {
                                                     // Create user data object
-                                                    val userProfile = SearchUserData(
+                                                    val userProfile = UserData(
                                                         userName = document.child("userName").getValue(String::class.java)
                                                             ?: "", // Get username
                                                         displayName = document.child("displayName")

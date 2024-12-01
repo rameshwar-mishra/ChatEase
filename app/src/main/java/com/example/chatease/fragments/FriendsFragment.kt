@@ -1,7 +1,6 @@
 package com.example.chatease.fragments
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,7 +15,7 @@ import com.example.chatease.R
 import com.example.chatease.activities.FriendRequestsActivity
 import com.example.chatease.adapters_recyclerview.FriendsUserAdapter
 import com.example.chatease.databinding.FragmentFriendsBinding
-import com.example.chatease.dataclass.SearchUserData
+import com.example.chatease.dataclass.UserData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -30,8 +29,9 @@ class FriendsFragment : Fragment() {
     private lateinit var binding: FragmentFriendsBinding
     private val rtDB = FirebaseDatabase.getInstance()
     private lateinit var listenerObject: ChildEventListener
-    private var userDataList = mutableListOf<SearchUserData>()
+    private var userDataList = mutableListOf<UserData>()
     private lateinit var adapter: FriendsUserAdapter
+    private lateinit var adapterDataObserver: AdapterDataObserver
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -49,30 +49,30 @@ class FriendsFragment : Fragment() {
         adapter = FriendsUserAdapter(context = requireContext(), userData = userDataList)
         binding.recyclerViewFriends.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewFriends.adapter = adapter
-
-        adapter.registerAdapterDataObserver(object : AdapterDataObserver() {
+        var addedBackground = false
+        adapterDataObserver = object : AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                Log.d("background", "1")
                 updateBackground()
             }
 
             override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
-                Log.d("background", "2")
                 updateBackground()
             }
 
             private fun updateBackground() {
-                Log.d("background", "3")
-                Log.d("background item count", adapter.itemCount.toString())
-                if (adapter.itemCount == 0) {
-                    Log.d("background", "4")
-                    binding.recyclerViewFriends.setBackgroundColor(Color.TRANSPARENT)
-                } else {
-                    Log.d("background", "5")
-                    binding.recyclerViewFriends.background = ContextCompat.getDrawable(requireContext(), R.drawable.shape_friendlist)
+                val hasItems = adapter.itemCount > 0
+                if (hasItems && !addedBackground) {
+                    addedBackground = true
+                    binding.recyclerViewFriends.background =
+                        ContextCompat.getDrawable(requireContext(), R.drawable.shape_recyclerview_background)
+                } else if (!hasItems) {
+                    addedBackground = false
+                    binding.recyclerViewFriends.background = null
                 }
             }
-        })
+        }
+
+        adapter.registerAdapterDataObserver(adapterDataObserver)
 
         binding.cardViewFriendRequest.setOnClickListener {
             startActivity(Intent(requireContext(), FriendRequestsActivity::class.java))
@@ -84,6 +84,9 @@ class FriendsFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         disconnectFriendsListener()
+        adapterDataObserver.let {
+            adapter.unregisterAdapterDataObserver(adapterDataObserver)
+        }
     }
 
     private fun setUpFriendsListener() {
@@ -105,7 +108,12 @@ class FriendsFragment : Fragment() {
                                 Log.d("userData Index", index.toString())
                                 if (userDataList[index].userID == snapshot.key) {
                                     userDataList.removeAt(index)
-                                    adapter.notifyItemChanged(index)
+                                    adapter.notifyItemRemoved(index)
+                                    if (userDataList.size == 0) {
+                                        binding.textViewFriendsCounter.visibility = View.GONE
+                                    } else {
+                                        binding.textViewFriendsCounter.text = "All Friends - ${userDataList.size}"
+                                    }
                                     break
                                 }
                             }
@@ -137,13 +145,15 @@ class FriendsFragment : Fragment() {
     private fun fetchUserProfileData(userID: String) {
         CoroutineScope(Dispatchers.IO).launch {
             rtDB.getReference("users/$userID").get().addOnSuccessListener { snapshot ->
-                val userProfile = SearchUserData(
+                val userProfile = UserData(
                     userID = userID, // Get user ID
                     userName = snapshot.child("userName").getValue(String::class.java) ?: "", // Get username
                     displayName = snapshot.child("displayName").getValue(String::class.java) ?: "", // Get display name
                     userAvatar = snapshot.child("avatar").getValue(String::class.java) ?: "" // Get user avatar
                 )
                 userDataList.add(userProfile)
+                binding.textViewFriendsCounter.visibility = View.VISIBLE
+                binding.textViewFriendsCounter.text = "All Friends - ${userDataList.size}"
                 adapter.notifyItemInserted(userDataList.size - 1)
             }
         }

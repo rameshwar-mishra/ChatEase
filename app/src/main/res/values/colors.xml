@@ -47,5 +47,8 @@
     <color name="greenSwitchTrack">#18C418</color>
     <color name="toolbarBorderColor">#DADADA</color>
     <color name="cardViewColor">#292732</color>
-
+    <color name="buttonBackgroundColor">#000000</color>
+    <color name="buttonTextColor">@color/white</color>
+    <color name="windowsBackgroundColor">@color/white</color>
+    <color name="cardBackgroundColor">#FDFBFB</color>
 </resources>

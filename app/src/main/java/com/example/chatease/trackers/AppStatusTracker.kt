@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.util.Log
 import com.example.chatease.activities.ChatActivity
 import com.example.chatease.activities.SignInActivity
 import com.example.chatease.activities.SignUpActivity
@@ -92,17 +93,29 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
         currentUser?.let {
             if (!isActivityChangingConfiguration && activity !is SignInActivity && activity !is SignUpActivity) {
                 if (activityCount.incrementAndGet() == 1) {
-                    // The service will start here as the app is in foreground
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        if (!TrackerSingletonObject.hasMessageArrived.get()) {
-                            startNotificationService(activity)
-                            updateStatus("Online")
-                            TrackerSingletonObject.isAppForeground.set(true)
-                        }
-                    }, 2000L)
+                    // This service will execute when the app is in the foreground
+                    if (TrackerSingletonObject.isChatActivityOpenedViaNotification.get()) {
+                        // if user opened the chat activity via notification
+                        statusOnline(activity)
+                    } else {
+                        // if a notification arrived from FireBase Cloud Messaging, which wake up the app.
+                        // Delayed the execution after waking the app to verify if the user opened the app or it's a notification wake up
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            if (!TrackerSingletonObject.hasMessageArrived.get()) {
+                                statusOnline(activity)
+                            }
+                        }, 2000L)
+                    }
                 }
             }
         }
+    }
+
+    private fun statusOnline(activity: Activity) {
+        startNotificationService(activity)
+        updateStatus("Online")
+        TrackerSingletonObject.isAppForeground.set(true)
+        Log.d("hmm", "hmm1")
     }
 
     override fun onActivityStopped(activity: Activity) {
@@ -110,7 +123,7 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
             isActivityChangingConfiguration = activity.isChangingConfigurations
             if (!isActivityChangingConfiguration && activity !is SignInActivity && activity !is SignUpActivity) {
                 if (activityCount.decrementAndGet() == 0) {
-                    // The service will stop here as the app is in background
+                    // This service will execute when the app is in the background
                     stopNotificationService(activity)
                     updateStatus("Offline")
                     TrackerSingletonObject.isAppForeground.set(false)

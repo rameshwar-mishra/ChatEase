@@ -11,7 +11,7 @@ import com.bumptech.glide.Glide
 import com.example.chatease.R
 import com.example.chatease.activities.UserProfileActivity
 import com.example.chatease.databinding.LayoutRequestsBinding
-import com.example.chatease.dataclass.SearchUserData
+import com.example.chatease.dataclass.UserData
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -26,7 +26,7 @@ import kotlin.coroutines.resumeWithException
 
 class FrndRequestResponseAdapter(
     private val context: Context,
-    private val userDataList: MutableList<SearchUserData>,
+    private val userDataList: MutableList<UserData>,
     private val usage: String
 ) : RecyclerView.Adapter<FrndRequestResponseAdapter.UserDataViewHolder>() {
     val rtDB = FirebaseDatabase.getInstance()
@@ -194,7 +194,14 @@ class FrndRequestResponseAdapter(
 
     private fun addIDInRequestAccepted(currentUserID: String, position: Int, otherUserId: String, displayName: String) {
         CoroutineScope(Dispatchers.IO).launch {
-            val isSuccessful = async { addIdInOtherUserDB(currentUserID, position) }.await()
+            val isSuccessful = async {
+                addIdInOtherUserDB(
+                    currentUserID = currentUserID,
+                    position = position,
+                    otherUserId = otherUserId
+                )
+            }.await()
+
             if (isSuccessful) {
                 rtDB.getReference("users/$currentUserID/friends/requestAccepted").updateChildren(
                     mapOf(
@@ -211,10 +218,10 @@ class FrndRequestResponseAdapter(
         }
     }
 
-    private suspend fun addIdInOtherUserDB(currentUserID: String, position: Int): Boolean {
+    private suspend fun addIdInOtherUserDB(currentUserID: String, position: Int, otherUserId: String): Boolean {
         return withContext(Dispatchers.IO) {
             suspendCancellableCoroutine { coroutine ->
-                rtDB.getReference("users/${userDataList[position].userID}/friends/requestAccepted").updateChildren(
+                rtDB.getReference("users/$otherUserId/friends/requestAccepted").updateChildren(
                     mapOf(
                         currentUserID to true
                     )

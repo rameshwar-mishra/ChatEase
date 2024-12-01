@@ -48,11 +48,10 @@
             android:layout_marginEnd="@dimen/_15sdp"
             android:layout_marginBottom="@dimen/_15sdp"
             android:clickable="true"
-            android:background="@drawable/shape_circle"
             android:contentDescription="Search"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/vector_icon_add" />
+            android:src="@drawable/vector_icon_add" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
