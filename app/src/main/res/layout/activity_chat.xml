@@ -99,7 +99,8 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/chatInputCard"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_50sdp"
+        style="@style/CustomCardViewDesign"
+        android:layout_height="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:layout_editor_absoluteX="0dp"
         app:strokeWidth="0dp"

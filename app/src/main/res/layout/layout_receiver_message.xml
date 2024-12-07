@@ -19,12 +19,15 @@
         android:layout_marginRight="80sp"
         android:layout_marginTop="7dp"
         android:layout_marginBottom="7dp"
-        android:backgroundTint="#43444b">
+        >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:background="@drawable/card_view_design"
+            android:padding="2dp"
+            >
 
             <TextView
                 android:id="@+id/textViewReceiverMessage"
@@ -45,9 +48,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingTop="5dp"
-                android:paddingRight="5dp"
-                android:layout_marginBottom="1dp"
-                android:layout_marginEnd="5dp"
+                android:paddingEnd="3dp"
+                android:layout_marginBottom="2dp"
+                android:layout_marginEnd="4dp"
                 android:textSize="10sp"
                 android:text="09:46 AM"
                 android:layout_gravity="bottom">

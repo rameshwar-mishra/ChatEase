@@ -143,7 +143,9 @@ class UserProfileActivity : AppCompatActivity() {
                     val userName = task.result.child("userName").getValue(String::class.java) ?: "" // Get
                     var displayName = task.result.child("displayName").getValue(String::class.java) ?: ""
                     val userAvatar = task.result.child("avatar").getValue(String::class.java) ?: "" // Get
-                    val userBio = task.result.child("userBio").getValue(String::class.java) ?: "" // Get e
+                    val userBio = task.result.child("userBio").getValue(String::class.java)?.ifEmpty {
+                        "Big talks or small talks, ChatEase handles it all."
+                    }
 
                     CoroutineScope(Dispatchers.Main).launch {
                         // Load avatar image into ImageView using Glide, with a default placeholder
@@ -157,7 +159,7 @@ class UserProfileActivity : AppCompatActivity() {
                         binding.userName.text = "@$userName" // Set username text in UI
                         binding.displayName.text = displayName // Set display name text in UI
                         binding.textViewFriendRequestSender.text = "$displayName sent you a friend Request"
-                        binding.textViewBioText.text = userBio // Set user bio text in UI
+                        binding.textViewBioText.text = userBio// Set user bio text in UI
                     }
                 }
             }
@@ -242,7 +244,8 @@ class UserProfileActivity : AppCompatActivity() {
                     rtDb.getReference("users/${currentUser.uid}/friends/requestAccepted/$otherUserId")
                         .removeEventListener(listenerRequestAcceptedObject)
                 }
-            } catch (exception : Exception) {}
+            } catch (exception: Exception) {
+            }
         }
     }
 

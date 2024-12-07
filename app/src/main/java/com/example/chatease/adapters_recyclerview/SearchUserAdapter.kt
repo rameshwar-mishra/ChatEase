@@ -11,12 +11,12 @@ import com.example.chatease.R
 import com.example.chatease.activities.ChatActivity
 import com.example.chatease.databinding.LayoutSearchContentNotFoundBinding
 import com.example.chatease.databinding.LayoutUserBinding
-import com.example.chatease.dataclass.SearchUserData
+import com.example.chatease.dataclass.UserData
 
 // Adapter for displaying search results in a RecyclerView
 class SearchUserAdapter(
     private val context: Context,
-    private val userData: MutableList<SearchUserData>, // List holding search results,
+    private val userData: MutableList<UserData>, // List holding search results,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {

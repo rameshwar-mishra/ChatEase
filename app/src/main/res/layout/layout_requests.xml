@@ -8,10 +8,10 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardViewRequests"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        app:cardBackgroundColor="@color/cardViewColor"
+        android:layout_height="@dimen/_50sdp"
         app:cardCornerRadius="0dp"
-        app:strokeWidth="0dp">
+        app:strokeWidth="0dp"
+        app:cardBackgroundColor="@android:color/transparent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -19,8 +19,8 @@
 
             <com.makeramen.roundedimageview.RoundedImageView
                 android:id="@+id/avatar"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:layout_marginStart="16dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/vector_default_user_avatar"
@@ -34,10 +34,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:fontFamily="sans-serif"
                 android:text="Display Name"
-                android:textSize="14dp"
+                android:textSize="16dp"
                 app:layout_constraintStart_toEndOf="@id/avatar"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -49,7 +49,7 @@
                 android:fontFamily="sans-serif"
                 android:text="username"
                 android:textColor="#969393"
-                android:textSize="12sp"
+                android:textSize="14sp"
                 app:layout_constraintStart_toEndOf="@id/avatar"
                 app:layout_constraintTop_toBottomOf="@id/displayName" />
 
@@ -64,8 +64,8 @@
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="27dp"
-                    android:layout_marginTop="11dp"
-                    android:background="@drawable/shape_frnd_req_accept_bg">
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/button_design">
 
                     <com.makeramen.roundedimageview.RoundedImageView
                         android:layout_width="23dp"
@@ -90,7 +90,7 @@
                 <com.makeramen.roundedimageview.RoundedImageView
                     android:layout_width="27dp"
                     android:layout_height="27dp"
-                    android:layout_marginTop="11dp"
+                    android:layout_marginTop="20dp"
                     android:src="@drawable/vector_icon_decline"
                     app:riv_oval="true" />
 

@@ -11,6 +11,7 @@ import com.example.chatease.R
 import com.example.chatease.activities.Settings_AccountActivity
 import com.example.chatease.activities.Settings_ChatActivity
 import com.example.chatease.activities.Settings_PrivacyActivity
+import com.example.chatease.activities.UpdatePasswordActivity
 import com.example.chatease.adapters_listview.SettingsAdapter
 import com.example.chatease.databinding.FragmentSettingsBinding
 
@@ -35,18 +36,22 @@ class SettingsFragment : Fragment() {
         val itemList = listOf(
             "Account",
             "Chats",
-            "Privacy & Security")
+            "Privacy & Security",
+            "Update Password"
+        )
         val itemListMetaDataText = listOf(
             "Change Account Information",
             "Manage Chat Wallpaper",
-            "Change Privacy Settings for Users"
+            "Change Privacy Settings for Users",
+            "Change Your Password"
         )
         val itemListIcons = listOf(
             R.drawable.vector_icon_account_settings,
             R.drawable.vector_icon_chat,
-            R.drawable.vector_icon_privacy
+            R.drawable.vector_icon_privacy,
+            R.drawable.vector_icon_password
         )
-        binding.listView.adapter = SettingsAdapter(requireContext(), itemList,itemListMetaDataText,itemListIcons)
+        binding.listView.adapter = SettingsAdapter(requireContext(), itemList, itemListMetaDataText, itemListIcons)
 
         binding.listView.setOnItemClickListener { parent, view, position, id ->
 
@@ -61,6 +66,10 @@ class SettingsFragment : Fragment() {
 
                 2 -> {
                     startActivity(Intent(requireContext(), Settings_PrivacyActivity::class.java))
+                }
+
+                3 -> {
+                    startActivity(Intent(requireContext(), UpdatePasswordActivity::class.java))
                 }
             }
         }

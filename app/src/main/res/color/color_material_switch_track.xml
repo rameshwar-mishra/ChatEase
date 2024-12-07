@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- State when the switch is ON -->
-    <item android:color="@color/greenSwitchTrack" android:state_checked="true" />
+    <item android:color="#FF6A85" android:state_checked="true" />
     <!-- Default state (OFF) -->
     <item android:color="@color/white" />
 

@@ -32,88 +32,122 @@
             android:id="@+id/cardViewFriendRequest"
             android:layout_width="match_parent"
             android:layout_height="65dp"
+            android:layout_marginTop="15dp"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
-            android:backgroundTint="@color/cardViewColor"
-            app:cardCornerRadius="10dp"
-            app:layout_constraintBottom_toTopOf="@id/textViewFriendsCounter"
+            app:cardCornerRadius="14dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/toolbar"
-            app:strokeColor="@color/toolbarBorderColor"
-            app:strokeWidth="3dp">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
+            app:strokeColor="#444259"
+            app:strokeWidth="0dp">
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:background="@drawable/card_view_design"
+                >
 
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guidelineStartFriendRequest"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.07" />
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
 
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guidelineEndFriendRequest"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.93" />
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guidelineStartFriendRequest"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_percent="0.07" />
 
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guidelineTopFriendRequest"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    app:layout_constraintGuide_percent="0.3" />
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guidelineEndFriendRequest"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_percent="0.93" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Friend Requests"
-                    android:textSize="18sp"
-                    android:layout_marginTop="2dp"
-                    app:layout_constraintStart_toStartOf="@id/guidelineStartFriendRequest"
-                    app:layout_constraintTop_toTopOf="@id/guidelineTopFriendRequest" />
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guidelineTopFriendRequest"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_percent="0.3" />
 
-                <ImageView
-                    android:id="@+id/imageViewForwardArrow"
-                    android:layout_width="18dp"
-                    android:layout_height="15dp"
-                    android:layout_marginTop="3dp"
-                    android:src="@drawable/vector_icon_forward_arrow"
-                    app:layout_constraintStart_toEndOf="@id/guidelineEndFriendRequest"
-                    app:layout_constraintTop_toTopOf="@id/guidelineTopFriendRequest" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Friend Requests"
+                        android:textSize="18sp"
+                        android:drawableStart="@drawable/vector_icon_friends"
+                        android:drawablePadding="12dp"
+                        app:layout_constraintStart_toStartOf="@id/guidelineStartFriendRequest"
+                        app:layout_constraintTop_toTopOf="@id/guidelineTopFriendRequest" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    <ImageView
+                        android:id="@+id/imageViewForwardArrow"
+                        android:layout_width="18dp"
+                        android:layout_height="15dp"
+                        android:layout_marginTop="3dp"
+                        android:src="@drawable/vector_icon_forward_arrow"
+                        app:layout_constraintStart_toEndOf="@id/guidelineEndFriendRequest"
+                        app:layout_constraintTop_toTopOf="@id/guidelineTopFriendRequest" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </FrameLayout>
+
 
         </com.google.android.material.card.MaterialCardView>
 
-        <TextView
-            android:id="@+id/textViewFriendsCounter"
-            android:layout_width="wrap_content"
+
+        <LinearLayout
+            android:id="@+id/layoutFriendsCounter"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:text="All Friends - 1"
-            android:visibility="gone"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginVertical="8dp"
+            android:paddingHorizontal="16dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/recyclerViewFriends"
-            />
+            app:layout_constraintTop_toBottomOf="@id/cardViewFriendRequest"
+            >
+
+            <!-- Left Line -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/secondaryText" />
+
+            <!-- Text in Between -->
+            <TextView
+                android:id="@+id/textViewFriendsCounter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:text="All Friends -- 0"
+                android:textSize="16sp"
+                android:textColor="@color/textColors"
+                />
+
+            <!-- Right Line -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/secondaryText" />
+        </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewFriends"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="10dp"
             android:padding="5dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textViewFriendsCounter" />
+            app:layout_constraintTop_toBottomOf="@id/layoutFriendsCounter" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

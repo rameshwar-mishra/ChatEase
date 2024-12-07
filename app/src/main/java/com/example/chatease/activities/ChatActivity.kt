@@ -10,7 +10,6 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.Menu
 import android.view.View
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -96,10 +95,6 @@ class ChatActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_SECURE,
-            WindowManager.LayoutParams.FLAG_SECURE
-        )
         // Taking Custom Toolbar from view binding
         val toolbar = binding.chatActivityToolbar
         // Setting the custom toolbar as the ActionBar
@@ -114,6 +109,7 @@ class ChatActivity : AppCompatActivity() {
                 startActivity(Intent(this@ChatActivity, MainActivity::class.java))
                 finish()
             }
+            TrackerSingletonObject.isChatActivityOpenedViaNotification.set(true)
         }
 
         // Get the current user's ID
@@ -204,7 +200,6 @@ class ChatActivity : AppCompatActivity() {
         // Typing Indicator SETUP below
         var typingStatusHandler = Handler(Looper.getMainLooper())
         var userDbRef = rtDB.getReference("chats/$conversationID")
-//        var userDbRef = rtDB.getReference("users/${currentUserId}")
 
         convoDBRef = rtDB.getReference("chats/$conversationID")
 
@@ -235,6 +230,11 @@ class ChatActivity : AppCompatActivity() {
             convoDBRef.addValueEventListener(it)
         }
 
+        var previousLineCount = 2
+        var minLines = 1
+        var lineCount = 0
+        var baseSdp = 50
+        val screenDensity = resources.displayMetrics.densityDpi / 160f
         binding.editTextMessage.addTextChangedListener(object : TextWatcher {
             // Typing Indicator SETUP below
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -260,6 +260,19 @@ class ChatActivity : AppCompatActivity() {
                     }
                 }, 2000L)
 
+                lineCount = binding.editTextMessage.lineCount
+                if(previousLineCount != lineCount) {
+                    if(lineCount > minLines) {
+                        Log.d("LINECOUNT",lineCount.toString())
+                        val adjustedLineCount = lineCount.coerceIn(minLines, 5)
+                        val newSdp = baseSdp + (20 * (adjustedLineCount - 2))
+                        val params = binding.chatInputCard.layoutParams
+                        params.height = (newSdp * screenDensity).toInt()
+                        binding.chatInputCard.layoutParams = params
+                    }
+
+                    previousLineCount = lineCount
+                }
             }
 
             override fun afterTextChanged(s: Editable?) {}
@@ -291,7 +304,7 @@ class ChatActivity : AppCompatActivity() {
                 val lastMessage = binding.editTextMessage.text.toString().trim()
 
                 // Reference to the messages collection within the chat document
-                val messageRef = rtDB.getReference("chats").child(conversationID).child("messages")
+                val messageRef = rtDB.getReference("chats/$conversationID/messages")
                 // Generating a new message ID
                 val newMessageId = messageRef.push().key // Firebase generates a random ID
 
@@ -367,8 +380,10 @@ class ChatActivity : AppCompatActivity() {
 
         var unReadIndicatorPosition = 0
         messageListener = object : ChildEventListener {
+
             // Message Listeners
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+
                 val sender = snapshot.child("sender").getValue(String::class.java) ?: ""
                 val timestampLong = snapshot.child("timestamp").getValue(Long::class.java) ?: 0L
                 val isRead = snapshot.child("isRead").getValue(Boolean::class.java) ?: false
@@ -389,7 +404,6 @@ class ChatActivity : AppCompatActivity() {
                 if (sender != auth.currentUser?.uid) {
                     // This message wasn't sent by this user
                     if (!isRead && !hasRead && (timestampLong < currentTimestamp)) {
-                        Log.d("checkChat","yes3")
                         // If the message was sent before the user opened the chat and
                         // is unread both in the database and locally:
 
@@ -415,7 +429,6 @@ class ChatActivity : AppCompatActivity() {
                         }
 
                     } else if (!isRead && !hasRead && (timestampLong > currentTimestamp)) {
-                        Log.d("checkChat","yes")
                         // If the message is unread but was sent after the user opened the chat:
 
                         // (which indicates that this is the first message among all,
@@ -429,7 +442,6 @@ class ChatActivity : AppCompatActivity() {
                         hasRead = true
                         // Update read status and timestamp in the database
                         if (TrackerSingletonObject.isAppForeground.get()) {
-                            Log.d("checkChat","1")
                             // Update metadata to reflect that the user has read the last message
                             markMessageAsRead(conversationID, snapshot.key!!)
                             updateMetaData(
@@ -437,11 +449,9 @@ class ChatActivity : AppCompatActivity() {
                                 currentUserID = currentUserId
                             )
                         } else {
-                            Log.d("checkChat","2")
                             unReadMessagesSet.add(snapshot.key!!)
                         }
                     } else if (!isRead && hasRead) {
-                        Log.d("checkChat","yes4")
                         // If the message is unread in the database but is not the first unread message:
 
                         // (which indicates that this message is not the first unread message but
@@ -452,7 +462,6 @@ class ChatActivity : AppCompatActivity() {
                         // Add the message without marking it as truly unread
                         messagesList.add(messageObject)
                         if (TrackerSingletonObject.isAppForeground.get()) {
-                            Log.d("checkChat","yes5")
                             // Update metadata to reflect that the user has read the last message
                             markMessageAsRead(conversationID, snapshot.key!!)
                             updateMetaData(
@@ -460,11 +469,9 @@ class ChatActivity : AppCompatActivity() {
                                 currentUserID = currentUserId
                             )
                         } else {
-                            Log.d("checkChat","ye6")
                             unReadMessagesSet.add(snapshot.key!!)
                         }
                     } else if (isRead) {
-                        Log.d("checkChat","yes7")
                         // If the message is already marked as read:
                         messagesList.add(messageObject)
                     }
@@ -523,7 +530,6 @@ class ChatActivity : AppCompatActivity() {
                         adapter.notifyItemChanged(index)
                     }
                 }
-
             }
 
             override fun onChildRemoved(snapshot: DataSnapshot) {}
@@ -566,7 +572,6 @@ class ChatActivity : AppCompatActivity() {
                 null
             }
         }
-
     }
 
     private fun showOfflineNotification(
@@ -758,6 +763,4 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 }
-
-
 

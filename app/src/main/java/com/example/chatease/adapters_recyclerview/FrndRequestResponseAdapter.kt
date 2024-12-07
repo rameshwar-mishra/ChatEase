@@ -11,7 +11,7 @@ import com.bumptech.glide.Glide
 import com.example.chatease.R
 import com.example.chatease.activities.UserProfileActivity
 import com.example.chatease.databinding.LayoutRequestsBinding
-import com.example.chatease.dataclass.SearchUserData
+import com.example.chatease.dataclass.UserData
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -26,7 +26,7 @@ import kotlin.coroutines.resumeWithException
 
 class FrndRequestResponseAdapter(
     private val context: Context,
-    private val userDataList: MutableList<SearchUserData>,
+    private val userDataList: MutableList<UserData>,
     private val usage: String
 ) : RecyclerView.Adapter<FrndRequestResponseAdapter.UserDataViewHolder>() {
     val rtDB = FirebaseDatabase.getInstance()
@@ -45,7 +45,7 @@ class FrndRequestResponseAdapter(
     override fun onBindViewHolder(holder: UserDataViewHolder, position: Int) {
         holder.binding.apply {
             displayName.text = userDataList[position].displayName
-            userName.text = userDataList[position].userName
+            userName.text = "@${userDataList[position].userName}"
 
             Glide.with(context)
                 .load(userDataList[position].userAvatar)
