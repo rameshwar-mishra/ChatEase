@@ -1,10 +1,13 @@
 package com.example.chatease.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
 import android.widget.Toast
+import android.window.OnBackInvokedDispatcher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.chatease.R
 import com.example.chatease.databinding.ActivityForgetPasswordBinding
@@ -22,6 +25,11 @@ class ForgetPasswordActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        val toolbar = binding.forgetPasswordToolbar
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
         binding.forgetPasswordButton.setOnClickListener {
             if (binding.textInputEmail.text.toString().trim() != null) {
                 if(Patterns.EMAIL_ADDRESS.matcher(binding.textInputEmail.text.toString()).matches()){
@@ -32,6 +40,8 @@ class ForgetPasswordActivity : AppCompatActivity() {
                 }
             }
         }
+
+
     }
 
     private fun forgotPassword() {
@@ -52,4 +62,3 @@ class ForgetPasswordActivity : AppCompatActivity() {
             }
     }
 }
-

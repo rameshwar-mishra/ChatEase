@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/toolbarborderlayout"
-        android:layout_marginTop="4dp"
+        app:navigationIcon="@drawable/vector_icon_back_arrow"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -49,7 +49,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="9dp"
-                    android:text="Goku"
+                    android:text="Display Name"
                     android:textSize="@dimen/_14ssp"
                     app:layout_constraintBottom_toTopOf="@+id/textViewUserPresenceStatus"
                     app:layout_constraintStart_toEndOf="@+id/roundedImageViewDisplayImage"
@@ -96,13 +96,16 @@
         app:layout_constraintTop_toBottomOf="@id/chatActivityToolbar"
         app:layout_constraintVertical_bias="0.0" />
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/chatInputCard"
-
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_50sdp"
+        style="@style/CustomCardViewDesign"
+        android:layout_height="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        tools:layout_editor_absoluteX="0dp">
+        tools:layout_editor_absoluteX="0dp"
+        app:strokeWidth="0dp"
+        app:cardCornerRadius="0dp"
+        >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -144,5 +147,5 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

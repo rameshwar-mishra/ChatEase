@@ -1,7 +1,5 @@
 package com.example.chatease.dataclass
 
-import com.google.firebase.Timestamp
-
 // Data class representing recent chat information
 data class RecentChatData(
     val id: String, // Unique identifier for the user

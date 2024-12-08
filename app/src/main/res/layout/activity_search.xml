@@ -12,13 +12,18 @@
         android:id="@+id/toolbar"
         android:background="@drawable/toolbarborderlayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:navigationIcon="@drawable/vector_icon_back_arrow"
+        >
 
         <EditText
             android:id="@+id/editTextSearch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Search @username"
+            android:singleLine="true"
+            android:maxLines="1"
+            android:scrollHorizontally="true"
             android:background="@android:color/transparent"/>
 
     </androidx.appcompat.widget.Toolbar>
@@ -30,7 +35,9 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewSearch"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:padding="5dp" />
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -41,7 +48,5 @@
             android:visibility="gone"
             android:indeterminateTint="@color/dodger_blue"/>
     </FrameLayout>
-
-
 
 </LinearLayout>

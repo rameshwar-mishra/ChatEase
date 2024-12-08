@@ -18,21 +18,27 @@
         android:layout_marginLeft="20sp"
         android:layout_marginRight="80sp"
         android:layout_marginTop="7dp"
-        android:layout_marginBottom="7dp">
+        android:layout_marginBottom="7dp"
+        >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:background="@drawable/card_view_design"
+            android:padding="2dp"
+            >
 
             <TextView
                 android:id="@+id/textViewReceiverMessage"
                 android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="5sp"
-                android:paddingTop="5sp"
-                android:paddingRight="5sp"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="7sp"
+                android:layout_marginRight="5sp"
+                android:layout_marginBottom="5sp"
+                android:paddingEnd="5dp"
                 android:textSize="15sp"
                 android:text="This is received message">
             </TextView>
@@ -41,12 +47,12 @@
                 android:id="@+id/textViewTimeStamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingTop="0sp"
-                android:paddingRight="5sp"
-                android:paddingBottom="5sp"
-                android:layout_marginRight="5sp"
+                android:paddingTop="5dp"
+                android:paddingEnd="3dp"
+                android:layout_marginBottom="2dp"
+                android:layout_marginEnd="4dp"
                 android:textSize="10sp"
-                android:text="09:46"
+                android:text="09:46 AM"
                 android:layout_gravity="bottom">
             </TextView>
 

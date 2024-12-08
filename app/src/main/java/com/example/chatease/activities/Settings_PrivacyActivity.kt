@@ -27,7 +27,7 @@ class Settings_PrivacyActivity : AppCompatActivity() {
         val toolbar = binding.activityToolbar // Setting up the toolbar
         setSupportActionBar(toolbar) // Setting the toolbar as the app bar
         supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enabling the back button
-        supportActionBar?.title = "Privacy" // Setting title for the toolbar
+        supportActionBar?.setDisplayShowTitleEnabled(false)// Setting title for the toolbar
 
         auth.currentUser?.let { currentUser ->
             rtDB.getReference("users/${currentUser.uid}").get()

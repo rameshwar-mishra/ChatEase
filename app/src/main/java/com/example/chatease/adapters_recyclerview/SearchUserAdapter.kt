@@ -9,14 +9,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.chatease.R
 import com.example.chatease.activities.ChatActivity
-import com.example.chatease.databinding.LayoutSearchContentBinding
 import com.example.chatease.databinding.LayoutSearchContentNotFoundBinding
-import com.example.chatease.dataclass.SearchUserData
+import com.example.chatease.databinding.LayoutUserBinding
+import com.example.chatease.dataclass.UserData
 
 // Adapter for displaying search results in a RecyclerView
 class SearchUserAdapter(
-    val context : Context,
-    private val userData: MutableList<SearchUserData> // List holding search results
+    private val context: Context,
+    private val userData: MutableList<UserData>, // List holding search results,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -49,8 +49,7 @@ class SearchUserAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == isFound) {
             // Inflate layout for user profile if results were found
-
-            val view = LayoutSearchContentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            val view = LayoutUserBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             UserProfileViewHolder(view)
         } else {
             // Inflate layout for "No Match Found" message if no results were found
@@ -61,12 +60,12 @@ class SearchUserAdapter(
 
     // ViewHolder for user profile items
     class UserProfileViewHolder(
-        val binding: LayoutSearchContentBinding
+        val binding: LayoutUserBinding
     ) : RecyclerView.ViewHolder(binding.root)
 
     // ViewHolder for "No Match Found" Layout
     class UserNotFoundHolder(
-        private val binding: LayoutSearchContentNotFoundBinding
+        val binding: LayoutSearchContentNotFoundBinding
     ) : RecyclerView.ViewHolder(binding.root)
 
     // Returns the total number of items in the adapter
@@ -82,29 +81,23 @@ class SearchUserAdapter(
     // Binds data to the view holder based on its type
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is UserProfileViewHolder) {
-
             // If holder is UserProfileViewHolder, bind user data
             // Load profile image
             holder.binding.textViewUserName.text = "@${userData[position].userName}"
             holder.binding.textViewDisplayName.text = userData[position].displayName
 
-            Glide.with(holder.binding.roundedImageView.context)
+            Glide.with(context)
                 .load(userData[position].userAvatar)
                 .placeholder(R.drawable.vector_default_user_avatar)
                 .into(holder.binding.roundedImageView)
 
-//            Picasso.get().load(userData[position].userAvatar).into(holder.binding.roundedImageView)
-
             holder.binding.searchUserLinearLayout.setOnClickListener {
-                val intent = Intent(context,ChatActivity::class.java)
+                val intent = Intent(context, ChatActivity::class.java)
                 intent.apply {
-                    putExtra("id",userData[position].userID)
-                    putExtra("username",userData[position].userName)
-                    putExtra("displayname",userData[position].userName)
-                    putExtra("avatar",userData[position].userAvatar)
+                    putExtra("id", userData[position].userID)
                 }
                 context.startActivity(intent)
-                if(context is Activity) {
+                if (context is Activity) {
                     context.finish()
                 }
             }

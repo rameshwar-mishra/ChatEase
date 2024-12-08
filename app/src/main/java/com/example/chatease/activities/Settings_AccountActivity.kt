@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -33,8 +34,15 @@ import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.yalantis.ucrop.UCrop
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
+import kotlin.coroutines.resume
 
 class Settings_AccountActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingAccountBinding // View binding for accessing UI elements
@@ -53,7 +61,6 @@ class Settings_AccountActivity : AppCompatActivity() {
     private lateinit var userBio: String // User's bio
     private lateinit var userId: String // User's unique ID
     private lateinit var destinationUri: Uri // Destination URI for cropped image
-
     private lateinit var databaseReference: DatabaseReference
     private var valueListener: ValueEventListener? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,7 +79,7 @@ class Settings_AccountActivity : AppCompatActivity() {
         val toolbar = binding.userProfileActivityToolbar // Setting up the toolbar
         setSupportActionBar(toolbar) // Setting the toolbar as the app bar
         supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enabling the back button
-        supportActionBar?.title = "Account" // Setting title for the toolbar
+        supportActionBar?.setDisplayShowTitleEnabled(false)// Setting title for the toolbar
 
         userId = auth.currentUser?.uid ?: "" // Getting the current user's ID
 
@@ -117,7 +124,6 @@ class Settings_AccountActivity : AppCompatActivity() {
             databaseReference.addValueEventListener(it)
         }
 
-
         // Setting onClickListener for apply changes button
         binding.applyChangesButton.setOnClickListener {
             binding.applyButtonProgressBar.visibility =
@@ -127,69 +133,91 @@ class Settings_AccountActivity : AppCompatActivity() {
             if (binding.editTextUserName.text!!.isNotEmpty() && binding.editTextDisplayName.text!!.isNotEmpty()) {
                 var isChanged = false // Flag to check if any data has changed
 
-                // Checking if any user data has changed
-                if (binding.editTextUserName.text.toString() != userName) {
-                    isChanged = true
-                } else if (binding.editTextDisplayName.text.toString() != userDisplayName) {
-                    isChanged = true
-                } else if (binding.editTextUserBio.text.toString() != userBio) {
-                    isChanged = true
-                }
+                CoroutineScope(Dispatchers.Main).launch {
+                    // Checking if any user data has changed
+                    Log.d("check db", userName)
+                    Log.d("check live", binding.editTextUserName.text.toString())
 
-                if (isChanged) {
-                    if (binding.editTextUserName.text.toString().length > 30) {
-                        binding.textInputLayoutUserName.error =
-                            "Username Must Be Within 30 Characters"
+                    if (binding.editTextUserName.text.toString() != userName) {
+                        isChanged = true
+
+                        val isUnique =
+                            async { isUsernameUnique(binding.editTextUserName.text.toString()) }.await()
+                        Log.d("check", isUnique.toString())
+                        if (!isUnique) {
+                            binding.textInputLayoutUserName.error = "Username needs to be unique"
+                            binding.applyButtonProgressBar.visibility = View.INVISIBLE
+                            binding.applyChangesButton.visibility = View.VISIBLE
+                            return@launch
+                        }
+
+                        binding.textInputLayoutUserName.error = null
+
+
+                    } else if (binding.editTextDisplayName.text.toString() != userDisplayName) {
+                        isChanged = true
+                    } else if (binding.editTextUserBio.text.toString() != userBio) {
+                        isChanged = true
+                    }
+
+                    if (isChanged) {
+                        if (binding.editTextUserName.text.toString().length > 30) {
+                            binding.textInputLayoutUserName.error =
+                                "Username Must Be Within 30 Characters"
+                            binding.applyButtonProgressBar.visibility = View.INVISIBLE
+                            binding.applyChangesButton.visibility = View.VISIBLE
+                            return@launch
+                        } else if (!binding.editTextUserName.text.toString()
+                                .matches(Regex("^[a-z0-9_.]+$"))
+                        ) {
+                            binding.textInputLayoutUserName.error = "Username Must be in Lowercase"
+                            binding.applyButtonProgressBar.visibility = View.INVISIBLE
+                            binding.applyChangesButton.visibility = View.VISIBLE
+                            return@launch
+                        } else if (binding.editTextDisplayName.text.toString().length > 30) {
+                            binding.textInputLayoutDisplayName.error =
+                                "Display Name Must Be Within 30 Characters"
+                            binding.applyButtonProgressBar.visibility = View.INVISIBLE
+                            binding.applyChangesButton.visibility = View.VISIBLE
+                            return@launch
+                        } else if (binding.editTextUserBio.text.toString().length > 100) {
+                            binding.textInputLayoutUserBio.error =
+                                "Bio Must Be Within 100 Characters"
+                            binding.applyButtonProgressBar.visibility = View.INVISIBLE
+                            binding.applyChangesButton.visibility = View.VISIBLE
+                            return@launch
+                        }
+                    }
+
+                    // If data has changed or a new image is selected, update the database
+                    if (isChanged || (imageUri != null)) {
+                        updateTheDataInTheDatabase() // Call to update user data in Firestore
+
+                    } else {
+                        // Notify user if there are no changes to apply
+                        Toast.makeText(
+                            this@Settings_AccountActivity,
+                            "Successfully Updated",
+                            Toast.LENGTH_LONG
+                        )
+                            .show()
                         binding.applyButtonProgressBar.visibility = View.INVISIBLE
                         binding.applyChangesButton.visibility = View.VISIBLE
-                        return@setOnClickListener
-                    } else if (!binding.editTextUserName.text.toString()
-                            .matches(Regex("^[a-z0-9_.]+$"))
-                    ) {
-                        binding.textInputLayoutUserName.error = "Username Must be in Lowercase"
-                        binding.applyButtonProgressBar.visibility = View.INVISIBLE
-                        binding.applyChangesButton.visibility = View.VISIBLE
-                        return@setOnClickListener
-                    } else if (binding.editTextDisplayName.text.toString().length > 30) {
-                        binding.textInputLayoutDisplayName.error =
-                            "Display Name Must Be Within 30 Characters"
-                        binding.applyButtonProgressBar.visibility = View.INVISIBLE
-                        binding.applyChangesButton.visibility = View.VISIBLE
-                        return@setOnClickListener
-                    } else if (binding.editTextUserBio.text.toString().length > 100) {
-                        binding.textInputLayoutUserBio.error = "Bio Must Be Within 100 Characters"
-                        binding.applyButtonProgressBar.visibility = View.INVISIBLE
-                        binding.applyChangesButton.visibility = View.VISIBLE
-                        return@setOnClickListener
                     }
                 }
 
-                // If data has changed or a new image is selected, update the database
-                if (isChanged || (imageUri != null)) {
-                    updateTheDataInTheDatabase() // Call to update user data in Firestore
-                } else {
-                    // Notify user if there are no changes to apply
-                    Toast.makeText(this@Settings_AccountActivity, "Successfully Updated", Toast.LENGTH_LONG)
-                        .show()
-                    binding.applyButtonProgressBar.visibility = View.INVISIBLE
-                    binding.applyChangesButton.visibility = View.VISIBLE
-                }
             } else {
                 Toast.makeText(
                     this@Settings_AccountActivity,
                     "Please fill the username & display name field",
                     Toast.LENGTH_LONG
-                )
-                    .show()
+                ).show()
             }
         }
 
         // Setting onClickListener for avatar frame to choose an image
         binding.frameUserAvatar.setOnClickListener {
             chooseImage() // Call to choose image from gallery
-        }
-        binding.changePasswordButton.setOnClickListener {
-            startActivity(Intent(this@Settings_AccountActivity, UpdatePasswordActivity::class.java))
         }
     }
 
@@ -225,8 +253,15 @@ class Settings_AccountActivity : AppCompatActivity() {
                             )
                         )
                         auth.signOut()
-                        getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE).edit().clear().apply()
-                        startActivity(Intent(this@Settings_AccountActivity, SignInActivity::class.java))
+                        getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE).edit().clear()
+                            .apply()
+                        val intent = Intent(
+                            this@Settings_AccountActivity,
+                            WelcomeActivity::class.java
+                        ).apply {
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                        startActivity(intent)
                         finish()
                     }
                 alertDialog.show()
@@ -241,6 +276,23 @@ class Settings_AccountActivity : AppCompatActivity() {
         return true
     }
 
+
+    private suspend fun isUsernameUnique(username: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            suspendCancellableCoroutine { coroutine ->
+                rtDB.getReference("users").orderByChild("userName")
+                    .equalTo(username)
+                    .get()
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful && !task.result.exists()) {
+                            coroutine.resume(true)
+                        } else {
+                            coroutine.resume(false)
+                        }
+                    }
+            }
+        }
+    }
 
     private fun chooseImage() {
         // Determine the appropriate permission needed based on the Android version
@@ -416,12 +468,14 @@ class Settings_AccountActivity : AppCompatActivity() {
             avatar = userAvatar
         )
 
-        rtDB.getReference("users").child(userId).updateChildren(mapOf(
-            "userName" to binding.editTextUserName.text.toString(),
-            "displayName" to binding.editTextDisplayName.text.toString(),
-            "userBio" to binding.editTextUserBio.text.toString(),
-            "avatar" to userAvatar
-        ))
+        rtDB.getReference("users").child(userId).updateChildren(
+            mapOf(
+                "userName" to binding.editTextUserName.text.toString(),
+                "displayName" to binding.editTextDisplayName.text.toString(),
+                "userBio" to binding.editTextUserBio.text.toString(),
+                "avatar" to userAvatar
+            )
+        )
             .addOnSuccessListener {
                 Toast.makeText(this, "Successfully Updated", Toast.LENGTH_LONG).show()
                 binding.applyButtonProgressBar.visibility = View.INVISIBLE

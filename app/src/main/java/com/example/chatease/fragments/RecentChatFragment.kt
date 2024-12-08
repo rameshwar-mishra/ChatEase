@@ -29,6 +29,9 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -41,27 +44,22 @@ class RecentChatFragment : Fragment() {
     private val auth = FirebaseAuth.getInstance()
 
     // Realtime database instance to interact with Firebase Realtime database
-
     private val rtDB = FirebaseDatabase.getInstance()
 
     // RecyclerView for displaying recent chats
     private lateinit var recyclerView: RecyclerView
 
-    // Variable to hold modified chat data temporarily
-    private var modifiedChatData: RecentChatData? = null
-
     // Mutable list to hold recent chat data
     private var recentChatDataList = mutableListOf<RecentChatData>()
 
-    private lateinit var chatUserIDs: MutableSet<String>
+    private var chatUserIDs = mutableSetOf<String>()
 
     private lateinit var adapter: RecentChatAdapter
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = FragmentRecentChatBinding.inflate(inflater,container,false)
+        binding = FragmentRecentChatBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -71,30 +69,29 @@ class RecentChatFragment : Fragment() {
         requestPostNotificationPermission()
 
         val currentFCMUserToken = requireContext().getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE).getString(
-            "FCMUserToken",
-            null
+            "FCMUserToken", null
         )
 
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                if (currentFCMUserToken != task.result && task.result.isNotEmpty()) {
-                    auth.currentUser?.let { currentUser ->
-                        rtDB.getReference("users").child(currentUser.uid).updateChildren(
-                            mapOf(
-                                "FCMUserToken" to task.result
-                            )
-                        ).addOnCompleteListener { task1 ->
-                            if (task1.isSuccessful) {
-                                requireContext().getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE)
-                                    .edit().putString("FCMUserToken", task.result).apply()
+        CoroutineScope(Dispatchers.IO).launch {
+            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    if (currentFCMUserToken != task.result && task.result.isNotEmpty()) {
+                        auth.currentUser?.let { currentUser ->
+                            rtDB.getReference("users").child(currentUser.uid).updateChildren(
+                                mapOf(
+                                    "FCMUserToken" to task.result
+                                )
+                            ).addOnCompleteListener { task1 ->
+                                if (task1.isSuccessful) {
+                                    requireContext().getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE).edit()
+                                        .putString("FCMUserToken", task.result).apply()
+                                }
                             }
-
                         }
                     }
                 }
             }
         }
-
 
         // Set up the toolbar for the activity
         val toolbar = binding.toolbar
@@ -107,10 +104,8 @@ class RecentChatFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
         // Initialize the adapter for the RecyclerView with the recent chat data list
-        adapter = RecentChatAdapter(requireContext(), recentChatDataList)
+        adapter = RecentChatAdapter(context = requireContext(), recentChatDataList = recentChatDataList)
         recyclerView.adapter = adapter
-
-        chatUserIDs = mutableSetOf()
 
         // Set up a Firestore listener to fetch chats for the current user
         listenForChatUpdates()
@@ -123,8 +118,7 @@ class RecentChatFragment : Fragment() {
 
     private fun listenForChatUpdates() {
 
-        rtDB.getReference("chats").orderByChild("participants/${auth.currentUser!!.uid}")
-            .equalTo(true)
+        rtDB.getReference("chats").orderByChild("participants/${auth.currentUser!!.uid}").equalTo(true)
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
@@ -148,6 +142,7 @@ class RecentChatFragment : Fragment() {
             for (participant in participantsSnapshot.children) {
                 if (participant.key!! != auth.currentUser!!.uid) {
                     chatUserIDs.add(participant.key!!)
+                    break
                 }
             }
             listenForUserProfileUpdates()
@@ -161,23 +156,22 @@ class RecentChatFragment : Fragment() {
         for (userID in chatUserIDs) {
             if (!activeUserDataListener.contains(userID)) {
                 activeUserDataListener.add(userID)
-                rtDB.getReference("users").child(userID)
-                    .addValueEventListener(object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            if (snapshot.exists()) {
-                                updateRecentChatsUserData(
-                                    userID = userID,
-                                    userAvatar = snapshot.child("avatar").getValue(String::class.java) ?: "",
-                                    userDisplayName = snapshot.child("displayName").getValue(String::class.java) ?: ""
-                                )
-                            }
+                rtDB.getReference("users").child(userID).addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        if (snapshot.exists()) {
+                            updateRecentChatsUserData(
+                                userID = userID,
+                                userAvatar = snapshot.child("avatar").getValue(String::class.java) ?: "",
+                                userDisplayName = snapshot.child("displayName").getValue(String::class.java) ?: ""
+                            )
                         }
+                    }
 
-                        override fun onCancelled(error: DatabaseError) {
-                            Log.e("MainActivity", "Error fetching user profile: ${error.message}")
-                        }
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("MainActivity", "Error fetching user profile: ${error.message}")
+                    }
 
-                    })
+                })
             }
         }
     }
@@ -206,9 +200,8 @@ class RecentChatFragment : Fragment() {
         // Extract chat details from the document
         val lastMessage = documentMetaData.child("lastMessage").getValue(String::class.java) ?: ""
         val lastMessageSender = documentMetaData.child("lastMessageSender").getValue(String::class.java) ?: ""
-        val lastMessageTimestamp =
-            (documentMetaData.child("lastMessageTimestamp").getValue(Long::class.java)
-                ?: 0L) / 1000   // MiliSeconds to Seconds
+        val lastMessageTimestamp = (documentMetaData.child("lastMessageTimestamp").getValue(Long::class.java)
+            ?: 0L) / 1000   // MilliSeconds to Seconds
 
         val formattedTimestamp = getRelativeTime(Timestamp(lastMessageTimestamp, 0)) // Format the timestamp for display
 
@@ -220,36 +213,35 @@ class RecentChatFragment : Fragment() {
             otherParticipant = auth.currentUser!!.uid
         }
 
-        rtDB.getReference("users").child(otherParticipant)
-            .get().addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    if (lastMessageSender == otherParticipant) {
-                        updateRecentChatDataList(
-                            userID = otherParticipant,
-                            displayName = task.result.child("displayName").getValue(String::class.java) ?: "",
-                            avatarUrl = task.result.child("avatar").getValue(String::class.java) ?: "",
-                            lastMessage = lastMessage,
-                            senderDisplayName = task.result.child("displayName").getValue(String::class.java) ?: "",
-                            formattedTimestamp = formattedTimestamp,
-                            lastMessageTimestamp = lastMessageTimestamp,
-                            isLastMessageReadByMe = documentMetaData.child("unRead_By_${auth.currentUser!!.uid}")
-                                .getValue(Boolean::class.java) ?: true
-                        )
-                    } else {
-                        updateRecentChatDataList(
-                            userID = otherParticipant,
-                            displayName = task.result.child("displayName").getValue(String::class.java) ?: "",
-                            avatarUrl = task.result.child("avatar").getValue(String::class.java) ?: "",
-                            lastMessage = lastMessage,
-                            senderDisplayName = "You",
-                            formattedTimestamp = formattedTimestamp,
-                            lastMessageTimestamp = lastMessageTimestamp,
-                            isLastMessageReadByMe = documentMetaData.child("unRead_By_${auth.currentUser!!.uid}")
-                                .getValue(Boolean::class.java) ?: true
-                        )
-                    }
+        rtDB.getReference("users").child(otherParticipant).get().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                if (lastMessageSender == otherParticipant) {
+                    updateRecentChatDataList(
+                        userID = otherParticipant,
+                        displayName = task.result.child("displayName").getValue(String::class.java) ?: "",
+                        avatarUrl = task.result.child("avatar").getValue(String::class.java) ?: "",
+                        lastMessage = lastMessage,
+                        senderDisplayName = task.result.child("displayName").getValue(String::class.java) ?: "",
+                        formattedTimestamp = formattedTimestamp,
+                        lastMessageTimestamp = lastMessageTimestamp,
+                        isLastMessageReadByMe = documentMetaData.child("unRead_By_${auth.currentUser!!.uid}")
+                            .getValue(Boolean::class.java) ?: true
+                    )
+                } else {
+                    updateRecentChatDataList(
+                        userID = otherParticipant,
+                        displayName = task.result.child("displayName").getValue(String::class.java) ?: "",
+                        avatarUrl = task.result.child("avatar").getValue(String::class.java) ?: "",
+                        lastMessage = lastMessage,
+                        senderDisplayName = "You",
+                        formattedTimestamp = formattedTimestamp,
+                        lastMessageTimestamp = lastMessageTimestamp,
+                        isLastMessageReadByMe = documentMetaData.child("unRead_By_${auth.currentUser!!.uid}")
+                            .getValue(Boolean::class.java) ?: true
+                    )
                 }
             }
+        }
     }
 
 
@@ -337,13 +329,13 @@ class RecentChatFragment : Fragment() {
 
     private fun requestPostNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
             ) {
                 ActivityCompat.requestPermissions(
-                    requireActivity(),
-                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                    2
+                    requireActivity(), arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 2
                 )
             }
         }
@@ -356,7 +348,7 @@ class RecentChatFragment : Fragment() {
             if (grantResults.isEmpty() || grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_DENIED) {
                 Toast.makeText(
                     requireContext(),
-                    "No Notifications will be shown until the permission is turn on of \"POST NOTIFICATION\"",
+                    "No notifications will be shown until the \"POST NOTIFICATION\" permission is turned on",
                     Toast.LENGTH_LONG
                 ).show()
             }

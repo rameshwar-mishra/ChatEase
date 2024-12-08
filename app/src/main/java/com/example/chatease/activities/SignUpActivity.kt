@@ -85,7 +85,7 @@ class SignUpActivity : AppCompatActivity() {
         registerActivityResultLauncher()
         binding.editTextUserName.setOnFocusChangeListener { v, hasFocus ->
             if (!hasFocus) {
-                if (binding.editTextUserName.text.isNotEmpty()) {
+                if (binding.editTextUserName.text!!.isNotEmpty()) {
                     if (!binding.editTextUserName.text.toString().matches(Regex("^[a-z0-9._]+$"))) {
                         binding.editLayoutUserName.error = "Username only contains a-z,0-9, . and _"
                     } else {
@@ -282,8 +282,6 @@ class SignUpActivity : AppCompatActivity() {
             }
         } else if (resultCode == UCrop.RESULT_ERROR) {
             showToast("Cropping failed, Choose any other image")
-//            val cropError = UCrop.getError(data!!)
-//            Log.e("UCrop Error", "Cropping failed: ${cropError?.message}")
         }
     }
 

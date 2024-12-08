@@ -4,19 +4,22 @@
     android:id="@+id/recentChatUserLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    >
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        style="@style/CustomCardViewDesign"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="60dp">
+            android:layout_height="70dp"
+            android:padding="5dp">
 
             <com.makeramen.roundedimageview.RoundedImageView
                 android:id="@+id/userAvatar"
@@ -50,7 +53,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="6dp"
                 android:text="Last Message"
-                android:textColor="#746C6C"
+                android:textColor="@color/secondaryText"
                 android:textSize="15sp"
                 app:layout_constraintLeft_toRightOf="@id/userAvatar"
                 app:layout_constraintTop_toBottomOf="@id/displayName" />
@@ -66,5 +69,5 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 </LinearLayout>

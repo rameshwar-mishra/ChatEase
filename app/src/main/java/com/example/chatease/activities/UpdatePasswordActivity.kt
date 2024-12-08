@@ -26,7 +26,7 @@ class UpdatePasswordActivity : AppCompatActivity() {
         val toolbar = binding.updatePasswordActivityToolbar
         setSupportActionBar(toolbar) // Set custom toolbar
         supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enable back button on toolbar
-        supportActionBar?.title = ""
+        supportActionBar?.setDisplayShowTitleEnabled(false)
         val user = FirebaseAuth.getInstance().currentUser
         binding.submitButton.setOnClickListener {
             binding.submitButton.visibility = View.INVISIBLE

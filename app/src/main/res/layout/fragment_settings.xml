@@ -15,17 +15,26 @@
             android:id="@+id/activityToolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
             android:background="@drawable/toolbarborderlayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Settings"
+                android:fontFamily="sans-serif-black"
+                android:textSize="@dimen/_16ssp"
+                android:layout_gravity="center"
+                />
+        </androidx.appcompat.widget.Toolbar>
 
         <ListView
             android:id="@+id/listView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:divider="@android:color/transparent"
             app:layout_constraintTop_toBottomOf="@id/activityToolbar"
             app:layout_constraintStart_toStartOf="parent"
             />

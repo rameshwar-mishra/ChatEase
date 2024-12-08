@@ -95,7 +95,6 @@ class ChatActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
         // Taking Custom Toolbar from view binding
         val toolbar = binding.chatActivityToolbar
         // Setting the custom toolbar as the ActionBar
@@ -110,6 +109,7 @@ class ChatActivity : AppCompatActivity() {
                 startActivity(Intent(this@ChatActivity, MainActivity::class.java))
                 finish()
             }
+            TrackerSingletonObject.isChatActivityOpenedViaNotification.set(true)
         }
 
         // Get the current user's ID
@@ -136,9 +136,9 @@ class ChatActivity : AppCompatActivity() {
         var otherUserFCMToken: String? = null
         var otherUserPresenceStatus: String? = null
         val lastSeenAndOnlinePersonalSetting = getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE)
-            .getBoolean("lastSeenAndOnlineSetting", false)
+            .getBoolean("lastSeenAndOnlineSetting", true)
 
-        var lastSeenAndOnlineOtherUserSetting = false
+        var lastSeenAndOnlineOtherUserSetting = true
 
         rtDB.getReference("users").child(otherUserId!!).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -147,7 +147,7 @@ class ChatActivity : AppCompatActivity() {
                     binding.textViewDisplayName.text = snapshot.child("displayName").getValue(String::class.java) ?: ""
                     otherUserPresenceStatus = snapshot.child("status").getValue(String::class.java)
                     lastSeenAndOnlineOtherUserSetting = snapshot.child("lastSeenAndOnlineSetting")
-                        .getValue(Boolean::class.java) ?: false
+                        .getValue(Boolean::class.java) ?: true
 
                     if (lastSeenAndOnlinePersonalSetting && lastSeenAndOnlineOtherUserSetting) {
 
@@ -200,7 +200,6 @@ class ChatActivity : AppCompatActivity() {
         // Typing Indicator SETUP below
         var typingStatusHandler = Handler(Looper.getMainLooper())
         var userDbRef = rtDB.getReference("chats/$conversationID")
-//        var userDbRef = rtDB.getReference("users/${currentUserId}")
 
         convoDBRef = rtDB.getReference("chats/$conversationID")
 
@@ -231,6 +230,11 @@ class ChatActivity : AppCompatActivity() {
             convoDBRef.addValueEventListener(it)
         }
 
+        var previousLineCount = 2
+        var minLines = 1
+        var lineCount = 0
+        var baseSdp = 50
+        val screenDensity = resources.displayMetrics.densityDpi / 160f
         binding.editTextMessage.addTextChangedListener(object : TextWatcher {
             // Typing Indicator SETUP below
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -256,6 +260,19 @@ class ChatActivity : AppCompatActivity() {
                     }
                 }, 2000L)
 
+                lineCount = binding.editTextMessage.lineCount
+                if(previousLineCount != lineCount) {
+                    if(lineCount > minLines) {
+                        Log.d("LINECOUNT",lineCount.toString())
+                        val adjustedLineCount = lineCount.coerceIn(minLines, 5)
+                        val newSdp = baseSdp + (20 * (adjustedLineCount - 2))
+                        val params = binding.chatInputCard.layoutParams
+                        params.height = (newSdp * screenDensity).toInt()
+                        binding.chatInputCard.layoutParams = params
+                    }
+
+                    previousLineCount = lineCount
+                }
             }
 
             override fun afterTextChanged(s: Editable?) {}
@@ -287,7 +304,7 @@ class ChatActivity : AppCompatActivity() {
                 val lastMessage = binding.editTextMessage.text.toString().trim()
 
                 // Reference to the messages collection within the chat document
-                val messageRef = rtDB.getReference("chats").child(conversationID).child("messages")
+                val messageRef = rtDB.getReference("chats/$conversationID/messages")
                 // Generating a new message ID
                 val newMessageId = messageRef.push().key // Firebase generates a random ID
 
@@ -363,8 +380,10 @@ class ChatActivity : AppCompatActivity() {
 
         var unReadIndicatorPosition = 0
         messageListener = object : ChildEventListener {
+
             // Message Listeners
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+
                 val sender = snapshot.child("sender").getValue(String::class.java) ?: ""
                 val timestampLong = snapshot.child("timestamp").getValue(Long::class.java) ?: 0L
                 val isRead = snapshot.child("isRead").getValue(Boolean::class.java) ?: false
@@ -385,7 +404,6 @@ class ChatActivity : AppCompatActivity() {
                 if (sender != auth.currentUser?.uid) {
                     // This message wasn't sent by this user
                     if (!isRead && !hasRead && (timestampLong < currentTimestamp)) {
-
                         // If the message was sent before the user opened the chat and
                         // is unread both in the database and locally:
 
@@ -442,6 +460,7 @@ class ChatActivity : AppCompatActivity() {
                         // BUT the time of the message sent is after the user opened the chat activity
 
                         // Add the message without marking it as truly unread
+                        messagesList.add(messageObject)
                         if (TrackerSingletonObject.isAppForeground.get()) {
                             // Update metadata to reflect that the user has read the last message
                             markMessageAsRead(conversationID, snapshot.key!!)
@@ -511,7 +530,6 @@ class ChatActivity : AppCompatActivity() {
                         adapter.notifyItemChanged(index)
                     }
                 }
-
             }
 
             override fun onChildRemoved(snapshot: DataSnapshot) {}
@@ -554,7 +572,6 @@ class ChatActivity : AppCompatActivity() {
                 null
             }
         }
-
     }
 
     private fun showOfflineNotification(
@@ -746,6 +763,4 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 }
-
-
 
