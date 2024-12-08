@@ -38,6 +38,7 @@ class GroupCreationActivity : AppCompatActivity() {
     private lateinit var bitmap: Bitmap // Bitmap representation of the image
     private var compressedImageAsByteArray: ByteArray? = null // Compressed image as byte array for upload
     private val rtDB = FirebaseDatabase.getInstance()
+    private var isGroupCreationInProcess = false
 
     // Firebase Storage reference for storing images
     private val storage = FirebaseStorage.getInstance().reference
@@ -70,7 +71,10 @@ class GroupCreationActivity : AppCompatActivity() {
             chooseImage()
         }
         binding.floatingActionButtonCreateGroup.setOnClickListener {
-            createGroup(participantsMap = selectedParticipantsMap)
+            if(!isGroupCreationInProcess) {
+                isGroupCreationInProcess = true
+                createGroup(participantsMap = selectedParticipantsMap)
+            }
         }
     }
 
@@ -87,7 +91,8 @@ class GroupCreationActivity : AppCompatActivity() {
             if (groupId != null) {
                 uploadImage(groupID = groupId, participantsMap = participantsMap)
             } else {
-                Toast.makeText(this@GroupCreationActivity, "Failed to generate, try again", Toast.LENGTH_LONG).show()
+                isGroupCreationInProcess = false
+                Toast.makeText(this@GroupCreationActivity, "Failed to generate Group ID, try again", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -136,12 +141,14 @@ class GroupCreationActivity : AppCompatActivity() {
                 )
             )
                 .addOnSuccessListener {
-                    val intent  = Intent(this@GroupCreationActivity, GroupChatActivity::class.java)
-                    intent.putExtra("groupID",groupID)
+                    val intent = Intent(this@GroupCreationActivity, GroupChatActivity::class.java)
+                    intent.putExtra("groupID", groupID)
+                    intent.putExtra("fromGroupCreation", true)
                     startActivity(intent)
                     finish()
                 }
                 .addOnFailureListener {
+                    isGroupCreationInProcess = false
                     Toast.makeText(this@GroupCreationActivity, "Failed to create the group, try again", Toast.LENGTH_LONG).show()
                 }
         }

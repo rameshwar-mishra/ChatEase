@@ -1,6 +1,7 @@
 package com.example.chatease.activities
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -29,7 +30,9 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ServerValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import okhttp3.Call
 import okhttp3.Callback
@@ -44,6 +47,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import kotlin.coroutines.resume
 
 class GroupChatActivity : AppCompatActivity() {
     private lateinit var binding: ActivityGroupChatBinding
@@ -54,8 +58,8 @@ class GroupChatActivity : AppCompatActivity() {
     private lateinit var adapter: GroupChatAdapter
     private var unReadMessagesSet = mutableSetOf<String>()
     private val typingDBRef = rtDB.getReference("groups/metadata/typingReceipt")
-    private var typingListener : ChildEventListener? = null
-
+    private var typingListener: ChildEventListener? = null
+    private var fromGroupCreation = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityGroupChatBinding.inflate(layoutInflater)
@@ -71,7 +75,7 @@ class GroupChatActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
         val groupID = intent.getStringExtra("groupID")!!
-
+        fromGroupCreation = intent.getBooleanExtra("fromGroupCreation", false)
         TrackerSingletonObject.groupChatID = groupID
 
         // Setting up the RecyclerView for displaying messages
@@ -176,6 +180,7 @@ class GroupChatActivity : AppCompatActivity() {
 //
 //        })
 
+        // Setting up the send button click listener
         binding.buttonSend.setOnClickListener {
             sendMessage(groupID = groupID, currentUserID = currentUserId!!)
         }
@@ -183,82 +188,88 @@ class GroupChatActivity : AppCompatActivity() {
         fetchGroupMetaData(groupID = groupID, currentUserID = currentUserId!!)
     }
 
+    override fun onBackPressed() {
+        if (fromGroupCreation) {
+            val intent = Intent(this@GroupChatActivity, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            startActivity(intent)
+            finish()
+        }
+        super.onBackPressed()
+    }
+
     private fun sendMessage(groupID: String, currentUserID: String) {
-        if (binding.editTextMessage.text.isNullOrEmpty()) return
+        // Check if the message input is not empty
+        if (binding.editTextMessage.text.toString().trim().isNullOrEmpty()) return
 
-        // Setting up the send button click listener
-        binding.buttonSend.setOnClickListener {
+        // Reference to the metadata document for the chat
+        val metaRef = rtDB.getReference("groups/$groupID/metadata")
 
-            // Check if the message input is not empty
-            if (binding.editTextMessage.text.toString().trim().isNotEmpty()) {
-                // Reference to the metadata document for the chat
-                val metaRef = rtDB.getReference("groups/$groupID/metadata")
+        // Timestamp for the message
+        val timestamp = ServerValue.TIMESTAMP
 
-                // Timestamp for the message
-                val timestamp = ServerValue.TIMESTAMP
+        // Last message content
+        val lastMessage = binding.editTextMessage.text.toString().trim()
 
-                // Last message content
-                val lastMessage = binding.editTextMessage.text.toString().trim()
-                binding.editTextMessage.text.clear()
-                // Reference to the messages collection within the chat document
-                val messageRef = rtDB.getReference("groups/$groupID/messages")
-                // Generating a new message ID
-                val newMessageId = messageRef.push().key // Firebase generates a random ID
+        // Clearing the message input field on successful send
+        binding.editTextMessage.text.clear()
 
-                // Creating a map to store metadata of the chat
-                val groupMetaData = hashMapOf(
-                    "lastMessage" to lastMessage,
-                    "lastMessageID" to newMessageId,
-                    // setting the the last message read for the other user (with whom im chatting with) haven't read
-                    "readReceipt" to mapOf(
-                        currentUserID to true
-                    ),
-                    "lastMessageTimestamp" to timestamp,
-                    "lastMessageSender" to currentUserID
-                )
+        // Reference to the messages collection within the chat document
+        val messageRef = rtDB.getReference("groups/$groupID/messages")
 
-                // Setting the metadata document in Realtime Database
-                metaRef.updateChildren(groupMetaData)
+        // Generating a new message ID
+        val newMessageId = messageRef.push().key // Firebase generates a random ID
 
-                // Creating a map for the message data
-                val messageData = hashMapOf(
-                    "sender" to currentUserID,
-                    "content" to lastMessage,
-                    "timestamp" to timestamp,
-                    "readReceipt" to mapOf(
-                        currentUserID to true
-                    ),
-                    "lastReadTimestamp" to ""
-                )
+        // Creating a map to store metadata of the chat
+        val groupMetaData = hashMapOf(
+            "lastMessage" to lastMessage,
+            "lastMessageID" to newMessageId,
+            // setting the the last message read for the other user (with whom im chatting with) haven't read
+            "readReceipt" to mapOf(
+                currentUserID to true
+            ),
+            "lastMessageTimestamp" to timestamp,
+            "lastMessageSender" to currentUserID
+        )
 
-                // Adding the new message to Realtime Database
-                if (newMessageId != null) {
-                    messageRef.child(newMessageId).setValue(messageData)
-                        .addOnCompleteListener { task ->
-                            // Clearing the message input field on successful send
-                            if (task.isSuccessful) {
+        // Setting the metadata document in Realtime Database
+        metaRef.updateChildren(groupMetaData)
+
+        // Creating a map for the message data
+        val messageData = hashMapOf(
+            "sender" to currentUserID,
+            "content" to lastMessage,
+            "timestamp" to timestamp,
+            "readReceipt" to mapOf(
+                currentUserID to true
+            ),
+            "lastReadTimestamp" to ""
+        )
+
+        // Adding the new message to Realtime Database
+        if (newMessageId != null) {
+            messageRef.child(newMessageId).setValue(messageData)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
 //                                showOfflineNotification(
 //                                    lastMessage = lastMessage,
 //                                    senderID = auth.currentUser!!.uid,
 //                                    messageID = newMessageId,
 //                                    groupID = groupID
 //                                )
-                            }
-                        }
-                        .addOnFailureListener { exception ->
-                            // Displaying an error message if sending fails
-                            Log.d("buttonSend", exception.toString())
-                            Toast.makeText(this@GroupChatActivity, exception.toString(), Toast.LENGTH_LONG).show()
-                        }
-                } else {
-                    Toast.makeText(
-                        this@GroupChatActivity,
-                        "Failed to generate new message id for this message",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    }
                 }
-
-            }
+                .addOnFailureListener { exception ->
+                    // Displaying an error message if sending fails
+                    Log.d("buttonSend", exception.toString())
+                    Toast.makeText(this@GroupChatActivity, exception.toString(), Toast.LENGTH_LONG).show()
+                }
+        } else {
+            Toast.makeText(
+                this@GroupChatActivity,
+                "Failed to generate new message id for this message",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -304,36 +315,48 @@ class GroupChatActivity : AppCompatActivity() {
 
     private fun fetchGroupChats(groupID: String, totalParticipants: Int, currentUserID: String) {
         CoroutineScope(Dispatchers.IO).launch {
+            val messageChannel = Channel<DataSnapshot>(Channel.UNLIMITED)
+
+            CoroutineScope(Dispatchers.IO).launch {
+                for (snapshot in messageChannel) {
+                    processMessage(snapshot, groupID, totalParticipants, currentUserID)
+                }
+            }
+
             groupChatRef = rtDB.getReference("groups/$groupID/messages")
+
             groupChatListenerObject = object : ChildEventListener {
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                    val senderID = snapshot.child("sender").getValue(String::class.java) ?: ""
 
-                    Log.d("content", snapshot.child("content").getValue(String::class.java) ?: "")
+                    messageChannel.trySend(snapshot)
 
-                    if (participantsName[senderID] == null) {
-                        rtDB.getReference("users/$senderID/displayName").get()
-                            .addOnSuccessListener { snapshot1 ->
-                                participantsName[senderID] = snapshot1.value as? String? ?: ""
-                                groupChatManagement(
-                                    snapshot = snapshot,
-                                    senderName = participantsName[senderID] ?: "",
-                                    senderID = senderID,
-                                    totalParticipants = totalParticipants,
-                                    groupID = groupID,
-                                    currentUserID = currentUserID
-                                )
-                            }
-                    } else {
-                        groupChatManagement(
-                            snapshot = snapshot,
-                            senderName = participantsName[senderID] ?: "",
-                            senderID = senderID,
-                            totalParticipants = totalParticipants,
-                            groupID = groupID,
-                            currentUserID = currentUserID
-                        )
-                    }
+//                    if (participantsName[senderID] == null) {
+//                        Log.d("name", "didnt Got name, ${participantsName[senderID]}")
+//                        rtDB.getReference("users/$senderID/displayName").get()
+//                            .addOnSuccessListener { snapshot1 ->
+//
+//                                participantsName[senderID] = snapshot1.value as? String? ?: ""
+//
+//                                groupChatManagement(
+//                                    snapshot = snapshot,
+//                                    senderName = participantsName[senderID] ?: "",
+//                                    senderID = senderID,
+//                                    totalParticipants = totalParticipants,
+//                                    groupID = groupID,
+//                                    currentUserID = currentUserID
+//                                )
+//                            }
+//                    } else {
+//                        Log.d("name", "Got name, ${participantsName[senderID]}")
+//                        groupChatManagement(
+//                            snapshot = snapshot,
+//                            senderName = participantsName[senderID] ?: "",
+//                            senderID = senderID,
+//                            totalParticipants = totalParticipants,
+//                            groupID = groupID,
+//                            currentUserID = currentUserID
+//                        )
+//                    }
                 }
 
                 override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
@@ -397,6 +420,51 @@ class GroupChatActivity : AppCompatActivity() {
         }
     }
 
+    private suspend fun processMessage(
+        snapshot: DataSnapshot,
+        groupID: String,
+        totalParticipants: Int,
+        currentUserID: String
+    ) {
+
+        val senderID = snapshot.child("sender").getValue(String::class.java) ?: ""
+
+        Log.d("content", snapshot.child("content").getValue(String::class.java) ?: "")
+
+        val senderName = participantsName[senderID] ?: fetchDisplayName(senderID)
+        Log.d("senderName", senderName)
+        Log.w("content1", snapshot.child("content").getValue(String::class.java) ?: "")
+        if (senderName.isNotEmpty()) {
+            Log.d("senderName", "Name Got Found")
+            participantsName[senderID] = senderName
+        }
+
+        Log.d("senderName", participantsName[senderID].toString())
+
+        groupChatManagement(
+            snapshot = snapshot,
+            senderName = participantsName[senderID] ?: "",
+            senderID = senderID,
+            totalParticipants = totalParticipants,
+            groupID = groupID,
+            currentUserID = currentUserID
+        )
+
+    }
+
+    // Suspend function to fetch display name
+    private suspend fun fetchDisplayName(senderID: String): String {
+        return suspendCancellableCoroutine { continuation ->
+            rtDB.getReference("users/$senderID/displayName").get()
+                .addOnSuccessListener { snapshot1 ->
+                    continuation.resume(snapshot1.value as? String? ?: "")
+                }
+                .addOnFailureListener {
+                    continuation.resume("")
+                }
+        }
+    }
+
     private val currentTimestamp = System.currentTimeMillis()
     private var unReadIndicatorPosition = 0
     private val messagesList = mutableListOf<GroupMessageData>()
@@ -417,7 +485,7 @@ class GroupChatActivity : AppCompatActivity() {
     ) {
         // Convert Long timestamp to Date
 
-        Log.e("1content", snapshot.child("content").getValue(String::class.java) ?: "")
+//        Log.e("content2", snapshot.child("content").getValue(String::class.java) ?: "")
 
         val timestampLong = snapshot.child("timestamp").getValue(Long::class.java) ?: 0L
         val readReceipt = snapshot.child("readReceipt").children
@@ -438,6 +506,8 @@ class GroupChatActivity : AppCompatActivity() {
             everyoneRead = true
         }
 
+        val isReadByMe = readReceiptUsers[currentUserID] ?: false
+
         // Creating a MessageUserData object
         val messageObject = GroupMessageData(
             id = snapshot.key ?: "",
@@ -453,11 +523,11 @@ class GroupChatActivity : AppCompatActivity() {
         if (senderID != auth.currentUser?.uid) {
             // This message wasn't sent by this user
             Log.d("runs Sender", "They Have Sent")
-            if (!everyoneRead && (timestampLong < currentTimestamp)) {
+            if (!isReadByMe && (timestampLong < currentTimestamp)) {
                 Log.d("runs read", "executes")
                 // Mark it as the first unread message and add an indicator
                 if (!gotUnreadMessages) {
-                    newMessagesBuffer.add(GroupMessageData("", "", "", "", "", 0L, everyoneRead = false))
+                    messagesList.add(GroupMessageData("", "", "", "", "", messageObject.timestamp - 1, everyoneRead = false))
                     unReadIndicatorPosition = messagesList.size - 1
                     gotUnreadMessages = true
                 }
@@ -473,7 +543,7 @@ class GroupChatActivity : AppCompatActivity() {
                         totalParticipants = totalParticipants
                     )
                     messageObject.everyoneRead = everyoneRead
-                    newMessagesBuffer.add(messageObject)
+                    messagesList.add(messageObject)
                     updateMetaData(
                         groupID = groupID,
                         currentUserID = currentUserID,
@@ -484,7 +554,7 @@ class GroupChatActivity : AppCompatActivity() {
                     unReadMessagesSet.add(snapshot.key!!)
                 }
 
-            } else if (!everyoneRead && (timestampLong > currentTimestamp)) {
+            } else if (!isReadByMe && (timestampLong > currentTimestamp)) {
                 Log.d("runs read", "executes2")
                 // Update read status and timestamp in the database
                 if (TrackerSingletonObject.isAppForeground.get()) {
@@ -497,20 +567,20 @@ class GroupChatActivity : AppCompatActivity() {
                         totalParticipants = totalParticipants
                     )
                     messageObject.everyoneRead = everyoneRead
-                    newMessagesBuffer.add(messageObject)
+                    messagesList.add(messageObject)
                     updateMetaData(
                         groupID = groupID,
                         currentUserID = currentUserID,
                         readReceiptMap = readReceiptUsers
                     )
                 } else {
-                    newMessagesBuffer.add(messageObject)
+                    messagesList.add(messageObject)
                     unReadMessagesSet.add(snapshot.key!!)
                 }
-            } else if (everyoneRead) {
+            } else if (isReadByMe) {
                 Log.d("runs read", "executes everyone")
                 // Add the message without marking it as truly unread
-                newMessagesBuffer.add(messageObject)
+                messagesList.add(messageObject)
                 if (TrackerSingletonObject.isAppForeground.get()) {
                     // Update metadata to reflect that the user has read the last message
                     updateMetaData(
@@ -529,51 +599,54 @@ class GroupChatActivity : AppCompatActivity() {
                         // Removing the unread indicator container "NEW"
                         // when this user replies/sent some message after those unread messages
                         messagesList.removeAt(unReadIndicatorPosition)
-                        adapter.notifyItemRemoved(unReadIndicatorPosition)
+                        CoroutineScope(Dispatchers.Main).launch {
+                            adapter.notifyItemRemoved(unReadIndicatorPosition)
+                        }
                     }
                 }
             }
             // This message was sent by this user
-            newMessagesBuffer.add(messageObject)
+            messagesList.add(messageObject)
 
 //            updateMetaData(
 //                groupID = groupID,
 //                readReceiptMap = readReceiptUsers
 //            )
         }
-        messageQueueRunnable?.let { delayHandler.removeCallbacksAndMessages(it) }
-
-        if (isInitialLoad) {
-            messageQueueRunnable = Runnable {
-                isInitialLoad = false
-                messagesList.addAll(newMessagesBuffer)
-                newMessagesBuffer.clear()
-                messagesList.sortBy { it.timestamp }
-                adapter.notifyDataSetChanged()
-                binding.recyclerViewCurrentChat.scrollToPosition(messagesList.size - 1)
-            }
-            delayHandler.postDelayed(messageQueueRunnable!!, 200L)
-        } else {
-            messageQueueRunnable = Runnable {
-                isInitialLoad = false
-                messagesList.addAll(newMessagesBuffer)
-                messagesList.sortBy { it.timestamp }
-                val startIndex = messagesList.size - newMessagesBuffer.size
-                val endIndex = messagesList.size - 1
-                if (newMessagesBuffer.size == 1) {
-                    adapter.notifyItemChanged(endIndex)
-                } else {
-                    adapter.notifyItemRangeChanged(startIndex, newMessagesBuffer.size)
-                }
-                newMessagesBuffer.clear()
-                binding.recyclerViewCurrentChat.scrollToPosition(messagesList.size - 1)
-            }
-            delayHandler.postDelayed(messageQueueRunnable!!, 500L)
+//        messageQueueRunnable?.let { delayHandler.removeCallbacksAndMessages(it) }
+//
+//        if (isInitialLoad) {
+//            messageQueueRunnable = Runnable {
+//                isInitialLoad = false
+//                messagesList.addAll(newMessagesBuffer)
+//                newMessagesBuffer.clear()
+//                messagesList.sortBy { it.timestamp }
+//                adapter.notifyDataSetChanged()
+//                binding.recyclerViewCurrentChat.scrollToPosition(messagesList.size - 1)
+//            }
+//            delayHandler.postDelayed(messageQueueRunnable!!, 200L)
+//        } else {
+//            messageQueueRunnable = Runnable {
+//                isInitialLoad = false
+//                messagesList.addAll(newMessagesBuffer)
+//                messagesList.sortBy { it.timestamp }
+//                val startIndex = messagesList.size - newMessagesBuffer.size
+//                val endIndex = messagesList.size - 1
+//                if (newMessagesBuffer.size == 1) {
+//                    adapter.notifyItemChanged(endIndex)
+//                } else {
+//                    adapter.notifyItemRangeChanged(startIndex, newMessagesBuffer.size)
+//                }
+//                newMessagesBuffer.clear()
+//                binding.recyclerViewCurrentChat.scrollToPosition(messagesList.size - 1)
+//            }
+//            delayHandler.postDelayed(messageQueueRunnable!!, 500L)
+//        }
+//        messagesList.sortBy { it.timestamp }
+        CoroutineScope(Dispatchers.Main).launch {
+            adapter.notifyItemChanged(messagesList.size - 1) // Notify adapter of data change
+            binding.recyclerViewCurrentChat.scrollToPosition(messagesList.size - 1)   // Scrolling to the bottom to show the latest message
         }
-
-//        adapter.notifyItemChanged(messagesList.size - 1) // Notify adapter of data change
-
-        // Scrolling to the bottom to show the latest message
     }
 
     private fun markAsRead(
@@ -756,6 +829,7 @@ class GroupChatActivity : AppCompatActivity() {
             remove("groupChatID")
             commit()
         }
+        gotUnreadMessages = false
     }
 
     override fun onDestroy() {
