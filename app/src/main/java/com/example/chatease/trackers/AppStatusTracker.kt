@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.chatease.activities.ChatActivity
@@ -359,8 +358,6 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
     }
 
     private fun groupNotificationSubscription(groupID: String?, status: Boolean) {
-        Log.d("call subs group ID", groupID.toString())
-        Log.d("call subs Status", status.toString())
         if (groupID != null) {
 
             val subscribedGroups = getSharedPreferences("groupSubscription", MODE_PRIVATE).getStringSet("groups", mutableSetOf()) ?: mutableSetOf()

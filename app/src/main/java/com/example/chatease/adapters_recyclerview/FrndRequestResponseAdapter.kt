@@ -2,6 +2,7 @@ package com.example.chatease.adapters_recyclerview
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -170,6 +171,10 @@ class FrndRequestResponseAdapter(
         return withContext(Dispatchers.IO) {
             suspendCancellableCoroutine { coroutine ->
                 if (usage == "Received") {
+
+                    Log.d("userDataList",userDataList.toString())
+                    Log.d("Position",position.toString())
+
                     rtDB.getReference("users/${userDataList[position].userID}/friends/requestSent/$currentUserID")
                         .removeValue()
                         .addOnSuccessListener {

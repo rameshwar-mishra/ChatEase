@@ -8,7 +8,7 @@
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_50sdp"
+        android:layout_height="@dimen/_40sdp"
         app:strokeWidth="0dp"
         android:backgroundTint="@android:color/transparent">
 
@@ -38,7 +38,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="15dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="6dp"
                     android:text="Display Name"
                     android:textSize="16sp"
                     android:fontFamily="sans-serif"
