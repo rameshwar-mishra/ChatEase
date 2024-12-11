@@ -552,7 +552,6 @@ class ChatActivity : AppCompatActivity() {
             }
             startActivityForResult(intent, token) // Start UserProfileActivity with a request code
         }
-
     }
 
     private fun getGoogleCredential(context: Context): GoogleCredentials {

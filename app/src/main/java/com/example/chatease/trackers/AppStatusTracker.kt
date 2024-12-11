@@ -215,7 +215,7 @@ class AppStatusTracker : Application(), Application.ActivityLifecycleCallbacks {
 
     private fun groupListener(currentUserID: String) {
         CoroutineScope(Dispatchers.IO).launch {
-            rtDB.getReference("groups").orderByChild("metadata/participants/${currentUserID}").equalTo(true)
+            rtDB.getReference("groups").orderByChild("metadata/participants/${currentUserID}/role").startAt("")
                 .addChildEventListener(object : ChildEventListener {
 
                     override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {

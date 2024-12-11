@@ -20,10 +20,12 @@
         tools:targetApi="31">
         <activity
             android:name=".activities.GroupProfileActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".activities.GroupChatActivity"/>
         <activity
             android:name=".activities.GroupChatActivity"
             android:exported="false"
+            android:launchMode="singleTask"
             android:parentActivityName=".activities.MainActivity" />
         <activity
             android:name=".activities.GroupCreationActivity"

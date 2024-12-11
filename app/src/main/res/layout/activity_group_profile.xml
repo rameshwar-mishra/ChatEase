@@ -1,15 +1,13 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/groupProfileActivityToolbar"
@@ -28,13 +26,19 @@
                 android:textSize="@dimen/_16ssp" />
         </com.google.android.material.appbar.MaterialToolbar>
 
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineHorizontalTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.11" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineVerticalStart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.02" />
+            app:layout_constraintGuide_percent="0.03" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineVerticalEnd"
@@ -42,7 +46,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.97" />
-
 
         <FrameLayout
             android:id="@+id/frameGroupInfo"
@@ -52,18 +55,11 @@
             android:padding="10dp"
             app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
             app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
-            app:layout_constraintTop_toBottomOf="@id/groupProfileActivityToolbar">
+            app:layout_constraintTop_toBottomOf="@id/guidelineHorizontalTop">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guidelineFrameStart"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.35" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/guidelineVerticalStartGroupInfo"
@@ -73,6 +69,20 @@
                     app:layout_constraintGuide_percent="0.05" />
 
                 <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineFrameStart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.39" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineFrameEnd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.606469" />
+
+                <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/guidelineVerticalEndGroupInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -80,25 +90,24 @@
                     app:layout_constraintGuide_percent="0.95" />
 
                 <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guidelineFrameEnd"
+                    android:id="@+id/guidelineFrameTop"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.65" />
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent="0.05" />
 
                 <FrameLayout
                     android:id="@+id/frameGroupIcon"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_gravity="center"
-                    android:layout_marginTop="40dp"
                     android:background="@drawable/shape_group_icon"
                     app:layout_constraintBottom_toTopOf="@+id/textViewGroupName"
                     app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintEnd_toEndOf="@id/guidelineFrameEnd"
+                    app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="@id/guidelineFrameStart"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintTop_toTopOf="@id/guidelineFrameTop">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -109,36 +118,36 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            app:layout_constraintGuide_percent="0.10"/>
+                            app:layout_constraintGuide_percent="0.15" />
 
                         <androidx.constraintlayout.widget.Guideline
                             android:id="@+id/guidelineImageStart"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            app:layout_constraintGuide_percent="0.11"/>
+                            app:layout_constraintGuide_percent="0.14" />
 
                         <androidx.constraintlayout.widget.Guideline
                             android:id="@+id/guidelineImageEnd"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            app:layout_constraintGuide_percent="0.9"/>
+                            app:layout_constraintGuide_percent="0.86" />
 
                         <com.makeramen.roundedimageview.RoundedImageView
                             android:id="@+id/imageViewGroupIcon"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
-                            app:layout_constraintDimensionRatio="1:1"
-                            app:layout_constraintHorizontal_bias="0.5"
-                            android:paddingTop="5dp"
                             android:layout_gravity="center"
+                            android:paddingTop="5dp"
                             android:scaleType="centerCrop"
                             android:src="@drawable/vector_icon_group"
-                            app:riv_oval="true"
-                            app:layout_constraintTop_toTopOf="@id/guidelineImageTop"
+                            app:layout_constraintDimensionRatio="1:1"
+                            app:layout_constraintEnd_toEndOf="@id/guidelineImageEnd"
+                            app:layout_constraintHorizontal_bias="0.5"
                             app:layout_constraintStart_toStartOf="@id/guidelineImageStart"
-                            app:layout_constraintEnd_toEndOf="@id/guidelineImageEnd"/>
+                            app:layout_constraintTop_toTopOf="@id/guidelineImageTop"
+                            app:riv_oval="true" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </FrameLayout>
@@ -147,23 +156,23 @@
                     android:id="@+id/textViewGroupName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_margin="2dp"
                     android:text="Group Name"
                     android:textColor="@color/textColors"
-                    android:textSize="16sp"
-                    android:layout_margin="2dp"
-                    app:layout_constraintBottom_toTopOf="@+id/textView"
+                    android:textSize="@dimen/_12sdp"
+                    app:layout_constraintBottom_toTopOf="@+id/textViewCreatedOn"
                     app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEndGroupInfo"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="@id/guidelineVerticalStartGroupInfo"
                     app:layout_constraintTop_toBottomOf="@+id/frameGroupIcon" />
 
                 <TextView
-                    android:id="@+id/textView"
+                    android:id="@+id/textViewCreatedOn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Created by DisplayNameOwner on 16/04"
                     android:textColor="@color/secondaryText"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/_10sdp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEndGroupInfo"
                     app:layout_constraintHorizontal_bias="0.5"
@@ -181,7 +190,7 @@
             android:fontFamily="@font/roboto"
             android:text="About Group"
             android:textColor="@color/textColors"
-            android:textSize="15sp"
+            android:textSize="@dimen/_12ssp"
             app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
             app:layout_constraintTop_toBottomOf="@+id/frameGroupInfo" />
 
@@ -197,11 +206,35 @@
             app:layout_constraintTop_toBottomOf="@id/textViewAboutGroup">
 
             <TextView
+                android:id="@+id/textViewGroupDesc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Big talks or small talks, ChatEase handles it all." />
+                android:text="Big talks or small talks, ChatEase handles it all."
+                android:textSize="@dimen/_10ssp" />
         </FrameLayout>
 
+        <FrameLayout
+            android:id="@+id/frameAddParticipants"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/shape_group_profile"
+            android:padding="20dp"
+            app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
+            app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
+            app:layout_constraintTop_toBottomOf="@id/textViewParticipantsCounter">
+
+            <TextView
+                android:id="@+id/textVieAddParticipants"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/vector_icon_add"
+                android:drawablePadding="10dp"
+                android:gravity="center_horizontal"
+                android:text="Add Participants"
+                android:textColor="@color/green"
+                android:textSize="@dimen/_13ssp" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/textViewParticipantsCounter"
@@ -211,10 +244,9 @@
             android:fontFamily="@font/roboto"
             android:text="Participants - 0"
             android:textColor="@color/textColors"
-            android:textSize="15sp"
+            android:textSize="@dimen/_12ssp"
             app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
             app:layout_constraintTop_toBottomOf="@id/frameGroupBio" />
-
 
         <FrameLayout
             android:id="@+id/frameRecyclerViewParticipantsList"
@@ -222,10 +254,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:background="@drawable/shape_group_profile"
-            android:padding="15dp"
+            android:padding="5dp"
             app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
             app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
-            app:layout_constraintTop_toBottomOf="@id/textViewParticipantsCounter">
+            app:layout_constraintTop_toBottomOf="@id/frameAddParticipants">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewParticipantsList"
@@ -237,7 +269,7 @@
             android:id="@+id/frameLeaveGroup"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/shape_group_profile"
             android:padding="20dp"
             app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
@@ -250,10 +282,34 @@
                 android:layout_height="wrap_content"
                 android:drawableStart="@drawable/vector_icon_sign_out"
                 android:drawablePadding="10dp"
-                android:text="Leave Group"
                 android:gravity="center_horizontal"
+                android:text="Leave Group"
                 android:textColor="@color/light_red"
-                android:textSize="16sp" />
+                android:textSize="@dimen/_13ssp" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/frameDeleteGroup"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/shape_group_profile"
+            android:padding="20dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
+            app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
+            app:layout_constraintTop_toBottomOf="@id/frameLeaveGroup">
+
+            <TextView
+                android:id="@+id/textViewDeleteGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/vector_icon_delete"
+                android:drawablePadding="10dp"
+                android:gravity="center_horizontal"
+                android:text="Delete Group"
+                android:textColor="@color/light_red"
+                android:textSize="@dimen/_13ssp" />
         </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

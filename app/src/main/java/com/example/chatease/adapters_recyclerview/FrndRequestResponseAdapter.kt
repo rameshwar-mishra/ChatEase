@@ -67,7 +67,7 @@ class FrndRequestResponseAdapter(
                         val map = async {
                             removeRequestsFromSentAndReceived(
                                 currentUserID = currentUser.uid,
-                                position = position,
+                                position = holder.adapterPosition,
                                 usage = usage
                             )
                         }.await()
@@ -75,7 +75,7 @@ class FrndRequestResponseAdapter(
                         if (map["isSuccessful"] == "true") {
                             addIDInRequestAccepted(
                                 currentUserID = currentUser.uid,
-                                position = position,
+                                position = holder.adapterPosition,
                                 otherUserId = map["otherUserId"]!!,
                                 displayName = map["displayName"]!!
                             )
@@ -94,7 +94,7 @@ class FrndRequestResponseAdapter(
                             CoroutineScope(Dispatchers.IO).launch {
                                 removeRequestsFromSentAndReceived(
                                     currentUserID = currentUser.uid,
-                                    position = position,
+                                    position = holder.adapterPosition,
                                     usage = usage
                                 )
                             }
@@ -122,7 +122,7 @@ class FrndRequestResponseAdapter(
                             CoroutineScope(Dispatchers.IO).launch {
                                 removeRequestsFromSentAndReceived(
                                     currentUserID = currentUser.uid,
-                                    position = position,
+                                    position = holder.adapterPosition,
                                     usage = usage
                                 )
                             }
@@ -172,8 +172,8 @@ class FrndRequestResponseAdapter(
             suspendCancellableCoroutine { coroutine ->
                 if (usage == "Received") {
 
-                    Log.d("userDataList",userDataList.toString())
-                    Log.d("Position",position.toString())
+                    Log.w("Accepted userDataList",userDataList.toString())
+                    Log.w("Accepted Position",position.toString())
 
                     rtDB.getReference("users/${userDataList[position].userID}/friends/requestSent/$currentUserID")
                         .removeValue()

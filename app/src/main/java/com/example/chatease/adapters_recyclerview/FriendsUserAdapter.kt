@@ -47,7 +47,7 @@ class FriendsUserAdapter(
             val intent = Intent(context, UserProfileActivity::class.java)
             intent.apply {
                 putExtra("id", userData[position].userID)
-                putExtra("FriendsFragment", true)
+                putExtra("FromAnotherActivity", true)
             }
             context.startActivity(intent)
         }

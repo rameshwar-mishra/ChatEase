@@ -96,7 +96,9 @@ class GroupChatActivity : AppCompatActivity() {
         }
 
         binding.toolbar.setOnClickListener {
-            startActivity(Intent(this@GroupChatActivity, GroupProfileActivity::class.java))
+            val intent = Intent(this@GroupChatActivity, GroupProfileActivity::class.java)
+            intent.putExtra("groupID",groupID)
+            startActivity(intent)
         }
 
 //        typingListener = object : ChildEventListener {
