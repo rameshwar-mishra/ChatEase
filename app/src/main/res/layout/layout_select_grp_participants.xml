@@ -9,7 +9,7 @@
         android:layout_height="55dp"
         app:cardCornerRadius="0dp"
         app:strokeWidth="0dp"
-        app:cardBackgroundColor="@color/cardViewColor"
+        android:backgroundTint="@android:color/transparent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 

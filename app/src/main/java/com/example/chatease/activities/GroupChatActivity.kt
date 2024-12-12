@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.Toast
@@ -93,6 +95,11 @@ class GroupChatActivity : AppCompatActivity() {
             Toast.makeText(this@GroupChatActivity, "Unable to get your userID, Please SignIn Again", Toast.LENGTH_LONG).show()
         }
 
+        binding.toolbar.setOnClickListener {
+            val intent = Intent(this@GroupChatActivity, GroupProfileActivity::class.java)
+            intent.putExtra("groupID",groupID)
+            startActivity(intent)
+        }
 
 //        typingListener = object : ChildEventListener {
 //            override fun onDataChange(snapshot: DataSnapshot) {
@@ -131,54 +138,33 @@ class GroupChatActivity : AppCompatActivity() {
 //            typingDBRef.addChildEventListener(it)
 //        }
 //
-//        var previousLineCount = 2
-//        var minLines = 1
-//        var lineCount = 0
-//        var baseSdp = 50
-//        val screenDensity = resources.displayMetrics.densityDpi / 160f
-//        binding.editTextMessage.addTextChangedListener(object : TextWatcher {
-//            // Typing Indicator SETUP below
-//            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-//
-//            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-//                if (!TrackerSingletonObject.isTyping.get()) {
-//                    TrackerSingletonObject.isTyping.set(true)
-//                    val dataMap = hashMapOf<String, Any>(
-//                        "typing_of_$currentUserId" to true
-//                    )
-//                    userDbRef.updateChildren(dataMap)
-//                }
-//
-//                typingStatusHandler.removeCallbacksAndMessages(null)
-//
-//                typingStatusHandler.postDelayed({
-//                    if (TrackerSingletonObject.isAppForeground.get()) {
-//                        TrackerSingletonObject.isTyping.set(false)
-//                        val dataMap = hashMapOf<String, Any>(
-//                            "typing_of_$currentUserId" to false
-//                        )
-//                        userDbRef.updateChildren(dataMap)
-//                    }
-//                }, 2000L)
-//
-//                lineCount = binding.editTextMessage.lineCount
-//                if(previousLineCount != lineCount) {
-//                    if(lineCount > minLines) {
-//                        Log.d("LINECOUNT",lineCount.toString())
-//                        val adjustedLineCount = lineCount.coerceIn(minLines, 5)
-//                        val newSdp = baseSdp + (20 * (adjustedLineCount - 2))
-//                        val params = binding.chatInputCard.layoutParams
-//                        params.height = (newSdp * screenDensity).toInt()
-//                        binding.chatInputCard.layoutParams = params
-//                    }
-//
-//                    previousLineCount = lineCount
-//                }
-//            }
-//
-//            override fun afterTextChanged(s: Editable?) {}
-//
-//        })
+        var previousLineCount = 2
+        var minLines = 1
+        var lineCount = 0
+        var baseSdp = 50
+        val screenDensity = resources.displayMetrics.densityDpi / 160f
+
+        binding.editTextMessage.addTextChangedListener(object : TextWatcher {
+            // Typing Indicator SETUP below (Removed for now)
+            // Auto Size EditText Setup Below, Change the height of EditText based on the number of lines it has.
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                lineCount = binding.editTextMessage.lineCount
+                if (previousLineCount != lineCount) {
+                    if (lineCount > minLines) {
+                        val adjustedLineCount = lineCount.coerceIn(minLines, 5)
+                        val newSdp = baseSdp + (20 * (adjustedLineCount - 2))
+                        val params = binding.chatInputCard.layoutParams
+                        params.height = (newSdp * screenDensity).toInt()
+                        binding.chatInputCard.layoutParams = params
+                    }
+
+                    previousLineCount = lineCount
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun afterTextChanged(s: Editable?) {}
+        })
 
         // Setting up the send button click listener
         binding.buttonSend.setOnClickListener {
@@ -428,18 +414,11 @@ class GroupChatActivity : AppCompatActivity() {
     ) {
 
         val senderID = snapshot.child("sender").getValue(String::class.java) ?: ""
-
-        Log.d("content", snapshot.child("content").getValue(String::class.java) ?: "")
-
         val senderName = participantsName[senderID] ?: fetchDisplayName(senderID)
-        Log.d("senderName", senderName)
-        Log.w("content1", snapshot.child("content").getValue(String::class.java) ?: "")
+
         if (senderName.isNotEmpty()) {
-            Log.d("senderName", "Name Got Found")
             participantsName[senderID] = senderName
         }
-
-        Log.d("senderName", participantsName[senderID].toString())
 
         groupChatManagement(
             snapshot = snapshot,
@@ -449,7 +428,6 @@ class GroupChatActivity : AppCompatActivity() {
             groupID = groupID,
             currentUserID = currentUserID
         )
-
     }
 
     // Suspend function to fetch display name
@@ -472,8 +450,8 @@ class GroupChatActivity : AppCompatActivity() {
     private var gotUnreadMessages = false
 
     private val newMessagesBuffer = mutableListOf<GroupMessageData>()
-    private var messageQueueRunnable: Runnable? = null
-    private var isInitialLoad = true
+//    private var messageQueueRunnable: Runnable? = null
+//    private var isInitialLoad = true
 
     private fun groupChatManagement(
         snapshot: DataSnapshot,
@@ -484,8 +462,6 @@ class GroupChatActivity : AppCompatActivity() {
         currentUserID: String
     ) {
         // Convert Long timestamp to Date
-
-//        Log.e("content2", snapshot.child("content").getValue(String::class.java) ?: "")
 
         val timestampLong = snapshot.child("timestamp").getValue(Long::class.java) ?: 0L
         val readReceipt = snapshot.child("readReceipt").children
@@ -522,9 +498,7 @@ class GroupChatActivity : AppCompatActivity() {
         // Adding the message to the list and notifying the adapter
         if (senderID != auth.currentUser?.uid) {
             // This message wasn't sent by this user
-            Log.d("runs Sender", "They Have Sent")
             if (!isReadByMe && (timestampLong < currentTimestamp)) {
-                Log.d("runs read", "executes")
                 // Mark it as the first unread message and add an indicator
                 if (!gotUnreadMessages) {
                     messagesList.add(GroupMessageData("", "", "", "", "", messageObject.timestamp - 1, everyoneRead = false))
@@ -547,7 +521,6 @@ class GroupChatActivity : AppCompatActivity() {
                     updateMetaData(
                         groupID = groupID,
                         currentUserID = currentUserID,
-                        readReceiptMap = readReceiptUsers
                     )
                 } else {
                     newMessagesBuffer.add(messageObject)
@@ -555,7 +528,6 @@ class GroupChatActivity : AppCompatActivity() {
                 }
 
             } else if (!isReadByMe && (timestampLong > currentTimestamp)) {
-                Log.d("runs read", "executes2")
                 // Update read status and timestamp in the database
                 if (TrackerSingletonObject.isAppForeground.get()) {
                     // Update metadata to reflect that the user has read the last message
@@ -571,14 +543,12 @@ class GroupChatActivity : AppCompatActivity() {
                     updateMetaData(
                         groupID = groupID,
                         currentUserID = currentUserID,
-                        readReceiptMap = readReceiptUsers
                     )
                 } else {
                     messagesList.add(messageObject)
                     unReadMessagesSet.add(snapshot.key!!)
                 }
             } else if (isReadByMe) {
-                Log.d("runs read", "executes everyone")
                 // Add the message without marking it as truly unread
                 messagesList.add(messageObject)
                 if (TrackerSingletonObject.isAppForeground.get()) {
@@ -586,7 +556,6 @@ class GroupChatActivity : AppCompatActivity() {
                     updateMetaData(
                         groupID = groupID,
                         currentUserID = currentUserID,
-                        readReceiptMap = readReceiptUsers
                     )
                 } else {
                     unReadMessagesSet.add(snapshot.key!!)
@@ -659,7 +628,6 @@ class GroupChatActivity : AppCompatActivity() {
         if (messageReadByUsers[currentUserID] == null) {
             // agar maine nahi padha
             messageReadByUsers[currentUserID] = true
-            Log.d("runs mark as read", "yes marks")
             rtDB.getReference("groups/$groupID/messages/$messageID/readReceipt").updateChildren(
                 mapOf(
                     currentUserID to true
@@ -669,14 +637,13 @@ class GroupChatActivity : AppCompatActivity() {
             // Will return TRUE if readReceiptMembers size equals to Total group members, which means everybody has read the message.
             // otherwise will return false
         } else {
-            Log.d("runs mark as read", "doesnt marks")
             return false
         }
     }
 
     private var delayHandler = Handler(Looper.getMainLooper())
 
-    private fun updateMetaData(groupID: String, currentUserID: String, readReceiptMap: MutableMap<String, Boolean>) {
+    private fun updateMetaData(groupID: String, currentUserID: String) {
         delayHandler.removeCallbacksAndMessages(null)
 
         delayHandler.postDelayed({
@@ -815,7 +782,6 @@ class GroupChatActivity : AppCompatActivity() {
                         updateMetaData(
                             groupID = groupID,
                             currentUserID = currentUser.uid,
-                            readReceiptMap = readReceiptUsers
                         )
                     }
                 }

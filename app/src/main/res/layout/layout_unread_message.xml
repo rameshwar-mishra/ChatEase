@@ -7,9 +7,8 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="@android:color/transparent"
-        app:cardCornerRadius="0dp"
-        >
+        style="@style/CustomCardViewDesign"
+        app:cardCornerRadius="0dp">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/_30sdp"

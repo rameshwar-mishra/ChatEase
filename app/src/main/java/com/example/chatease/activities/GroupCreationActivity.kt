@@ -20,6 +20,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.example.chatease.R
 import com.example.chatease.databinding.ActivityGroupCreationBinding
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ServerValue
 import com.google.firebase.storage.FirebaseStorage
@@ -39,6 +40,7 @@ class GroupCreationActivity : AppCompatActivity() {
     private var compressedImageAsByteArray: ByteArray? = null // Compressed image as byte array for upload
     private val rtDB = FirebaseDatabase.getInstance()
     private var isGroupCreationInProcess = false
+    private val auth = FirebaseAuth.getInstance()
 
     // Firebase Storage reference for storing images
     private val storage = FirebaseStorage.getInstance().reference
@@ -59,7 +61,20 @@ class GroupCreationActivity : AppCompatActivity() {
 
         val selectedParticipantsList = intent.getStringArrayListExtra("selectedParticipants") ?: arrayListOf<String>()
 
-        val selectedParticipantsMap = selectedParticipantsList.associateWith { true }
+        var selectedParticipantsMap = mapOf<String,Map<String,String>>()
+        auth.currentUser?.let { currentUser ->
+            selectedParticipantsMap = selectedParticipantsList.associateWith {
+                if (it == currentUser.uid) {
+                    mapOf(
+                        "role" to "owner"
+                    )
+                } else {
+                    mapOf(
+                        "role" to "member"
+                    )
+                }
+            }
+        }
 
 //        val userDataList = intent.getSerializableExtra("userDataList") as ArrayList<UserData>
 
@@ -71,14 +86,14 @@ class GroupCreationActivity : AppCompatActivity() {
             chooseImage()
         }
         binding.floatingActionButtonCreateGroup.setOnClickListener {
-            if(!isGroupCreationInProcess) {
+            if (!isGroupCreationInProcess) {
                 isGroupCreationInProcess = true
                 createGroup(participantsMap = selectedParticipantsMap)
             }
         }
     }
 
-    private fun createGroup(participantsMap: Map<String, Boolean>) {
+    private fun createGroup(participantsMap: Map<String, Map<String, String>>) {
         if (binding.groupName.text.isNullOrEmpty()) {
             binding.groupName.error = "Need a group name"
             binding.groupName.requestFocus()
@@ -97,7 +112,7 @@ class GroupCreationActivity : AppCompatActivity() {
         }
     }
 
-    private fun uploadImage(groupID: String, participantsMap: Map<String, Boolean>) {
+    private fun uploadImage(groupID: String, participantsMap: Map<String, Map<String, String>>) {
         CoroutineScope(Dispatchers.IO).launch {
             if (compressedImageAsByteArray != null) {
                 val imageRef = storage.child("groupIcon/$groupID")
@@ -123,7 +138,7 @@ class GroupCreationActivity : AppCompatActivity() {
         }
     }
 
-    private fun uploadGroupData(groupID: String, iconURL: String?, participantsMap: Map<String, Boolean>) {
+    private fun uploadGroupData(groupID: String, iconURL: String?, participantsMap: Map<String, Map<String, String>>) {
         CoroutineScope(Dispatchers.IO).launch {
             val groupDesc = if (binding.groupDesc.text.toString().isEmpty()) {
                 null

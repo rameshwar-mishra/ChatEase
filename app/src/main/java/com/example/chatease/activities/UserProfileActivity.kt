@@ -51,7 +51,7 @@ class UserProfileActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowTitleEnabled(false) // Disable the title to be visible in the toolbar
 
         otherUserId = intent.getStringExtra("id") ?: "" // Get the user ID from the intent extras
-        fromFriendsFragment = intent.getBooleanExtra("FriendsFragment", false) // Get the user ID from the intent extras
+        fromFriendsFragment = intent.getBooleanExtra("FromAnotherActivity", false) // Get the user ID from the intent extras
 
         // Fetch user data from Firestore using the user ID
 
@@ -63,11 +63,6 @@ class UserProfileActivity : AppCompatActivity() {
         // If user came from ChatActivity, hide the message button
         if (userFromChatActivity) {
             binding.messageUserButton.visibility = View.GONE // Hide the message button
-        } else {
-            // If not from ChatActivity, set click listener on message button
-            binding.messageUserButton.setOnClickListener {
-                // Handle message button click
-            }
         }
 
         // Set click listener for toolbar navigation button to handle back navigation

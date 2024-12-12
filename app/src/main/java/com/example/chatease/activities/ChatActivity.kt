@@ -544,7 +544,7 @@ class ChatActivity : AppCompatActivity() {
         }
 
         // Click listener for user profile frame
-        binding.frameUserProfile.setOnClickListener {
+        binding.chatActivityToolbar.setOnClickListener {
             val intent = Intent(this@ChatActivity, UserProfileActivity::class.java)
             intent.apply {
                 putExtra("id", otherUserId) // Pass the other user's ID to the profile activity
@@ -552,7 +552,6 @@ class ChatActivity : AppCompatActivity() {
             }
             startActivityForResult(intent, token) // Start UserProfileActivity with a request code
         }
-
     }
 
     private fun getGoogleCredential(context: Context): GoogleCredentials {

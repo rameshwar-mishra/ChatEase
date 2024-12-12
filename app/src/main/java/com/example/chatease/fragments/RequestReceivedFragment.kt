@@ -58,7 +58,7 @@ class RequestReceivedFragment : Fragment() {
             }
 
             private fun updateBackground() {
-                val hasItems =adapter.itemCount > 0
+                val hasItems = adapter.itemCount > 0
                 if (hasItems && !addedBackground) {
                     addedBackground = true
                     binding.recyclerViewReceived.background =
@@ -71,6 +71,8 @@ class RequestReceivedFragment : Fragment() {
         }
 
         adapter.registerAdapterDataObserver(adapterDataObserver)
+
+
 
         auth.currentUser?.let { currentUser ->
 
