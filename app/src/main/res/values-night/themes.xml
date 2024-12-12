@@ -2,7 +2,8 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.ChatEase" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
-        <item name="android:statusBarColor">@color/item_background</item>
+        <item name="android:statusBarColor">@color/accentColor</item>
+<!--        <item name="android:windowLightStatusBar">false</item>-->
         <item name="android:windowBackground">#1A1823</item>
         <item name="itemBackground">@color/white</item>
         <item name="icon_background">@color/icon_color</item>

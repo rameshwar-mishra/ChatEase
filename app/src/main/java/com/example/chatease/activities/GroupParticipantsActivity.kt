@@ -2,6 +2,9 @@ package com.example.chatease.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -129,6 +132,7 @@ class GroupParticipantsActivity : AppCompatActivity() {
                         }
                     }
                 } else {
+                    Log.v("participant", adapter.getSelectedParticipantsSet().toString())
                     val intent = Intent(this@GroupParticipantsActivity, GroupCreationActivity::class.java)
                     intent.putStringArrayListExtra("selectedParticipants", ArrayList(adapter.getSelectedParticipantsSet()))
                     startActivity(intent)
@@ -178,6 +182,7 @@ class GroupParticipantsActivity : AppCompatActivity() {
         }
     }
 
+    private val delayHandler = Handler(Looper.getMainLooper())
     private fun getUserDetails(userID: String) {
         CoroutineScope(Dispatchers.IO).launch {
             rtDB.getReference("users/$userID").get()
@@ -189,6 +194,7 @@ class GroupParticipantsActivity : AppCompatActivity() {
                             userID = userID,
                             userAvatar = snapshot.child("avatar").getValue(String::class.java) ?: ""
                         )
+
                         val insertIndex = userDataList.binarySearch { it.displayName.compareTo(userData.displayName) }
                             .let { returnValue ->
                                 if (returnValue < 0) {
@@ -197,8 +203,20 @@ class GroupParticipantsActivity : AppCompatActivity() {
                                     returnValue + 1
                                 }
                             }
+
                         userDataList.add(insertIndex, userData)
-                        adapter.notifyItemInserted(insertIndex)
+                        CoroutineScope(Dispatchers.Main).launch {
+                            delayHandler.removeCallbacksAndMessages(null)
+
+                            delayHandler.postDelayed({
+
+                                if (userDataList.size > 0) {
+                                    binding.recyclerView.background =
+                                        ContextCompat.getDrawable(this@GroupParticipantsActivity, R.drawable.card_view_design)
+                                    adapter.notifyDataSetChanged()
+                                }
+                            }, 100L)
+                        }
                     }
                 }
         }

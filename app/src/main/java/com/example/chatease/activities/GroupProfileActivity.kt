@@ -194,6 +194,7 @@ class GroupProfileActivity : AppCompatActivity() {
     private val participantIDHastSet = HashSet<String>()
     private val participantsHierarchyList = mutableListOf<GroupProfileParticipantsData>()
     private val lexicographicallySortedList = mutableListOf<GroupProfileParticipantsData>()
+    private val currentUserInParticipantList = mutableListOf<GroupProfileParticipantsData>()
 
     private fun fetchUserData(currentUserID: String, participantID: String, role: String? = null) {
         rtDB.getReference("users/$participantID").get()
@@ -227,30 +228,38 @@ class GroupProfileActivity : AppCompatActivity() {
                         }
                     }
 
-                    Log.v("userData","userData.displayName : ${userData.displayName}, userData.role : ${userData.role}")
+                    Log.v("userData", "userData.displayName : ${userData.displayName}, userData.role : ${userData.role}")
                     when (userData.role) {
                         "owner" -> {
-                            Log.v("userData Insertion","participantsHierarchyList.add : 0")
+                            Log.v("userData Insertion", "participantsHierarchyList.add : 0")
                             participantsHierarchyList.add(index = 0, userData)
                         }
 
                         "admin" -> {
-                            Log.v("userData Insertion","participantsHierarchyList.add : ${participantsHierarchyList.size}")
-                            participantsHierarchyList.add(index = participantsHierarchyList.size, userData)
+                            if (userData.userID == currentUserID) {
+                                currentUserInParticipantList.add(userData)
+                            } else {
+                                Log.v("userData Insertion", "participantsHierarchyList.add : ${participantsHierarchyList.size}")
+                                participantsHierarchyList.add(index = participantsHierarchyList.size, userData)
+                            }
                         }
 
                         else -> {
-                            Log.w("userData lexicographicallySortedList",lexicographicallySortedList.toString())
-                            val insertIndex = lexicographicallySortedList.binarySearch { it.displayName.compareTo(userData.displayName) }
-                                .let { returnValue ->
-                                    if (returnValue < 0) {
-                                        -returnValue - 1
-                                    } else {
-                                        returnValue + 1
+                            if (userData.userID == currentUserID) {
+                                currentUserInParticipantList.add(userData)
+                            } else {
+                                Log.w("userData lexicographicallySortedList", lexicographicallySortedList.toString())
+                                val insertIndex = lexicographicallySortedList.binarySearch { it.displayName.compareTo(userData.displayName) }
+                                    .let { returnValue ->
+                                        if (returnValue < 0) {
+                                            -returnValue - 1
+                                        } else {
+                                            returnValue + 1
+                                        }
                                     }
-                                }
-                            lexicographicallySortedList.add(insertIndex, userData)
-                            Log.v("userData Insertion","lexicographicallySortedList.add : $insertIndex")
+                                lexicographicallySortedList.add(insertIndex, userData)
+                                Log.v("userData Insertion", "lexicographicallySortedList.add : $insertIndex")
+                            }
                         }
                     }
 
@@ -259,17 +268,34 @@ class GroupProfileActivity : AppCompatActivity() {
 
                         delayHandler.postDelayed({
                             if (participantsHierarchyList.isNotEmpty()) {
-                                participantList.addAll(participantsHierarchyList)
-                                participantList.addAll(lexicographicallySortedList)
-                                participantsHierarchyList.clear()
-                                lexicographicallySortedList.clear()
+                                if (currentUserInParticipantList.isNotEmpty()) {
+                                    participantList.addAll(currentUserInParticipantList)
+                                    participantList.addAll(participantsHierarchyList)
+                                    participantList.addAll(lexicographicallySortedList)
+                                    currentUserInParticipantList.clear()
+                                    participantsHierarchyList.clear()
+                                    lexicographicallySortedList.clear()
+                                } else {
+                                    participantList.addAll(participantsHierarchyList)
+                                    participantList.addAll(lexicographicallySortedList)
+                                    participantsHierarchyList.clear()
+                                    lexicographicallySortedList.clear()
+                                }
                             } else {
-                                participantList.addAll(lexicographicallySortedList)
-                                lexicographicallySortedList.clear()
+                                if (currentUserInParticipantList.isNotEmpty()) {
+                                    participantList.addAll(currentUserInParticipantList)
+                                    participantList.addAll(lexicographicallySortedList)
+                                    currentUserInParticipantList.clear()
+                                    lexicographicallySortedList.clear()
+                                } else {
+                                    participantList.addAll(lexicographicallySortedList)
+                                    lexicographicallySortedList.clear()
+                                }
                             }
+                            Log.v("userData UPDATED & CLEARED", "UPDATED & CLEARED")
                             adapter.notifyDataSetChanged()
-                        }, 100L)
-                        binding.textViewParticipantsCounter.text = "Participants - ${participantList.size}"
+                            binding.textViewParticipantsCounter.text = "Participants - ${participantList.size}"
+                        }, 500L)
                     }
                 }
             }
