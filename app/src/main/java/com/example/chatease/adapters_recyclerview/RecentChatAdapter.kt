@@ -43,7 +43,7 @@ class RecentChatAdapter(
                 // HighLight it
                 displayName.setTypeface(null, Typeface.BOLD)
                 userLastMessage.setTypeface(null, Typeface.BOLD)
-                userLastMessage.setTextColor(userLastMessage.context.getColor(R.color.white))
+                userLastMessage.setTextColor(userLastMessage.context.getColor(R.color.textColors))
                 userLastMessageTimeStamp.setTypeface(null, Typeface.BOLD)
             } else {
                 // If the user has seen the last message

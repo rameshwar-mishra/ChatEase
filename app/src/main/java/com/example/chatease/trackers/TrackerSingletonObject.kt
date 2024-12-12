@@ -9,4 +9,5 @@ object TrackerSingletonObject {
     var isTyping = AtomicBoolean(false)
     var isAppForeground = AtomicBoolean(false)
     var chatPartnerUserID : String? = null
+    var groupChatID : String? = null
 }

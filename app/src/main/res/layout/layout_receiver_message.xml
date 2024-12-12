@@ -19,12 +19,15 @@
         android:layout_marginRight="80sp"
         android:layout_marginTop="7dp"
         android:layout_marginBottom="7dp"
-        android:backgroundTint="#43444b">
+        >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:background="@drawable/card_view_design"
+            android:padding="2dp"
+            >
 
             <TextView
                 android:id="@+id/textViewReceiverMessage"

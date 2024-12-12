@@ -58,11 +58,11 @@ class RequestReceivedFragment : Fragment() {
             }
 
             private fun updateBackground() {
-                val hasItems =adapter.itemCount > 0
+                val hasItems = adapter.itemCount > 0
                 if (hasItems && !addedBackground) {
                     addedBackground = true
                     binding.recyclerViewReceived.background =
-                        ContextCompat.getDrawable(requireContext(), R.drawable.shape_recyclerview_background)
+                        ContextCompat.getDrawable(requireContext(), R.drawable.card_view_design)
                 } else if (!hasItems) {
                     addedBackground = false
                     binding.recyclerViewReceived.background = null
@@ -71,6 +71,8 @@ class RequestReceivedFragment : Fragment() {
         }
 
         adapter.registerAdapterDataObserver(adapterDataObserver)
+
+
 
         auth.currentUser?.let { currentUser ->
 

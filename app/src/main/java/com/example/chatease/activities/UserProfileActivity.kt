@@ -31,7 +31,6 @@ class UserProfileActivity : AppCompatActivity() {
     private lateinit var listenerRequestAcceptedObject: ValueEventListener
     private var otherUserId: String = "" // Variable to store the user ID
     private var fromFriendsFragment = false
-    private var displayName = ""
     private lateinit var binding: ActivityUserProfileBinding // View binding for UserProfileActivity layout
     private var addFriendButtonStatus = ""
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +51,7 @@ class UserProfileActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowTitleEnabled(false) // Disable the title to be visible in the toolbar
 
         otherUserId = intent.getStringExtra("id") ?: "" // Get the user ID from the intent extras
-        fromFriendsFragment = intent.getBooleanExtra("FriendsFragment", false) // Get the user ID from the intent extras
+        fromFriendsFragment = intent.getBooleanExtra("FromAnotherActivity", false) // Get the user ID from the intent extras
 
         // Fetch user data from Firestore using the user ID
 
@@ -64,11 +63,6 @@ class UserProfileActivity : AppCompatActivity() {
         // If user came from ChatActivity, hide the message button
         if (userFromChatActivity) {
             binding.messageUserButton.visibility = View.GONE // Hide the message button
-        } else {
-            // If not from ChatActivity, set click listener on message button
-            binding.messageUserButton.setOnClickListener {
-                // Handle message button click
-            }
         }
 
         // Set click listener for toolbar navigation button to handle back navigation
@@ -130,21 +124,23 @@ class UserProfileActivity : AppCompatActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        if (fromFriendsFragment) {
-
-        }
-    }
+//    override fun onBackPressed() {
+//        super.onBackPressed()
+//        if (fromFriendsFragment) {
+//
+//        }
+//    }
 
     private fun fetchOtherUserDetails() {
         CoroutineScope(Dispatchers.IO).launch {
             rtDb.getReference("users").child(otherUserId).get().addOnCompleteListener { task ->
                 if (task.isSuccessful) { // Check if Firestore data retrieval was successful
                     val userName = task.result.child("userName").getValue(String::class.java) ?: "" // Get
-                    displayName = task.result.child("displayName").getValue(String::class.java) ?: ""
+                    var displayName = task.result.child("displayName").getValue(String::class.java) ?: ""
                     val userAvatar = task.result.child("avatar").getValue(String::class.java) ?: "" // Get
-                    val userBio = task.result.child("userBio").getValue(String::class.java) ?: "" // Get e
+                    val userBio = task.result.child("userBio").getValue(String::class.java)?.ifEmpty {
+                        "Big talks or small talks, ChatEase handles it all."
+                    }
 
                     CoroutineScope(Dispatchers.Main).launch {
                         // Load avatar image into ImageView using Glide, with a default placeholder
@@ -157,7 +153,8 @@ class UserProfileActivity : AppCompatActivity() {
 
                         binding.userName.text = "@$userName" // Set username text in UI
                         binding.displayName.text = displayName // Set display name text in UI
-                        binding.textViewBioText.text = userBio // Set user bio text in UI
+                        binding.textViewFriendRequestSender.text = "$displayName sent you a friend Request"
+                        binding.textViewBioText.text = userBio// Set user bio text in UI
                     }
                 }
             }
@@ -242,7 +239,8 @@ class UserProfileActivity : AppCompatActivity() {
                     rtDb.getReference("users/${currentUser.uid}/friends/requestAccepted/$otherUserId")
                         .removeEventListener(listenerRequestAcceptedObject)
                 }
-            } catch (exception : Exception) {}
+            } catch (exception: Exception) {
+            }
         }
     }
 
@@ -317,7 +315,6 @@ class UserProfileActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.Main).launch {
             if (status && binding.cardViewFriendRequest.visibility == View.GONE) {
                 binding.addFriendButton.visibility = View.GONE
-                binding.textViewFriendRequestSender.text = "$displayName sent you a friend Request"
                 binding.cardViewFriendRequest.visibility = View.VISIBLE
             } else if (!status) {
                 binding.addFriendButton.visibility = View.VISIBLE

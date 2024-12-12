@@ -74,7 +74,7 @@ class SearchActivity : AppCompatActivity() {
                 } else {
                     params.height = ViewGroup.LayoutParams.WRAP_CONTENT
                     recyclerView.layoutParams = params
-                    recyclerView.background = ContextCompat.getDrawable(this@SearchActivity, R.drawable.shape_recyclerview_background)
+                    recyclerView.background = ContextCompat.getDrawable(this@SearchActivity, R.drawable.card_view_design)
                 }
             }
         })

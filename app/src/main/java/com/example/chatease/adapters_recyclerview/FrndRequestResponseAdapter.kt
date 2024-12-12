@@ -2,6 +2,7 @@ package com.example.chatease.adapters_recyclerview
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -45,7 +46,7 @@ class FrndRequestResponseAdapter(
     override fun onBindViewHolder(holder: UserDataViewHolder, position: Int) {
         holder.binding.apply {
             displayName.text = userDataList[position].displayName
-            userName.text = userDataList[position].userName
+            userName.text = "@${userDataList[position].userName}"
 
             Glide.with(context)
                 .load(userDataList[position].userAvatar)
@@ -66,7 +67,7 @@ class FrndRequestResponseAdapter(
                         val map = async {
                             removeRequestsFromSentAndReceived(
                                 currentUserID = currentUser.uid,
-                                position = position,
+                                position = holder.adapterPosition,
                                 usage = usage
                             )
                         }.await()
@@ -74,7 +75,7 @@ class FrndRequestResponseAdapter(
                         if (map["isSuccessful"] == "true") {
                             addIDInRequestAccepted(
                                 currentUserID = currentUser.uid,
-                                position = position,
+                                position = holder.adapterPosition,
                                 otherUserId = map["otherUserId"]!!,
                                 displayName = map["displayName"]!!
                             )
@@ -93,7 +94,7 @@ class FrndRequestResponseAdapter(
                             CoroutineScope(Dispatchers.IO).launch {
                                 removeRequestsFromSentAndReceived(
                                     currentUserID = currentUser.uid,
-                                    position = position,
+                                    position = holder.adapterPosition,
                                     usage = usage
                                 )
                             }
@@ -121,7 +122,7 @@ class FrndRequestResponseAdapter(
                             CoroutineScope(Dispatchers.IO).launch {
                                 removeRequestsFromSentAndReceived(
                                     currentUserID = currentUser.uid,
-                                    position = position,
+                                    position = holder.adapterPosition,
                                     usage = usage
                                 )
                             }
@@ -170,6 +171,10 @@ class FrndRequestResponseAdapter(
         return withContext(Dispatchers.IO) {
             suspendCancellableCoroutine { coroutine ->
                 if (usage == "Received") {
+
+                    Log.w("Accepted userDataList",userDataList.toString())
+                    Log.w("Accepted Position",position.toString())
+
                     rtDB.getReference("users/${userDataList[position].userID}/friends/requestSent/$currentUserID")
                         .removeValue()
                         .addOnSuccessListener {

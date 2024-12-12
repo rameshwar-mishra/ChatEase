@@ -63,7 +63,7 @@ class RequestSentFragment : Fragment() {
                 if (hasItems && !addedBackground) {
                     addedBackground = true
                     binding.recyclerViewSent.background =
-                        ContextCompat.getDrawable(requireContext(), R.drawable.shape_recyclerview_background)
+                        ContextCompat.getDrawable(requireContext(), R.drawable.card_view_design)
                 } else if (!hasItems) {
                     addedBackground = false
                     binding.recyclerViewSent.background = null

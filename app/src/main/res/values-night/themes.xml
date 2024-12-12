@@ -2,19 +2,20 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.ChatEase" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
-        <item name="android:statusBarColor">@color/item_background</item>
+        <item name="android:statusBarColor">@color/accentColor</item>
+<!--        <item name="android:windowLightStatusBar">false</item>-->
         <item name="android:windowBackground">#1A1823</item>
         <item name="itemBackground">@color/white</item>
         <item name="icon_background">@color/icon_color</item>
         <item name="textColors">@color/textColors</item>
         <item name="colorCard">@color/signUpCardView</item>
         <item name="textAppearanceCaption">@style/TextInputErrorMessage</item>
-        <item name="materialCardViewStyle">@style/CustomCardViewDesign</item>
         <item name="bottomNavigationStyle">@style/bottomNavigationView</item>
         <item name="android:navigationBarColor">#1A1823</item>
         <item name="android:fontFamily">@font/roboto</item>
         <item name="materialButtonStyle">@style/MaterialButtonDesign</item>
     </style>
+
     <!--Material Button Default Style-->
     <style name="MaterialButtonDesign" parent="Widget.Material3.Button">
         <item name="backgroundTint">@null</item>
@@ -34,11 +35,11 @@
     </style>
     <!-- Adjusting HelperText and Hint Text Style for TextInputLayout-->
     <style name="HelperTextStyle" parent="TextAppearance.AppCompat.Small">
-        <item name="android:textSize">@dimen/_14ssp</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
     <style name="HintTextStyle" parent="TextAppearance.AppCompat.Body1">
-        <item name="android:textSize">@dimen/_14ssp</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
     <!--Setting Default Values for Material CardView-->
@@ -48,6 +49,5 @@
         <item name="strokeColor">@android:color/transparent</item>
         <item name="cardBackgroundColor">#1A1823</item>
     </style>
-
 
 </resources>

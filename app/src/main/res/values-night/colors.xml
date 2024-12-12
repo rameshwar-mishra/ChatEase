@@ -50,5 +50,8 @@
     <color name="buttonBackgroundColor">#ffffff</color>
     <color name="buttonTextColor">@color/black</color>
     <color name="windowsBackgroundColor">#94030F22</color>
-    <color name="cardBackgroundColor">#94030F22</color>
+    <color name="cardBackgroundColorStart">#3A3748</color>
+    <color name="cardBackgroundColorEnd">#2A2836</color>
+    <color name="cardStrokeColor">#4A4458</color>
+    <color name="accentColor">#FF6A85</color>
 </resources>

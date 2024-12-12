@@ -57,33 +57,27 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/userProfilePic" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/messageUserButton"
             android:layout_width="@dimen/_100sdp"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
-            android:backgroundTint="#FF5722"
             android:text="Message"
             android:textAllCaps="false"
-            android:textColor="#FFFFFF"
             android:visibility="gone"
-            app:cornerRadius="0dp"
             app:layout_constraintEnd_toStartOf="@+id/addFriendButton"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/userName" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/addFriendButton"
             android:layout_width="@dimen/_100sdp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:backgroundTint="#FF5722"
             android:text="Add Friend"
             android:textAllCaps="false"
-            android:textColor="#FFFFFF"
             android:visibility="visible"
-            app:cornerRadius="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/messageUserButton"
@@ -213,7 +207,7 @@
                 android:layout_marginStart="@dimen/_10sdp"
                 android:layout_marginTop="@dimen/_15sdp"
                 android:layout_marginBottom="@dimen/_15sdp"
-                android:text="Add Bio From Settings"
+                android:text="Big talks or small talks, ChatEase handles it all."
                 android:textSize="@dimen/_12ssp"
                 tools:layout_editor_absoluteX="35dp"
                 tools:layout_editor_absoluteY="292dp" />

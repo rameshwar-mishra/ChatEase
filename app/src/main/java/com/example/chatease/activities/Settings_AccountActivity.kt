@@ -141,7 +141,8 @@ class Settings_AccountActivity : AppCompatActivity() {
                     if (binding.editTextUserName.text.toString() != userName) {
                         isChanged = true
 
-                        val isUnique = async { isUsernameUnique(binding.editTextUserName.text.toString()) }.await()
+                        val isUnique =
+                            async { isUsernameUnique(binding.editTextUserName.text.toString()) }.await()
                         Log.d("check", isUnique.toString())
                         if (!isUnique) {
                             binding.textInputLayoutUserName.error = "Username needs to be unique"
@@ -161,7 +162,8 @@ class Settings_AccountActivity : AppCompatActivity() {
 
                     if (isChanged) {
                         if (binding.editTextUserName.text.toString().length > 30) {
-                            binding.textInputLayoutUserName.error = "Username Must Be Within 30 Characters"
+                            binding.textInputLayoutUserName.error =
+                                "Username Must Be Within 30 Characters"
                             binding.applyButtonProgressBar.visibility = View.INVISIBLE
                             binding.applyChangesButton.visibility = View.VISIBLE
                             return@launch
@@ -173,12 +175,14 @@ class Settings_AccountActivity : AppCompatActivity() {
                             binding.applyChangesButton.visibility = View.VISIBLE
                             return@launch
                         } else if (binding.editTextDisplayName.text.toString().length > 30) {
-                            binding.textInputLayoutDisplayName.error = "Display Name Must Be Within 30 Characters"
+                            binding.textInputLayoutDisplayName.error =
+                                "Display Name Must Be Within 30 Characters"
                             binding.applyButtonProgressBar.visibility = View.INVISIBLE
                             binding.applyChangesButton.visibility = View.VISIBLE
                             return@launch
                         } else if (binding.editTextUserBio.text.toString().length > 100) {
-                            binding.textInputLayoutUserBio.error = "Bio Must Be Within 100 Characters"
+                            binding.textInputLayoutUserBio.error =
+                                "Bio Must Be Within 100 Characters"
                             binding.applyButtonProgressBar.visibility = View.INVISIBLE
                             binding.applyChangesButton.visibility = View.VISIBLE
                             return@launch
@@ -191,7 +195,11 @@ class Settings_AccountActivity : AppCompatActivity() {
 
                     } else {
                         // Notify user if there are no changes to apply
-                        Toast.makeText(this@Settings_AccountActivity, "Successfully Updated", Toast.LENGTH_LONG)
+                        Toast.makeText(
+                            this@Settings_AccountActivity,
+                            "Successfully Updated",
+                            Toast.LENGTH_LONG
+                        )
                             .show()
                         binding.applyButtonProgressBar.visibility = View.INVISIBLE
                         binding.applyChangesButton.visibility = View.VISIBLE
@@ -210,9 +218,6 @@ class Settings_AccountActivity : AppCompatActivity() {
         // Setting onClickListener for avatar frame to choose an image
         binding.frameUserAvatar.setOnClickListener {
             chooseImage() // Call to choose image from gallery
-        }
-        binding.changePasswordButton.setOnClickListener {
-            startActivity(Intent(this@Settings_AccountActivity, UpdatePasswordActivity::class.java))
         }
     }
 
@@ -248,8 +253,12 @@ class Settings_AccountActivity : AppCompatActivity() {
                             )
                         )
                         auth.signOut()
-                        getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE).edit().clear().apply()
-                        val intent = Intent(this@Settings_AccountActivity, WelcomeActivity::class.java).apply {
+                        getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE).edit().clear()
+                            .apply()
+                        val intent = Intent(
+                            this@Settings_AccountActivity,
+                            WelcomeActivity::class.java
+                        ).apply {
                             flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                         }
                         startActivity(intent)
@@ -266,6 +275,7 @@ class Settings_AccountActivity : AppCompatActivity() {
         }
         return true
     }
+
 
     private suspend fun isUsernameUnique(username: String): Boolean {
         return withContext(Dispatchers.IO) {

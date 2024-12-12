@@ -201,7 +201,6 @@ class ChatActivity : AppCompatActivity() {
         // Typing Indicator SETUP below
         var typingStatusHandler = Handler(Looper.getMainLooper())
         var userDbRef = rtDB.getReference("chats/$conversationID")
-//        var userDbRef = rtDB.getReference("users/${currentUserId}")
 
         convoDBRef = rtDB.getReference("chats/$conversationID")
 
@@ -232,6 +231,11 @@ class ChatActivity : AppCompatActivity() {
             convoDBRef.addValueEventListener(it)
         }
 
+        var previousLineCount = 2
+        var minLines = 1
+        var lineCount = 0
+        var baseSdp = 50
+        val screenDensity = resources.displayMetrics.densityDpi / 160f
         binding.editTextMessage.addTextChangedListener(object : TextWatcher {
             // Typing Indicator SETUP below
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -257,6 +261,19 @@ class ChatActivity : AppCompatActivity() {
                     }
                 }, 2000L)
 
+                lineCount = binding.editTextMessage.lineCount
+                if(previousLineCount != lineCount) {
+                    if(lineCount > minLines) {
+                        Log.d("LINECOUNT",lineCount.toString())
+                        val adjustedLineCount = lineCount.coerceIn(minLines, 5)
+                        val newSdp = baseSdp + (20 * (adjustedLineCount - 2))
+                        val params = binding.chatInputCard.layoutParams
+                        params.height = (newSdp * screenDensity).toInt()
+                        binding.chatInputCard.layoutParams = params
+                    }
+
+                    previousLineCount = lineCount
+                }
             }
 
             override fun afterTextChanged(s: Editable?) {}
@@ -364,8 +381,10 @@ class ChatActivity : AppCompatActivity() {
 
         var unReadIndicatorPosition = 0
         messageListener = object : ChildEventListener {
+
             // Message Listeners
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+
                 val sender = snapshot.child("sender").getValue(String::class.java) ?: ""
                 val timestampLong = snapshot.child("timestamp").getValue(Long::class.java) ?: 0L
                 val isRead = snapshot.child("isRead").getValue(Boolean::class.java) ?: false
@@ -512,7 +531,6 @@ class ChatActivity : AppCompatActivity() {
                         adapter.notifyItemChanged(index)
                     }
                 }
-
             }
 
             override fun onChildRemoved(snapshot: DataSnapshot) {}
@@ -527,7 +545,7 @@ class ChatActivity : AppCompatActivity() {
         }
 
         // Click listener for user profile frame
-        binding.frameUserProfile.setOnClickListener {
+        binding.chatActivityToolbar.setOnClickListener {
             val intent = Intent(this@ChatActivity, UserProfileActivity::class.java)
             intent.apply {
                 putExtra("id", otherUserId) // Pass the other user's ID to the profile activity
@@ -535,7 +553,6 @@ class ChatActivity : AppCompatActivity() {
             }
             startActivityForResult(intent, token) // Start UserProfileActivity with a request code
         }
-
     }
 
     private fun getGoogleCredential(context: Context): GoogleCredentials {
@@ -555,7 +572,6 @@ class ChatActivity : AppCompatActivity() {
                 null
             }
         }
-
     }
 
     private fun showOfflineNotification(

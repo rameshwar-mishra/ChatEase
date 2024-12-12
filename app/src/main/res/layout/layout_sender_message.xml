@@ -17,26 +17,26 @@
         android:layout_marginTop="7dp"
         android:layout_marginEnd="20sp"
         android:layout_marginBottom="7dp"
-        android:background="@color/white"
-        android:backgroundTint="#43444b"
         app:cardCornerRadius="10sp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="5dp">
 
             <TextView
                 android:id="@+id/textViewSenderMessage"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="4dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
                 android:text="This is sent message"
                 android:textSize="15sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
 
             <TextView
                 android:id="@+id/textViewTimeStamp"
@@ -77,6 +77,5 @@
                 app:layout_constraintStart_toEndOf="@id/textViewTimeStamp"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
     </com.google.android.material.card.MaterialCardView>
 </LinearLayout>

@@ -1,0 +1,315 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/groupProfileActivityToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@drawable/toolbarborderlayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:navigationIcon="@drawable/vector_icon_back_arrow">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Group Profile"
+                android:textSize="@dimen/_16ssp" />
+        </com.google.android.material.appbar.MaterialToolbar>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineHorizontalTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.11" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineVerticalStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.03" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineVerticalEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.97" />
+
+        <FrameLayout
+            android:id="@+id/frameGroupInfo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shape_group_profile"
+            android:padding="10dp"
+            app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
+            app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
+            app:layout_constraintTop_toBottomOf="@id/guidelineHorizontalTop">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineVerticalStartGroupInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.05" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineFrameStart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.39" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineFrameEnd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.606469" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineVerticalEndGroupInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.95" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineFrameTop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent="0.05" />
+
+                <FrameLayout
+                    android:id="@+id/frameGroupIcon"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/shape_group_icon"
+                    app:layout_constraintBottom_toTopOf="@+id/textViewGroupName"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintEnd_toEndOf="@id/guidelineFrameEnd"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="@id/guidelineFrameStart"
+                    app:layout_constraintTop_toTopOf="@id/guidelineFrameTop">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/guidelineImageTop"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            app:layout_constraintGuide_percent="0.15" />
+
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/guidelineImageStart"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintGuide_percent="0.14" />
+
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/guidelineImageEnd"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintGuide_percent="0.86" />
+
+                        <com.makeramen.roundedimageview.RoundedImageView
+                            android:id="@+id/imageViewGroupIcon"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_gravity="center"
+                            android:paddingTop="5dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/vector_icon_group"
+                            app:layout_constraintDimensionRatio="1:1"
+                            app:layout_constraintEnd_toEndOf="@id/guidelineImageEnd"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintStart_toStartOf="@id/guidelineImageStart"
+                            app:layout_constraintTop_toTopOf="@id/guidelineImageTop"
+                            app:riv_oval="true" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/textViewGroupName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="2dp"
+                    android:text="Group Name"
+                    android:textColor="@color/textColors"
+                    android:textSize="@dimen/_12sdp"
+                    app:layout_constraintBottom_toTopOf="@+id/textViewCreatedOn"
+                    app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEndGroupInfo"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="@id/guidelineVerticalStartGroupInfo"
+                    app:layout_constraintTop_toBottomOf="@+id/frameGroupIcon" />
+
+                <TextView
+                    android:id="@+id/textViewCreatedOn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Created by DisplayNameOwner on 16/04"
+                    android:textColor="@color/secondaryText"
+                    android:textSize="@dimen/_10sdp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEndGroupInfo"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="@id/guidelineVerticalStartGroupInfo"
+                    app:layout_constraintTop_toBottomOf="@+id/textViewGroupName" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/textViewAboutGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/roboto"
+            android:text="About Group"
+            android:textColor="@color/textColors"
+            android:textSize="@dimen/_12ssp"
+            app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
+            app:layout_constraintTop_toBottomOf="@+id/frameGroupInfo" />
+
+        <FrameLayout
+            android:id="@+id/frameGroupBio"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/shape_group_profile"
+            android:padding="20dp"
+            app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
+            app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
+            app:layout_constraintTop_toBottomOf="@id/textViewAboutGroup">
+
+            <TextView
+                android:id="@+id/textViewGroupDesc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Big talks or small talks, ChatEase handles it all."
+                android:textSize="@dimen/_10ssp" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/frameAddParticipants"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/shape_group_profile"
+            android:padding="20dp"
+            app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
+            app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
+            app:layout_constraintTop_toBottomOf="@id/textViewParticipantsCounter">
+
+            <TextView
+                android:id="@+id/textVieAddParticipants"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/vector_icon_add"
+                android:drawablePadding="10dp"
+                android:gravity="center_horizontal"
+                android:text="Add Participants"
+                android:textColor="@color/green"
+                android:textSize="@dimen/_13ssp" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/textViewParticipantsCounter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/roboto"
+            android:text="Participants - 0"
+            android:textColor="@color/textColors"
+            android:textSize="@dimen/_12ssp"
+            app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
+            app:layout_constraintTop_toBottomOf="@id/frameGroupBio" />
+
+        <FrameLayout
+            android:id="@+id/frameRecyclerViewParticipantsList"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/shape_group_profile"
+            android:padding="5dp"
+            app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
+            app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
+            app:layout_constraintTop_toBottomOf="@id/frameAddParticipants">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewParticipantsList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/frameLeaveGroup"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/shape_group_profile"
+            android:padding="20dp"
+            app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
+            app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
+            app:layout_constraintTop_toBottomOf="@id/frameRecyclerViewParticipantsList">
+
+            <TextView
+                android:id="@+id/textViewLeaveGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/vector_icon_sign_out"
+                android:drawablePadding="10dp"
+                android:gravity="center_horizontal"
+                android:text="Leave Group"
+                android:textColor="@color/light_red"
+                android:textSize="@dimen/_13ssp" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/frameDeleteGroup"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/shape_group_profile"
+            android:padding="20dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
+            app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
+            app:layout_constraintTop_toBottomOf="@id/frameLeaveGroup">
+
+            <TextView
+                android:id="@+id/textViewDeleteGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/vector_icon_delete"
+                android:drawablePadding="10dp"
+                android:gravity="center_horizontal"
+                android:text="Delete Group"
+                android:textColor="@color/light_red"
+                android:textSize="@dimen/_13ssp" />
+        </FrameLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

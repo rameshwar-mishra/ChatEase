@@ -29,6 +29,9 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -69,20 +72,21 @@ class RecentChatFragment : Fragment() {
             "FCMUserToken", null
         )
 
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                if (currentFCMUserToken != task.result && task.result.isNotEmpty()) {
-                    auth.currentUser?.let { currentUser ->
-                        rtDB.getReference("users").child(currentUser.uid).updateChildren(
-                            mapOf(
-                                "FCMUserToken" to task.result
-                            )
-                        ).addOnCompleteListener { task1 ->
-                            if (task1.isSuccessful) {
-                                requireContext().getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE).edit()
-                                    .putString("FCMUserToken", task.result).apply()
+        CoroutineScope(Dispatchers.IO).launch {
+            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    if (currentFCMUserToken != task.result && task.result.isNotEmpty()) {
+                        auth.currentUser?.let { currentUser ->
+                            rtDB.getReference("users").child(currentUser.uid).updateChildren(
+                                mapOf(
+                                    "FCMUserToken" to task.result
+                                )
+                            ).addOnCompleteListener { task1 ->
+                                if (task1.isSuccessful) {
+                                    requireContext().getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE).edit()
+                                        .putString("FCMUserToken", task.result).apply()
+                                }
                             }
-
                         }
                     }
                 }
@@ -197,7 +201,7 @@ class RecentChatFragment : Fragment() {
         val lastMessage = documentMetaData.child("lastMessage").getValue(String::class.java) ?: ""
         val lastMessageSender = documentMetaData.child("lastMessageSender").getValue(String::class.java) ?: ""
         val lastMessageTimestamp = (documentMetaData.child("lastMessageTimestamp").getValue(Long::class.java)
-            ?: 0L) / 1000   // MiliSeconds to Seconds
+            ?: 0L) / 1000   // MilliSeconds to Seconds
 
         val formattedTimestamp = getRelativeTime(Timestamp(lastMessageTimestamp, 0)) // Format the timestamp for display
 
@@ -344,7 +348,7 @@ class RecentChatFragment : Fragment() {
             if (grantResults.isEmpty() || grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_DENIED) {
                 Toast.makeText(
                     requireContext(),
-                    "No Notifications will be shown until the permission is turn on of \"POST NOTIFICATION\"",
+                    "No notifications will be shown until the \"POST NOTIFICATION\" permission is turned on",
                     Toast.LENGTH_LONG
                 ).show()
             }

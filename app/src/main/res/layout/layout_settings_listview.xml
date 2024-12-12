@@ -50,6 +50,7 @@
     <TextView
         android:id="@+id/textViewSettingsMetaData"
         android:layout_width="0dp"
+        android:layout_marginLeft="1dp"
         android:layout_height="wrap_content"
         android:text="Change Avatar Display Name,Username,Bio "
         android:textColor="@color/secondaryText"
@@ -57,7 +58,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
         app:layout_constraintTop_toBottomOf="@+id/textViewSettingsCategoryName"
-        app:layout_constraintVertical_bias="0.5" />
+        />
 
     <ImageView
         android:id="@+id/imageViewForwardArrow"

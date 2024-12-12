@@ -2,7 +2,6 @@ package com.example.chatease.fragments
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -64,7 +63,7 @@ class FriendsFragment : Fragment() {
                 if (hasItems && !addedBackground) {
                     addedBackground = true
                     binding.recyclerViewFriends.background =
-                        ContextCompat.getDrawable(requireContext(), R.drawable.shape_recyclerview_background)
+                        ContextCompat.getDrawable(requireContext(), R.drawable.card_view_design)
                 } else if (!hasItems) {
                     addedBackground = false
                     binding.recyclerViewFriends.background = null
@@ -95,25 +94,24 @@ class FriendsFragment : Fragment() {
                 listenerObject = object : ChildEventListener {
                     override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                         if (snapshot.exists()) {
-                            fetchUserProfileData(userID = snapshot.key!!)
+                            addToUserDataList(userID = snapshot.key!!)
                         }
                     }
 
                     override fun onChildRemoved(snapshot: DataSnapshot) {
                         if (snapshot.exists()) {
-                            Log.d("userData Size", userDataList.size.toString())
-                            Log.d("userData Search", snapshot.key.toString())
-                            Log.d("userData", userDataList.toString())
-                            for (index in 0..<userDataList.size) {
-                                Log.d("userData Index", index.toString())
+                            for (index in userDataList.indices) {
                                 if (userDataList[index].userID == snapshot.key) {
                                     userDataList.removeAt(index)
                                     adapter.notifyItemRemoved(index)
-                                    if (userDataList.size == 0) {
-                                        binding.textViewFriendsCounter.visibility = View.GONE
-                                    } else {
-                                        binding.textViewFriendsCounter.text = "All Friends - ${userDataList.size}"
-                                    }
+
+                                    binding.textViewFriendsCounter.text = "All Friends - ${userDataList.size}"
+//                                    if (userDataList.size == 0) {
+////                                        binding.textViewFriendsCounter.visibility = View.GONE
+//                                        binding.textViewFriendsCounter.text = "All Friends - ${userDataList.size}"
+//                                    } else {
+//                                        binding.textViewFriendsCounter.text = "All Friends - ${userDataList.size}"
+//                                    }
                                     break
                                 }
                             }
@@ -142,20 +140,41 @@ class FriendsFragment : Fragment() {
         }
     }
 
-    private fun fetchUserProfileData(userID: String) {
+    private val userIdSet = HashSet<String>()
+
+    private fun addToUserDataList(userID: String) {
         CoroutineScope(Dispatchers.IO).launch {
-            rtDB.getReference("users/$userID").get().addOnSuccessListener { snapshot ->
-                val userProfile = UserData(
-                    userID = userID, // Get user ID
-                    userName = snapshot.child("userName").getValue(String::class.java) ?: "", // Get username
-                    displayName = snapshot.child("displayName").getValue(String::class.java) ?: "", // Get display name
-                    userAvatar = snapshot.child("avatar").getValue(String::class.java) ?: "" // Get user avatar
-                )
-                userDataList.add(userProfile)
-                binding.textViewFriendsCounter.visibility = View.VISIBLE
-                binding.textViewFriendsCounter.text = "All Friends - ${userDataList.size}"
-                adapter.notifyItemInserted(userDataList.size - 1)
+            if (userIdSet.contains(userID)) {
+                return@launch
+            } else {
+                fetchUserProfileData(userID = userID)
             }
+        }
+    }
+
+    private fun fetchUserProfileData(userID: String) {
+        rtDB.getReference("users/$userID").get().addOnSuccessListener { snapshot ->
+            val userProfile = UserData(
+                userID = userID, // Get user ID
+                userName = snapshot.child("userName").getValue(String::class.java) ?: "", // Get username
+                displayName = snapshot.child("displayName").getValue(String::class.java) ?: "", // Get display name
+                userAvatar = snapshot.child("avatar").getValue(String::class.java) ?: "" // Get user avatar
+            )
+
+            val insertIndex = userDataList.binarySearch { it.displayName.compareTo(userProfile.displayName) }
+                .let { returnValue ->
+                    if (returnValue < 0) {
+                        -returnValue - 1
+                    } else {
+                        returnValue + 1
+                    }
+                }
+
+            userDataList.add(insertIndex, userProfile)
+            userIdSet.add(userID)
+            binding.textViewFriendsCounter.visibility = View.VISIBLE
+            binding.textViewFriendsCounter.text = "All Friends - ${userDataList.size}"
+            adapter.notifyItemInserted(insertIndex)
         }
     }
 }
