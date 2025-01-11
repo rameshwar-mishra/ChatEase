@@ -35,8 +35,8 @@
 
         <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/userProfilePic"
-            android:layout_width="@dimen/_100sdp"
-            android:layout_height="@dimen/_100sdp"
+            android:layout_width="@dimen/_80sdp"
+            android:layout_height="@dimen/_80sdp"
             android:layout_marginTop="32dp"
             android:src="#8B4343"
             app:layout_constraintEnd_toEndOf="parent"
@@ -59,7 +59,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/messageUserButton"
-            android:layout_width="@dimen/_100sdp"
+            android:layout_width="@dimen/_120sdp"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
             android:text="Message"
@@ -72,10 +72,10 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/addFriendButton"
-            android:layout_width="@dimen/_100sdp"
+            android:layout_width="@dimen/_120sdp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Add Friend"
+            android:text="Request Sent"
             android:textAllCaps="false"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
@@ -99,7 +99,7 @@
             android:id="@+id/textViewLastHeartBeat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_18sdp"
+            android:layout_marginTop="@dimen/_20sdp"
             android:gravity="center"
             android:text="Last Seen at 10:03"
             android:textSize="@dimen/_10ssp"
@@ -115,8 +115,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="20dp"
-            android:visibility="gone"
-            app:cardBackgroundColor="@color/cardViewColor"
+            android:visibility="visible"
             app:cardCornerRadius="10dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/addFriendButton"
@@ -126,7 +125,9 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="@dimen/_5sdp">
+                android:padding="@dimen/_8sdp"
+                android:background="@drawable/card_view_design"
+                >
 
                 <TextView
                     android:id="@+id/textViewFriendRequestSender"
@@ -145,7 +146,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/_13sdp"
                     android:layout_marginTop="10dp"
-                    android:backgroundTint="#9EFA9A17"
                     android:text="Accept"
                     android:textColor="@color/white"
                     android:textSize="@dimen/_10ssp"
@@ -189,7 +189,7 @@
             android:layout_marginTop="5dp"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="10dp"
-            android:backgroundTint="@color/cardViewColor"
+            android:background="@drawable/card_view_design"
             app:cardCornerRadius="10dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -198,19 +198,25 @@
             app:strokeColor="@color/toolbarBorderColor"
             app:strokeWidth="3dp"
             tools:ignore="UnusedAttribute">
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/card_view_design"
+                >
+                <TextView
+                    android:id="@+id/textViewBioText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:layout_marginTop="@dimen/_15sdp"
+                    android:layout_marginBottom="@dimen/_15sdp"
+                    android:text="Big talks or small talks, ChatEase handles it all"
+                    android:textSize="@dimen/_12ssp"
+                    tools:layout_editor_absoluteX="35dp"
+                    tools:layout_editor_absoluteY="292dp" />
+            </FrameLayout>
 
-            <TextView
-                android:id="@+id/textViewBioText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:layout_marginTop="@dimen/_15sdp"
-                android:layout_marginBottom="@dimen/_15sdp"
-                android:text="Big talks or small talks, ChatEase handles it all."
-                android:textSize="@dimen/_12ssp"
-                tools:layout_editor_absoluteX="35dp"
-                tools:layout_editor_absoluteY="292dp" />
         </com.google.android.material.card.MaterialCardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

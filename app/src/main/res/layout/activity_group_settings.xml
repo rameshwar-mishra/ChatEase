@@ -8,7 +8,7 @@
     tools:context=".activities.Settings_AccountActivity">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/userProfileActivityToolbar"
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/toolbarborderlayout"
@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:fontFamily="sans-serif-black"
-            android:text="Account"
+            android:text="Group Settings"
             android:textSize="@dimen/_16ssp" />
     </androidx.appcompat.widget.Toolbar>
 
@@ -31,7 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/userProfileActivityToolbar"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
         app:layout_constraintVertical_bias="0.1">
 
         <LinearLayout
@@ -40,7 +40,7 @@
             android:orientation="vertical">
 
             <FrameLayout
-                android:id="@+id/frameUserAvatar"
+                android:id="@+id/frameGroupProfilePic"
                 android:layout_width="@dimen/_70sdp"
                 android:layout_height="@dimen/_70sdp"
                 android:layout_gravity="center"
@@ -60,96 +60,72 @@
                     android:layout_height="@dimen/_20sdp"
                     android:layout_gravity="bottom|end"
                     android:background="@drawable/shape_circle"
-                    android:padding="5dp">
+                    android:padding="4dp">
 
                     <com.makeramen.roundedimageview.RoundedImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/vector_icon_change_avatar" />
+                        android:src="@drawable/vector_icon_change_avatar"
+                        app:riv_oval="true" />
                 </FrameLayout>
 
 
             </FrameLayout>
 
+
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textInputLayoutDisplayName"
+                android:id="@+id/textInputLayoutGroupName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_13sdp"
                 android:layout_marginTop="@dimen/_30sdp"
                 android:layout_marginRight="@dimen/_13sdp"
                 android:layout_marginBottom="@dimen/_13sdp"
-                android:hint="Display Name"
-                app:boxCornerRadiusTopEnd="15dp"
+                android:hint="Group Name"
                 app:boxCornerRadiusBottomEnd="15dp"
                 app:boxCornerRadiusBottomStart="15dp"
+                app:boxCornerRadiusTopEnd="15dp"
                 app:boxCornerRadiusTopStart="15dp"
                 app:helperTextTextAppearance="@style/HelperTextStyle"
                 app:hintTextAppearance="@style/HelperTextStyle">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/editTextDisplayName"
+                    android:id="@+id/editTextGroupName"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:drawableStart="@drawable/vector_default_user_avatar"
+                    android:drawableStart="@drawable/vector_icon_group"
                     android:drawablePadding="10dp"
                     android:textSize="@dimen/_13sdp" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textInputLayoutUserName"
+                android:id="@+id/textInputLayoutGroupDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_13sdp"
                 android:layout_marginTop="@dimen/_15sdp"
                 android:layout_marginRight="@dimen/_13sdp"
                 android:layout_marginBottom="@dimen/_13sdp"
-                android:hint="Username"
+                android:hint="Group Description"
+                app:boxCornerRadiusBottomEnd="15dp"
+                app:boxCornerRadiusBottomStart="15dp"
+                app:boxCornerRadiusTopEnd="15dp"
+                app:boxCornerRadiusTopStart="15dp"
                 app:helperTextTextAppearance="@style/HelperTextStyle"
                 app:hintTextAppearance="@style/HintTextStyle"
                 tools:layout_editor_absoluteX="13dp"
-                app:boxCornerRadiusTopEnd="15dp"
-                app:boxCornerRadiusBottomEnd="15dp"
-                app:boxCornerRadiusBottomStart="15dp"
-                app:boxCornerRadiusTopStart="15dp"
                 tools:layout_editor_absoluteY="357dp">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/editTextUserName"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:drawableStart="@drawable/vector_default_user_avatar"
-                    android:drawablePadding="10dp"
-                    android:textSize="@dimen/_13sdp" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textInputLayoutUserBio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:boxCornerRadiusTopEnd="15dp"
-                app:boxCornerRadiusBottomEnd="15dp"
-                app:boxCornerRadiusBottomStart="15dp"
-                app:boxCornerRadiusTopStart="15dp"
-                android:layout_marginLeft="@dimen/_13sdp"
-                android:layout_marginTop="@dimen/_15sdp"
-                android:layout_marginRight="@dimen/_13sdp"
-                android:layout_marginBottom="@dimen/_13sdp"
-                android:hint="Bio"
-                app:helperTextTextAppearance="@style/HelperTextStyle"
-                app:hintTextAppearance="@style/HintTextStyle"
-                tools:layout_editor_absoluteX="16dp"
-                tools:layout_editor_absoluteY="482dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/editTextUserBio"
+                    android:id="@+id/editTextGroupDescription"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:drawableStart="@drawable/vector_icon_bio_description"
                     android:drawablePadding="10dp"
                     android:textSize="@dimen/_13sdp" />
             </com.google.android.material.textfield.TextInputLayout>
+
 
             <FrameLayout
                 android:id="@+id/frameLayoutApplyButton"
@@ -165,16 +141,15 @@
                     android:text="Apply Changes"
                     android:textColor="@color/white"
                     android:textSize="@dimen/_13ssp"
-                    app:cornerRadius="0dp"
-                    />
+                    app:cornerRadius="0dp" />
 
                 <ProgressBar
                     android:id="@+id/applyButtonProgressBar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:indeterminateTint="@color/accentColor"
                     android:indeterminate="true"
+                    android:indeterminateTint="@color/accentColor"
                     android:visibility="gone" />
 
             </FrameLayout>

@@ -1,60 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="8dp">
-
-    <LinearLayout
+    android:layout_margin="5dp"
+    android:orientation="horizontal">
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="4dp"
-        android:background="@drawable/card_view_design">
+        android:layout_margin="5dp"
 
-        <TextView
-            android:id="@+id/textViewSenderName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sender Name"
-            android:textColor="@color/textColors"
-            android:textSize="13sp"
-            android:layout_marginTop="5dp"
-            android:layout_marginStart="5dp"
-            />
+        app:cardCornerRadius="10dp"
+        app:cardElevation="3dp"
+        app:strokeWidth="0dp">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="4dp">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayoutGroupReceiver"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/shape_sender_message"
+            android:padding="5dp">
 
-            <!-- Message Text -->
             <TextView
-                android:id="@+id/textViewReceiverMessage"
+                android:id="@+id/textViewSenderName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="This is the receiver's message"
-                android:textSize="15sp"
-                android:layout_marginEnd="8dp"
-                android:lineSpacingExtra="2dp" />
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="5dp"
+                android:text="Goku"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_11ssp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                />
 
-            <!-- Timestamp -->
+            <TextView
+                android:id="@+id/textViewReceiverMessage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4.9dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="5dp"
+                android:maxWidth="270dp"
+                android:text="1"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textViewSenderName" />
+
             <TextView
                 android:id="@+id/textViewTimeStamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="09:46 AM"
-                android:textSize="11sp"
-                android:textColor="@color/secondaryText"
-                android:layout_gravity="bottom"
-                android:paddingStart="4dp" />
-
-        </LinearLayout>
-
+                android:layout_marginStart="2dp"
+                android:text="10:25 PM"
+                android:textColor="#EBE8E8"
+                android:textSize="@dimen/_9ssp"
+                app:layout_constraintStart_toEndOf="@id/textViewReceiverMessage"
+                app:layout_constraintTop_toBottomOf="@id/textViewReceiverMessage" />
 
 
-    </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
 </LinearLayout>

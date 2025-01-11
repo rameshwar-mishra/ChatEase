@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.11" />
+            app:layout_constraintGuide_percent="0.12" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineVerticalStart"
@@ -228,11 +228,11 @@
                 android:id="@+id/textVieAddParticipants"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableStart="@drawable/vector_icon_add"
+                android:drawableStart="@drawable/vector_icon_add_group_profile"
                 android:drawablePadding="10dp"
                 android:gravity="center_horizontal"
                 android:text="Add Participants"
-                android:textColor="@color/green"
+                android:textColor="#16B116"
                 android:textSize="@dimen/_13ssp" />
         </FrameLayout>
 

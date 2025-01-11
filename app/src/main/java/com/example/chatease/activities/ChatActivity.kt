@@ -1,5 +1,6 @@
 package com.example.chatease.activities
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -8,9 +9,7 @@ import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.Menu
 import android.view.View
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -136,63 +135,83 @@ class ChatActivity : AppCompatActivity() {
         var previousAvatarUrl: String? = null
         var otherUserFCMToken: String? = null
         var otherUserPresenceStatus: String? = null
-        val lastSeenAndOnlinePersonalSetting = getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE)
-            .getBoolean("lastSeenAndOnlineSetting", true)
+        val lastSeenAndOnlinePersonalSetting =
+            getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE)
+                .getBoolean("lastSeenAndOnlineSetting", true)
 
         var lastSeenAndOnlineOtherUserSetting = true
 
-        rtDB.getReference("users").child(otherUserId!!).addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    // Setting the display name from intent extra
-                    binding.textViewDisplayName.text = snapshot.child("displayName").getValue(String::class.java) ?: ""
-                    otherUserPresenceStatus = snapshot.child("status").getValue(String::class.java)
-                    lastSeenAndOnlineOtherUserSetting = snapshot.child("lastSeenAndOnlineSetting")
-                        .getValue(Boolean::class.java) ?: true
-
-                    if (lastSeenAndOnlinePersonalSetting && lastSeenAndOnlineOtherUserSetting) {
-
-                        if (binding.textViewUserPresenceStatus.visibility == View.GONE) {
-                            binding.textViewUserPresenceStatus.visibility = View.VISIBLE
-                        }
-
-                        if (otherUserPresenceStatus == "Offline") {
-                            val lastHeartBeatTime = (snapshot.child("lastHeartBeat").getValue(Long::class.java) ?: 0L) / 1000
-
-                            binding.textViewUserPresenceStatus.text = "Last Seen at " +
-                                    getRelativeTime(Timestamp(lastHeartBeatTime, 0)) // Format the timestamp for display
+        rtDB.getReference("users").child(otherUserId!!)
+            .addValueEventListener(object : ValueEventListener {
+                @SuppressLint("SetTextI18n")
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        // Setting the display name from intent extra
+                        val senderDisplayName =
+                            snapshot.child("displayName").getValue(String::class.java) ?: ""
+                        if (senderDisplayName.length > 20) {
+                            val subStr = senderDisplayName.substring(0, 20) + "..."
+                            binding.textViewDisplayName.text = subStr
                         } else {
-                            binding.textViewUserPresenceStatus.text = otherUserPresenceStatus
+                            binding.textViewDisplayName.text = senderDisplayName
+                        }
+                        otherUserPresenceStatus =
+                            snapshot.child("status").getValue(String::class.java)
+                        lastSeenAndOnlineOtherUserSetting =
+                            snapshot.child("lastSeenAndOnlineSetting")
+                                .getValue(Boolean::class.java) ?: true
+
+                        if (lastSeenAndOnlinePersonalSetting && lastSeenAndOnlineOtherUserSetting) {
+
+                            if (binding.textViewUserPresenceStatus.visibility == View.GONE) {
+                                binding.textViewUserPresenceStatus.visibility = View.VISIBLE
+                            }
+
+                            if (otherUserPresenceStatus == "Offline") {
+                                val lastHeartBeatTime =
+                                    (snapshot.child("lastHeartBeat").getValue(Long::class.java)
+                                        ?: 0L) / 1000
+
+                                binding.textViewUserPresenceStatus.text = "Last Seen at " +
+                                        getRelativeTime(
+                                            Timestamp(
+                                                lastHeartBeatTime,
+                                                0
+                                            )
+                                        ) // Format the timestamp for display
+                            } else {
+                                binding.textViewUserPresenceStatus.text = otherUserPresenceStatus
+                            }
+
+                        } else {
+                            binding.textViewUserPresenceStatus.visibility = View.GONE
                         }
 
-                    } else {
-                        binding.textViewUserPresenceStatus.visibility = View.GONE
-                    }
+                        otherUserFCMToken =
+                            snapshot.child("FCMUserToken").getValue(String::class.java) ?: null
 
-                    otherUserFCMToken = snapshot.child("FCMUserToken").getValue(String::class.java) ?: null
+                        // Loading the user's avatar image using Glide library
+                        val avatar = snapshot.child("avatar").getValue(String::class.java)
 
-                    // Loading the user's avatar image using Glide library
-                    val avatar = snapshot.child("avatar").getValue(String::class.java)
+                        if (!avatarAlreadyLoadedForTheFirstTime || avatar != previousAvatarUrl) {
+                            avatarAlreadyLoadedForTheFirstTime = true
+                            previousAvatarUrl = avatar
 
-                    if (!avatarAlreadyLoadedForTheFirstTime || avatar != previousAvatarUrl) {
-                        avatarAlreadyLoadedForTheFirstTime = true
-                        previousAvatarUrl = avatar
-
-                        if (!isFinishing && !isDestroyed) {
-                            Glide.with(this@ChatActivity)
-                                .load(snapshot.child("avatar").getValue(String::class.java))
-                                .placeholder(R.drawable.vector_default_user_avatar)
-                                .into(binding.roundedImageViewDisplayImage)
+                            if (!isFinishing && !isDestroyed) {
+                                Glide.with(this@ChatActivity)
+                                    .load(snapshot.child("avatar").getValue(String::class.java))
+                                    .placeholder(R.drawable.vector_default_user_avatar)
+                                    .into(binding.roundedImageViewDisplayImage)
+                            }
                         }
                     }
                 }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("ChatActivity", "Failed to read user data: ${error.message}")
-            }
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("ChatActivity", "Failed to read user data: ${error.message}")
+                }
 
-        })
+            })
 
 
         // Generate a unique conversation ID using the current user ID and the other user's ID
@@ -206,7 +225,9 @@ class ChatActivity : AppCompatActivity() {
 
         typingListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.child("typing_of_$otherUserId").getValue(Boolean::class.java) == true) {
+                if (snapshot.child("typing_of_$otherUserId")
+                        .getValue(Boolean::class.java) == true
+                ) {
                     if (lastSeenAndOnlinePersonalSetting && lastSeenAndOnlineOtherUserSetting) {
                         binding.textViewUserPresenceStatus.visibility = View.INVISIBLE
                     }
@@ -262,9 +283,9 @@ class ChatActivity : AppCompatActivity() {
                 }, 2000L)
 
                 lineCount = binding.editTextMessage.lineCount
-                if(previousLineCount != lineCount) {
-                    if(lineCount > minLines) {
-                        Log.d("LINECOUNT",lineCount.toString())
+                if (previousLineCount != lineCount) {
+                    if (lineCount > minLines) {
+                        Log.d("LINECOUNT", lineCount.toString())
                         val adjustedLineCount = lineCount.coerceIn(minLines, 5)
                         val newSdp = baseSdp + (20 * (adjustedLineCount - 2))
                         val params = binding.chatInputCard.layoutParams
@@ -353,7 +374,11 @@ class ChatActivity : AppCompatActivity() {
                         }
                         .addOnFailureListener { exception ->
                             // Displaying an error message if sending fails
-                            Toast.makeText(this@ChatActivity, exception.toString(), Toast.LENGTH_LONG).show()
+                            Toast.makeText(
+                                this@ChatActivity,
+                                exception.toString(),
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
                 } else {
                     Toast.makeText(
@@ -392,7 +417,12 @@ class ChatActivity : AppCompatActivity() {
                 // Convert Long timestamp to Date
 
                 val formattedTimeStamp =
-                    getRelativeTime(Timestamp((timestampLong / 1000), 0)) // Format the timestamp for display
+                    getRelativeTime(
+                        Timestamp(
+                            (timestampLong / 1000),
+                            0
+                        )
+                    ) // Format the timestamp for display
                 // Creating a MessageUserData object
                 val messageObject = MessageUserData(
                     id = snapshot.key ?: "",
@@ -508,9 +538,11 @@ class ChatActivity : AppCompatActivity() {
                 if (snapshot.child("sender").getValue(String::class.java) == currentUserId) {
                     val index = messagesList.indexOfFirst { it.id == id }
                     if (index != -1 &&
-                        messagesList[index].hasRead != snapshot.child("isRead").getValue(Boolean::class.java)
+                        messagesList[index].hasRead != snapshot.child("isRead")
+                            .getValue(Boolean::class.java)
                     ) {
-                        val timestampLong = snapshot.child("timestamp").getValue(Long::class.java) ?: 0L
+                        val timestampLong =
+                            snapshot.child("timestamp").getValue(Long::class.java) ?: 0L
 
                         // Convert Long timestamp to Date
                         val timestamp = Date(timestampLong)
@@ -525,7 +557,8 @@ class ChatActivity : AppCompatActivity() {
                             sender = snapshot.child("sender").getValue(String::class.java) ?: "",
                             content = snapshot.child("content").getValue(String::class.java) ?: "",
                             timestamp = formattedTimeStamp,
-                            hasRead = snapshot.child("isRead").getValue(Boolean::class.java) ?: false,
+                            hasRead = snapshot.child("isRead").getValue(Boolean::class.java)
+                                ?: false,
                         )
 
                         adapter.notifyItemChanged(index)
@@ -564,7 +597,8 @@ class ChatActivity : AppCompatActivity() {
     private suspend fun getAccessToken(): String? {
         return withContext(Dispatchers.IO) {
             try {
-                val credentials = getGoogleCredential(this@ChatActivity) as ServiceAccountCredentials
+                val credentials =
+                    getGoogleCredential(this@ChatActivity) as ServiceAccountCredentials
                 credentials.refreshIfExpired()
                 credentials.accessToken.tokenValue
             } catch (e: Exception) {
@@ -725,13 +759,6 @@ class ChatActivity : AppCompatActivity() {
     private fun generateConversationID(user1: String, user2: String): String {
         val convoId = listOf(user1, user2).sorted() // Sorting the user IDs to maintain consistency
         return convoId.joinToString("_") // Joining the sorted IDs to create a unique ID
-    }
-
-    // Function to create options menu for the chat layout
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        // Inflate the menu resource
-        menuInflater.inflate(R.menu.menu_chat_options, menu)
-        return true
     }
 
     // Get a relative time string based on the timestamp for display

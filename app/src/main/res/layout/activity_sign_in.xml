@@ -97,7 +97,7 @@
                 android:layout_height="@dimen/_30sdp"
                 android:layout_gravity="center"
                 android:indeterminate="true"
-                android:indeterminateTint="@color/dodger_blue"
+                android:indeterminateTint="@color/accentColor"
                 android:visibility="invisible" />
         </FrameLayout>
 

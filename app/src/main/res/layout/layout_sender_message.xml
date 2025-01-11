@@ -1,27 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center"
-    android:orientation="vertical"
-    tools:context=".activities.MainActivity">
+    android:gravity="end"
+    android:orientation="horizontal"
+    android:layout_margin="5dp"
+    >
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:layout_marginStart="80sp"
-        android:layout_marginTop="7dp"
-        android:layout_marginEnd="20sp"
-        android:layout_marginBottom="7dp"
-        app:cardCornerRadius="10sp">
+        android:layout_margin="5dp"
+        app:strokeWidth="0dp"
+        app:cardElevation="3dp"
+        >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/card_view_design"
             android:padding="5dp">
 
             <TextView
@@ -29,53 +27,51 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
-                android:text="This is sent message"
+                android:maxWidth="260dp"
+                android:text="Aj toh rz h par thori der ke lia aa skti agar tu baat krega toh Aj toh rz h par thori der ke lia aa skti agar tu baat krega toh Aj toh rz h par thori der ke lia aa skti agar tu baat krega toh Aj toh rz h par thori der ke lia aa skti agar tu baat krega toh Aj toh rz h par thori der ke lia aa skti agar tu baat krega toh"
+                android:textColor="@color/textColors"
                 android:textSize="15sp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0" />
+                />
 
             <TextView
                 android:id="@+id/textViewTimeStamp"
                 android:layout_width="wrap_content"
-                android:layout_height="12dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginBottom="3dp"
-                android:text="09:46"
-                android:textSize="10sp"
+                android:layout_height="wrap_content"
+                android:text="10:25 PM"
+                android:layout_marginStart="2dp"
+                android:textColor="@color/secondaryTextSenderMessage"
+                android:textSize="@dimen/_9ssp"
                 app:layout_constraintStart_toEndOf="@id/textViewSenderMessage"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                app:layout_constraintTop_toBottomOf="@id/textViewSenderMessage" />
 
             <ImageView
                 android:id="@+id/readIndicatorSingleTick"
                 android:layout_width="19dp"
                 android:layout_height="19dp"
                 android:layout_marginStart="1dp"
-                android:layout_marginTop="4dp"
                 android:layout_marginEnd="5dp"
-                android:src="@drawable/vector_icon_single_tick"
+                android:layout_marginTop="1dp"
                 android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/textViewTimeStamp" />
+                android:src="@drawable/vector_icon_single_tick"
+                app:layout_constraintStart_toEndOf="@id/textViewTimeStamp"
+                app:layout_constraintTop_toBottomOf="@id/textViewSenderMessage" />
 
             <ImageView
                 android:id="@+id/readIndicatorDoubleTick"
                 android:layout_width="19dp"
                 android:layout_height="19dp"
                 android:layout_marginStart="4dp"
-                android:layout_marginTop="4dp"
                 android:layout_marginEnd="5dp"
-                android:layout_marginBottom="1dp"
+                android:layout_marginTop="-2dp"
                 android:src="@drawable/vector_icon_double_tick"
                 android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/textViewTimeStamp"/>
-
+                app:layout_constraintStart_toEndOf="@id/textViewTimeStamp"
+                app:layout_constraintTop_toBottomOf="@id/textViewSenderMessage" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </com.google.android.material.card.MaterialCardView>
+
 </LinearLayout>

@@ -91,7 +91,7 @@ class GroupParticipantsActivity : AppCompatActivity() {
 
         binding.floatingActionButtonNext.setOnClickListener {
 
-            if (adapter.getSelectedParticipantsSet().isNotEmpty()) {
+            if (adapter.getSelectedParticipantsSet().size > 1) {
 
                 if (participantStringArrayList != null) {
                     CoroutineScope(Dispatchers.IO).launch {

@@ -19,11 +19,13 @@ class RecentChatAdapter(
 ) : RecyclerView.Adapter<RecentChatAdapter.RecentChatViewHolder>() {
 
     // ViewHolder class for binding recent chat layout
-    class RecentChatViewHolder(val binding: LayoutRecentChatUserBinding) : RecyclerView.ViewHolder(binding.root) {}
+    class RecentChatViewHolder(val binding: LayoutRecentChatUserBinding) :
+        RecyclerView.ViewHolder(binding.root) {}
 
     // Create new ViewHolder instances
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecentChatViewHolder {
-        val view = LayoutRecentChatUserBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val view =
+            LayoutRecentChatUserBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return RecentChatViewHolder(view)
     }
 
@@ -53,21 +55,17 @@ class RecentChatAdapter(
                 userLastMessage.setTextColor(Color.parseColor("#746C6C"))
                 userLastMessageTimeStamp.setTypeface(null, Typeface.NORMAL)
             }
-
-            // Set the username and last message timestamp
-            displayName.text = recentChatDataList[position].displayName
+            // Set the last message timestamp
             userLastMessageTimeStamp.text = recentChatDataList[position].lastMessageTimeStamp
+
+            //formatted string for display name if it is more than 18 chars
+            displayName.text = subString(recentChatDataList[position].displayName, 18)
 
             // Create a formatted string for the last message
             val lastMessage =
                 recentChatDataList[position].lastMessageSender + ": " + recentChatDataList[position].lastMessage
             // If the message is longer than 35 characters, truncate it
-            if (lastMessage.length > 35) {
-                val subStr = lastMessage.substring(0, 35) + "..."
-                userLastMessage.text = subStr
-            } else {
-                userLastMessage.text = lastMessage
-            }
+            userLastMessage.text = subString(lastMessage, 35)
 
             Glide.with(holder.binding.userAvatar.context)
                 .load(recentChatDataList[position].avatar)
@@ -85,6 +83,15 @@ class RecentChatAdapter(
                 context.startActivity(intent) // Start the chat activity
             }
 
+        }
+    }
+
+    private fun subString(subStringText: String, untilWhichLength: Int): String {
+        if (subStringText.length > untilWhichLength) {
+            val subStr = subStringText.substring(0, untilWhichLength)
+            return "$subStr..."
+        } else {
+            return subStringText
         }
     }
 }

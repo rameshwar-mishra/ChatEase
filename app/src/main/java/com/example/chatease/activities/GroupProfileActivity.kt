@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -46,7 +47,6 @@ class GroupProfileActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
         groupID = intent.getStringExtra("groupID")
 
         setSupportActionBar(binding.groupProfileActivityToolbar)
@@ -58,8 +58,10 @@ class GroupProfileActivity : AppCompatActivity() {
             return
         }
 
-        adapter = GroupParticipantsAdapter(this@GroupProfileActivity, participantList = participantList)
-        binding.recyclerViewParticipantsList.layoutManager = LinearLayoutManager(this@GroupProfileActivity)
+        adapter =
+            GroupParticipantsAdapter(this@GroupProfileActivity, participantList = participantList)
+        binding.recyclerViewParticipantsList.layoutManager =
+            LinearLayoutManager(this@GroupProfileActivity)
         binding.recyclerViewParticipantsList.adapter = adapter
 
         FirebaseAuth.getInstance().currentUser?.let { currentUser ->
@@ -91,7 +93,10 @@ class GroupProfileActivity : AppCompatActivity() {
             val intent = Intent(this@GroupProfileActivity, GroupParticipantsActivity::class.java)
             intent.apply {
                 putExtra("groupID", groupID) // Pass the other user's ID to the profile activity
-                putStringArrayListExtra("participantStringArrayList", participantStringArrayList as ArrayList<String>)
+                putStringArrayListExtra(
+                    "participantStringArrayList",
+                    participantStringArrayList as ArrayList<String>
+                )
             }
             startActivityForResult(intent, 2)
         } else {
@@ -122,6 +127,22 @@ class GroupProfileActivity : AppCompatActivity() {
         // Inflate the menu resource
         menuInflater.inflate(R.menu.menu_settings, menu)
         return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.settingsIcon -> {
+                startActivity(Intent(this@GroupProfileActivity,GroupSettingsActivity::class.java))
+            }
+
+            android.R.id.home -> {
+                onBackPressed()
+            }
+
+            else -> return super.onOptionsItemSelected(item)
+        }
+        return true
+
     }
 
     private fun updateGroupIcon() {
@@ -168,7 +189,8 @@ class GroupProfileActivity : AppCompatActivity() {
         groupID?.let {
             rtDB.getReference("groups/$groupID/metadata/groupDesc").get()
                 .addOnSuccessListener { snapshot ->
-                    binding.textViewGroupDesc.text = snapshot.value as? String ?: "Big talks or small talks, ChatEase handles it all."
+                    binding.textViewGroupDesc.text = snapshot.value as? String
+                        ?: "Big talks or small talks, ChatEase handles it all."
                 }
         }
     }
@@ -228,7 +250,10 @@ class GroupProfileActivity : AppCompatActivity() {
                         }
                     }
 
-                    Log.v("userData", "userData.displayName : ${userData.displayName}, userData.role : ${userData.role}")
+                    Log.v(
+                        "userData",
+                        "userData.displayName : ${userData.displayName}, userData.role : ${userData.role}"
+                    )
                     when (userData.role) {
                         "owner" -> {
                             Log.v("userData Insertion", "participantsHierarchyList.add : 0")
@@ -239,8 +264,14 @@ class GroupProfileActivity : AppCompatActivity() {
                             if (userData.userID == currentUserID) {
                                 currentUserInParticipantList.add(userData)
                             } else {
-                                Log.v("userData Insertion", "participantsHierarchyList.add : ${participantsHierarchyList.size}")
-                                participantsHierarchyList.add(index = participantsHierarchyList.size, userData)
+                                Log.v(
+                                    "userData Insertion",
+                                    "participantsHierarchyList.add : ${participantsHierarchyList.size}"
+                                )
+                                participantsHierarchyList.add(
+                                    index = participantsHierarchyList.size,
+                                    userData
+                                )
                             }
                         }
 
@@ -248,8 +279,13 @@ class GroupProfileActivity : AppCompatActivity() {
                             if (userData.userID == currentUserID) {
                                 currentUserInParticipantList.add(userData)
                             } else {
-                                Log.w("userData lexicographicallySortedList", lexicographicallySortedList.toString())
-                                val insertIndex = lexicographicallySortedList.binarySearch { it.displayName.compareTo(userData.displayName) }
+                                Log.w(
+                                    "userData lexicographicallySortedList",
+                                    lexicographicallySortedList.toString()
+                                )
+                                val insertIndex = lexicographicallySortedList.binarySearch {
+                                    it.displayName.compareTo(userData.displayName)
+                                }
                                     .let { returnValue ->
                                         if (returnValue < 0) {
                                             -returnValue - 1
@@ -258,7 +294,10 @@ class GroupProfileActivity : AppCompatActivity() {
                                         }
                                     }
                                 lexicographicallySortedList.add(insertIndex, userData)
-                                Log.v("userData Insertion", "lexicographicallySortedList.add : $insertIndex")
+                                Log.v(
+                                    "userData Insertion",
+                                    "lexicographicallySortedList.add : $insertIndex"
+                                )
                             }
                         }
                     }
@@ -294,7 +333,8 @@ class GroupProfileActivity : AppCompatActivity() {
                             }
                             Log.v("userData UPDATED & CLEARED", "UPDATED & CLEARED")
                             adapter.notifyDataSetChanged()
-                            binding.textViewParticipantsCounter.text = "Participants - ${participantList.size}"
+                            binding.textViewParticipantsCounter.text =
+                                "Participants - ${participantList.size}"
                         }, 500L)
                     }
                 }
@@ -321,16 +361,26 @@ class GroupProfileActivity : AppCompatActivity() {
     private fun updateDatabaseToLeaveGroup() {
         FirebaseAuth.getInstance().currentUser?.let { currentUser ->
             CoroutineScope(Dispatchers.IO).launch {
-                rtDB.getReference("groups/$groupID/metadata/participants/${currentUser.uid}").removeValue()
+                rtDB.getReference("groups/$groupID/metadata/participants/${currentUser.uid}")
+                    .removeValue()
                     .addOnSuccessListener {
-                        Toast.makeText(this@GroupProfileActivity, "Left the group", Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            this@GroupProfileActivity,
+                            "Left the group",
+                            Toast.LENGTH_LONG
+                        ).show()
                         val intent = Intent(this@GroupProfileActivity, MainActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        intent.flags =
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                         startActivity(intent)
                         finish()
                     }
                     .addOnFailureListener {
-                        Toast.makeText(this@GroupProfileActivity, "Something went wrong, Failed to leave the group", Toast.LENGTH_LONG)
+                        Toast.makeText(
+                            this@GroupProfileActivity,
+                            "Something went wrong, Failed to leave the group",
+                            Toast.LENGTH_LONG
+                        )
                             .show()
                     }
             }
@@ -367,14 +417,23 @@ class GroupProfileActivity : AppCompatActivity() {
             CoroutineScope(Dispatchers.IO).launch {
                 rtDB.getReference("groups/$groupID").removeValue()
                     .addOnSuccessListener {
-                        Toast.makeText(this@GroupProfileActivity, "Deleted the group", Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            this@GroupProfileActivity,
+                            "Deleted the group",
+                            Toast.LENGTH_LONG
+                        ).show()
                         val intent = Intent(this@GroupProfileActivity, MainActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        intent.flags =
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                         startActivity(intent)
                         finish()
                     }
                     .addOnFailureListener {
-                        Toast.makeText(this@GroupProfileActivity, "Something went wrong, Failed to delete the group", Toast.LENGTH_LONG)
+                        Toast.makeText(
+                            this@GroupProfileActivity,
+                            "Something went wrong, Failed to delete the group",
+                            Toast.LENGTH_LONG
+                        )
                             .show()
                     }
             }

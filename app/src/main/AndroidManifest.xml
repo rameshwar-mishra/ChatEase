@@ -19,9 +19,12 @@
         android:theme="@style/Theme.ChatEase"
         tools:targetApi="31">
         <activity
+            android:name=".activities.GroupSettingsActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.GroupProfileActivity"
             android:exported="false"
-            android:parentActivityName=".activities.GroupChatActivity"/>
+            android:parentActivityName=".activities.GroupChatActivity" />
         <activity
             android:name=".activities.GroupChatActivity"
             android:exported="false"

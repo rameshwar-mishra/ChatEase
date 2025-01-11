@@ -40,19 +40,32 @@
                 android:id="@+id/avatar"
                 android:layout_width="@dimen/_80sdp"
                 android:layout_height="@dimen/_80sdp"
-                android:background="@drawable/background_display_image"
+                android:background="@drawable/shape_group_icon"
                 android:scaleType="centerCrop"
                 app:riv_oval="true" />
 
-            <TextView
-                android:id="@+id/avatarAddImageText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/defaultImageViewIcon"
+                android:layout_width="@dimen/_50sdp"
+                android:layout_height="@dimen/_50sdp"
                 android:layout_gravity="center"
-                android:text="Add Avatar"
-                android:textColor="@color/buttonTextColor"
-                android:textSize="@dimen/_12sdp" />
+                android:src="@drawable/vector_icon_group"
+                />
+            <FrameLayout
+                android:id="@+id/frameChangeAvatarIcon"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:layout_gravity="bottom|end"
+                android:background="@drawable/shape_circle"
+                android:padding="4dp">
 
+                <com.makeramen.roundedimageview.RoundedImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/vector_icon_change_avatar"
+                    app:riv_oval="true" />
+            </FrameLayout>
         </FrameLayout>
 
         <LinearLayout
@@ -190,7 +203,7 @@
                     android:layout_height="@dimen/_30sdp"
                     android:layout_gravity="center"
                     android:indeterminate="true"
-                    android:indeterminateTint="@color/dodger_blue"
+                    android:indeterminateTint="@color/accentColor"
                     android:visibility="invisible" />
             </FrameLayout>
 

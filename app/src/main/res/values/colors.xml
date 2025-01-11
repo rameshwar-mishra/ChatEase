@@ -50,8 +50,10 @@
     <color name="buttonBackgroundColor">#000000</color>
     <color name="buttonTextColor">@color/white</color>
     <color name="windowsBackgroundColor">@color/white</color>
-    <color name="cardBackgroundColorStart">#FFFFFF</color>
+    <color name="cardBackgroundColorStart">#FFF8F8</color>
     <color name="cardBackgroundColorEnd">#F5F5F5</color>
+    <color name="groupProfileCardColor">#F8F7F7</color>
     <color name="cardStrokeColor">#DCDCDC</color>
     <color name="accentColor">#FF6A85</color>
+    <color name="secondaryTextSenderMessage">#DC706D6D</color>
 </resources>

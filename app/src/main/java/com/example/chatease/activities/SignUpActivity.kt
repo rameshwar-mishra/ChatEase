@@ -87,7 +87,7 @@ class SignUpActivity : AppCompatActivity() {
             if (!hasFocus) {
                 if (binding.editTextUserName.text!!.isNotEmpty()) {
                     if (!binding.editTextUserName.text.toString().matches(Regex("^[a-z0-9._]+$"))) {
-                        binding.editLayoutUserName.error = "Username only contains a-z,0-9, . and _"
+                        binding.editLayoutUserName.error = "Username only contains a-z (lowercase),0 - 9, . and _"
                     } else {
                         isUsernameUnique(binding.editTextUserName.text.toString().trim()) { task ->
                             if (!task) {
@@ -277,7 +277,7 @@ class SignUpActivity : AppCompatActivity() {
                         .into(binding.avatar) // Set the image to avatar view
 
                     // Hide the "Add Image" text
-                    binding.avatarAddImageText.visibility = View.GONE
+                    binding.defaultImageViewIcon.visibility = View.INVISIBLE
                 }
             }
         } else if (resultCode == UCrop.RESULT_ERROR) {
