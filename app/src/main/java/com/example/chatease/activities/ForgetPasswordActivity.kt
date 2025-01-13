@@ -40,6 +40,8 @@ class ForgetPasswordActivity : AppCompatActivity() {
                 }
                 else{
                     binding.textInputLayoutEmail.error = "Enter Valid Email"
+                    binding.progressBar.visibility = View.GONE
+                    binding.forgetPasswordButton.visibility = View.VISIBLE
                 }
             }
         }

@@ -2,11 +2,13 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraint"
     android:layout_width="match_parent"
-    android:layout_height="70dp"
+    android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="7dp">
+    android:padding="3dp">
 
+    <!-- Left Guideline (for padding) -->
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidelineStart"
         android:layout_width="wrap_content"
@@ -14,12 +16,15 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.12" />
 
+    <!-- Right Guideline -->
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidelineEnd"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.938" />
+
+    <!-- Category Icon aligned to start with padding -->
 
     <ImageView
         android:id="@+id/settingsCategoryIcon"
@@ -28,47 +33,55 @@
         android:src="@drawable/vector_icon_privacy"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guidelineStart"
-        app:layout_constraintHorizontal_bias="0.3"
+        app:layout_constraintHorizontal_bias="0.423"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.511" />
 
     <TextView
         android:id="@+id/textViewSettingsCategoryName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="left"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
         android:text="Test"
-        android:letterSpacing=".05"
-        android:fontFamily="@font/roboto"
-        android:textStyle="bold"
         android:textSize="19sp"
-        app:layout_constraintBottom_toTopOf="@+id/textViewSettingsMetaData"
-        app:layout_constraintStart_toEndOf="@id/guidelineStart"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5" />
+        android:textStyle="bold"
+        android:textColor="@color/textColors"
+        app:layout_constraintStart_toStartOf="@id/guidelineStart"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textViewSettingsMetaData"
         android:layout_width="0dp"
-        android:layout_marginLeft="1dp"
         android:layout_height="wrap_content"
-        android:text="Change Avatar Display Name,Username,Bio "
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="5dp"
+        android:text="Change Avatar Display Name,Username,Bio"
         android:textColor="@color/secondaryText"
         android:textSize="15sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@+id/textViewSettingsCategoryName"
-        />
+        app:layout_constraintTop_toBottomOf="@id/textViewSettingsCategoryName" />
 
     <ImageView
         android:id="@+id/imageViewForwardArrow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         android:src="@drawable/vector_icon_forward_arrow"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/guidelineEnd"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintStart_toEndOf="@+id/guidelineEnd"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.5" />
+
+    <View
+        android:id="@+id/views"
+        android:layout_width="0dp"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/secondaryText"
+        app:layout_constraintStart_toStartOf="@id/guidelineStart"
+        app:layout_constraintTop_toBottomOf="@id/textViewSettingsMetaData" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

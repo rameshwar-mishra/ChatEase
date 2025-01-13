@@ -24,12 +24,12 @@
 
             <TextView
                 android:id="@+id/textViewReceiverMessage"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginBottom="5dp"
                 android:maxWidth="270dp"
-                android:text="Aj toh rz h par thori der ke lia aa skti agar tu baat krega toh Aj toh rz h par thori der ke lia aa skti agar tu baat krega toh Aj toh rz h par thori der ke lia aa skti agar tu baat krega toh Aj toh rz h par thori der ke lia aa skti agar tu baat krega toh Aj toh rz h par thori der ke lia aa skti agar tu baat krega toh"
+                android:text="1"
                 android:textColor="@color/white"
                 android:textSize="15sp"
                 app:layout_constraintStart_toStartOf="parent"

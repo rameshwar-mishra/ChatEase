@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
@@ -64,7 +65,6 @@ class UserProfileActivity : AppCompatActivity() {
         // Fetch user data from Realtime Database using the user ID
 
         fetchOtherUserDetails() // To populate the user profile activity with its data
-
         val userFromChatActivity =
             intent.getBooleanExtra(
                 "userFromChatActivity",
@@ -87,10 +87,18 @@ class UserProfileActivity : AppCompatActivity() {
             addFriendStatusListener(currentUser.uid)
             if (fromFriendsFragment && otherUserId == currentUser.uid) {
                 binding.messageUserButton.visibility = View.VISIBLE
-                binding.textViewBioHeading
-            }
-            else{
-
+                binding.cardViewFriendRequest.visibility = View.INVISIBLE
+                val constraintSetChange = ConstraintSet()
+                constraintSetChange.clone(binding.constraintLayoutUserProfile)
+                constraintSetChange.clear(binding.textViewBioHeading.id, ConstraintSet.TOP)
+                constraintSetChange.connect(
+                    binding.textViewBioHeading.id,
+                    ConstraintSet.TOP,
+                    binding.messageUserButton.id,
+                    ConstraintSet.BOTTOM,
+                    10
+                )
+                constraintSetChange.applyTo(binding.constraintLayoutUserProfile)
             }
 
         }
@@ -149,12 +157,6 @@ class UserProfileActivity : AppCompatActivity() {
         }
     }
 
-//    override fun onBackPressed() {
-//        super.onBackPressed()
-//        if (fromFriendsFragment) {
-//
-//        }
-//    }
 
     private fun fetchOtherUserDetails() {
         CoroutineScope(Dispatchers.IO).launch {

@@ -24,13 +24,11 @@ import com.bumptech.glide.Glide
 import com.example.chatease.R
 import com.example.chatease.databinding.ActivitySettingAccountBinding
 import com.example.chatease.dataclass.UserDataSettings
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.yalantis.ucrop.UCrop
@@ -230,52 +228,13 @@ class Settings_AccountActivity : AppCompatActivity() {
 
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.settings_signout, menu)
+        menuInflater.inflate(R.menu.menu_edit_info, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.settingsIcon -> {
-                val alertDialog = MaterialAlertDialogBuilder(this)
-                    .setTitle("Sign Out")
-                    .setMessage("Do you want to Sign Out From the App?")
-                    .setIcon(R.drawable.vector_icon_warning)
-                    .setNegativeButton("No") { dialog, which ->
-                        dialog.cancel()
-                    }
-                    .setPositiveButton("Yes") { dialog, which ->
-                        rtDB.getReference("users").child(userId).updateChildren(
-                            mapOf(
-                                "status" to "Offline",
-                                "lastHeartBeat" to ServerValue.TIMESTAMP
-                            )
-                        )
-                        auth.signOut()
-                        getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE).edit().clear()
-                            .apply()
-                        val intent = Intent(
-                            this@Settings_AccountActivity,
-                            WelcomeActivity::class.java
-                        ).apply {
-                            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                        }
-                        startActivity(intent)
-                        finish()
-                    }
-                alertDialog.show()
-            }
-
-            android.R.id.home -> {
-                onBackPressed()
-            }
-
-            else -> return super.onOptionsItemSelected(item)
-        }
-        return true
-    }
-
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//
+//    }
 
     private suspend fun isUsernameUnique(username: String): Boolean {
         return withContext(Dispatchers.IO) {

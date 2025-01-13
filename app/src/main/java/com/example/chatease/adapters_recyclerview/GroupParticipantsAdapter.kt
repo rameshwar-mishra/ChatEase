@@ -17,10 +17,15 @@ class GroupParticipantsAdapter(
     private val participantList: MutableList<GroupProfileParticipantsData>
 ) : RecyclerView.Adapter<GroupParticipantsAdapter.ViewHolder>() {
 
-    class ViewHolder(val binding: LayoutGroupParticipantBinding) : RecyclerView.ViewHolder(binding.root)
+    class ViewHolder(val binding: LayoutGroupParticipantBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutGroupParticipantBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val view = LayoutGroupParticipantBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
         return ViewHolder(view)
     }
 
@@ -30,11 +35,17 @@ class GroupParticipantsAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.binding.apply {
-            textViewDisplayName.text = participantList[position].displayName
-            textViewUserName.text = "@${participantList[position].userName}"
+            if (participantList[position].displayName.length > 20) {
+                val subStrDisplayName =
+                    participantList[position].displayName.substring(0, 20) + "..."
+                textViewDisplayName.text = subStrDisplayName
+            } else {
+                textViewDisplayName.text = participantList[position].displayName
+            }
 
+            textViewUserName.text = "@${participantList[position].userName}"
             if (participantList[position].role != "member") {
-                textViewHierarchy.text = participantList[position].role
+                textViewHierarchy.text = "Owner"
                 textViewHierarchy.visibility = View.VISIBLE
             }
 

@@ -86,7 +86,19 @@ class GroupProfileActivity : AppCompatActivity() {
             }
         }
     }
+    private var menuVisibilityStatus = false
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        Log.w("menu_visible 0",menu?.findItem(R.id.settingsIcon)?.isVisible.toString() + " " + menuVisibilityStatus.toString())
+        menu?.findItem(R.id.settingsIcon)?.isVisible = menuVisibilityStatus
+        Log.w("menu_visible 2",menu?.findItem(R.id.settingsIcon)?.isVisible.toString())
+        return super.onPrepareOptionsMenu(menu)
+    }
 
+    private fun menuVisibility(boolean: Boolean) {
+        Log.w("menu_visible",boolean.toString())
+        menuVisibilityStatus = boolean
+        invalidateOptionsMenu()
+    }
     private fun addParticipants(currentUserID: String) {
         if (participantList.any { participant -> participant.userID == currentUserID && participant.role != "member" }) {
             val participantStringArrayList = participantList.map { it.userID }
@@ -132,7 +144,7 @@ class GroupProfileActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.settingsIcon -> {
-                startActivity(Intent(this@GroupProfileActivity,GroupSettingsActivity::class.java))
+                startActivity(Intent(this@GroupProfileActivity, GroupSettingsActivity::class.java))
             }
 
             android.R.id.home -> {
@@ -176,11 +188,12 @@ class GroupProfileActivity : AppCompatActivity() {
 
     private fun updateGroupCreatedAt() {
         groupID?.let {
-            rtDB.getReference("groups/$groupID/metadata/createdAt").get()
+            rtDB.getReference("groups/$groupID/metadata").get()
                 .addOnSuccessListener { snapshot ->
-                    val time = snapshot.value as? Long ?: 0L
+                    val time = snapshot.child("createdAt").value as? Long ?: 0L
+                    val groupOwnerName = snapshot.child("groupOwner").value as? String ?: ""
                     val formattedTime = getRelativeTime(Timestamp((time / 1000), 0))
-                    binding.textViewCreatedOn.text = "Created by DisplayNameOwner on $formattedTime"
+                    binding.textViewCreatedOn.text = "Created by $groupOwnerName on $formattedTime"
                 }
         }
     }
@@ -237,10 +250,13 @@ class GroupProfileActivity : AppCompatActivity() {
                             "owner" -> {
                                 binding.frameLeaveGroup.visibility = View.GONE
                                 binding.frameDeleteGroup.visibility = View.VISIBLE
+                                menuVisibility(true)
                             }
 
                             "admin" -> {
-                                //delete group button will be Gone
+                                //delete group button will be GONE by default
+                                //leave group button will be VISIBLE by default
+                                menuVisibility(true)
                             }
 
                             else -> {
@@ -250,13 +266,9 @@ class GroupProfileActivity : AppCompatActivity() {
                         }
                     }
 
-                    Log.v(
-                        "userData",
-                        "userData.displayName : ${userData.displayName}, userData.role : ${userData.role}"
-                    )
+
                     when (userData.role) {
                         "owner" -> {
-                            Log.v("userData Insertion", "participantsHierarchyList.add : 0")
                             participantsHierarchyList.add(index = 0, userData)
                         }
 
@@ -264,10 +276,6 @@ class GroupProfileActivity : AppCompatActivity() {
                             if (userData.userID == currentUserID) {
                                 currentUserInParticipantList.add(userData)
                             } else {
-                                Log.v(
-                                    "userData Insertion",
-                                    "participantsHierarchyList.add : ${participantsHierarchyList.size}"
-                                )
                                 participantsHierarchyList.add(
                                     index = participantsHierarchyList.size,
                                     userData

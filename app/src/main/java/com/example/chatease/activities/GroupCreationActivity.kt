@@ -3,6 +3,7 @@ package com.example.chatease.activities
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -30,6 +31,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class GroupCreationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityGroupCreationBinding
@@ -37,15 +40,22 @@ class GroupCreationActivity : AppCompatActivity() {
     private var imageUri: Uri? = null // Uri for the selected image
     private lateinit var destinationUri: Uri
     private lateinit var bitmap: Bitmap // Bitmap representation of the image
-    private var compressedImageAsByteArray: ByteArray? = null // Compressed image as byte array for upload
+    private var compressedImageAsByteArray: ByteArray? =
+        null // Compressed image as byte array for upload
     private val rtDB = FirebaseDatabase.getInstance()
     private var isGroupCreationInProcess = false
     private val auth = FirebaseAuth.getInstance()
+    private var currentUserID: String = ""
 
     // Firebase Storage reference for storing images
     private val storage = FirebaseStorage.getInstance().reference
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val drawable = ContextCompat.getDrawable(
+            this@GroupCreationActivity,
+            R.drawable.vector_icon_single_tick
+        )
+        drawable?.setTint(Color.WHITE)
         super.onCreate(savedInstanceState)
         binding = ActivityGroupCreationBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -58,13 +68,13 @@ class GroupCreationActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowTitleEnabled(false)
-
-        val selectedParticipantsList = intent.getStringArrayListExtra("selectedParticipants") ?: arrayListOf<String>()
-
-        var selectedParticipantsMap = mapOf<String,Map<String,String>>()
+        val selectedParticipantsList =
+            intent.getStringArrayListExtra("selectedParticipants") ?: arrayListOf<String>()
+        var selectedParticipantsMap = mapOf<String, Map<String, String>>()
         auth.currentUser?.let { currentUser ->
             selectedParticipantsMap = selectedParticipantsList.associateWith {
-                if (it == currentUser.uid) {
+                currentUserID = currentUser.uid
+                if (it == currentUserID) {
                     mapOf(
                         "role" to "owner"
                     )
@@ -107,7 +117,11 @@ class GroupCreationActivity : AppCompatActivity() {
                 uploadImage(groupID = groupId, participantsMap = participantsMap)
             } else {
                 isGroupCreationInProcess = false
-                Toast.makeText(this@GroupCreationActivity, "Failed to generate Group ID, try again", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this@GroupCreationActivity,
+                    "Failed to generate Group ID, try again",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
@@ -120,7 +134,11 @@ class GroupCreationActivity : AppCompatActivity() {
                     .addOnSuccessListener { snapshot ->
                         imageRef.downloadUrl.addOnCompleteListener { urlTask ->
                             if (urlTask.isSuccessful) {
-                                uploadGroupData(groupID = groupID, iconURL = urlTask.result.toString(), participantsMap = participantsMap)
+                                uploadGroupData(
+                                    groupID = groupID,
+                                    iconURL = urlTask.result.toString(),
+                                    participantsMap = participantsMap
+                                )
                             } else {
                                 Toast.makeText(
                                     this@GroupCreationActivity,
@@ -128,17 +146,29 @@ class GroupCreationActivity : AppCompatActivity() {
                                     Toast.LENGTH_LONG
                                 )
                                     .show()
-                                uploadGroupData(groupID = groupID, iconURL = null, participantsMap = participantsMap)
+                                uploadGroupData(
+                                    groupID = groupID,
+                                    iconURL = null,
+                                    participantsMap = participantsMap
+                                )
                             }
                         }
                     }
             } else {
-                uploadGroupData(groupID = groupID, iconURL = null, participantsMap = participantsMap)
+                uploadGroupData(
+                    groupID = groupID,
+                    iconURL = null,
+                    participantsMap = participantsMap
+                )
             }
         }
     }
 
-    private fun uploadGroupData(groupID: String, iconURL: String?, participantsMap: Map<String, Map<String, String>>) {
+    private fun uploadGroupData(
+        groupID: String,
+        iconURL: String?,
+        participantsMap: Map<String, Map<String, String>>
+    ) {
         CoroutineScope(Dispatchers.IO).launch {
             val groupDesc = if (binding.groupDesc.text.toString().isEmpty()) {
                 null
@@ -152,11 +182,13 @@ class GroupCreationActivity : AppCompatActivity() {
                     "groupDesc" to groupDesc,
                     "createdAt" to ServerValue.TIMESTAMP,
                     "groupIcon" to iconURL,
+                    "groupOwner" to fetchCurrentUserDisplayName(),
                     "participants" to participantsMap
                 )
             )
                 .addOnSuccessListener {
-                    val intent = Intent(this@GroupCreationActivity, GroupChatActivity::class.java)
+                    val intent =
+                        Intent(this@GroupCreationActivity, GroupChatActivity::class.java)
                     intent.putExtra("groupID", groupID)
                     intent.putExtra("fromGroupCreation", true)
                     startActivity(intent)
@@ -164,7 +196,22 @@ class GroupCreationActivity : AppCompatActivity() {
                 }
                 .addOnFailureListener {
                     isGroupCreationInProcess = false
-                    Toast.makeText(this@GroupCreationActivity, "Failed to create the group, try again", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this@GroupCreationActivity,
+                        "Failed to create the group, try again",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+        }
+    }
+
+    //using suspend fun to stop the coroutine(uploadGroupData) and get the group owner name from firebase rtDB
+    private suspend fun fetchCurrentUserDisplayName(): String {
+        return suspendCoroutine { continuation ->
+            rtDB.getReference("users/$currentUserID/displayName").get()
+                .addOnSuccessListener { snapshot ->
+                    var currentUserDisplayName = snapshot.value as? String ?: ""
+                    continuation.resume(currentUserDisplayName)
                 }
         }
     }

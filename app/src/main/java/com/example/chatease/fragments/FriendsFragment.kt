@@ -54,24 +54,24 @@ class FriendsFragment : Fragment() {
         var addedBackground = false
         adapterDataObserver = object : AdapterDataObserver() {
             override fun onChanged() {
-                updateBackground()
+//                updateBackground()
             }
 
             override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
-                updateBackground()
+//                updateBackground()
             }
 
-            private fun updateBackground() {
-                val hasItems = adapter.itemCount > 0
-                if (hasItems && !addedBackground) {
-                    addedBackground = true
-                    binding.recyclerViewFriends.background =
-                        ContextCompat.getDrawable(requireContext(), R.drawable.card_view_design)
-                } else if (!hasItems) {
-                    addedBackground = false
-                    binding.recyclerViewFriends.background = null
-                }
-            }
+//            private fun updateBackground() {
+//                val hasItems = adapter.itemCount > 0
+//                if (hasItems && !addedBackground) {
+//                    addedBackground = true
+//                    binding.recyclerViewFriends.background =
+//                        ContextCompat.getDrawable(requireContext(), R.drawable.card_view_design)
+//                } else if (!hasItems) {
+//                    addedBackground = false
+//                    binding.recyclerViewFriends.background = null
+//                }
+//            }
         }
 
         adapter.registerAdapterDataObserver(adapterDataObserver)
