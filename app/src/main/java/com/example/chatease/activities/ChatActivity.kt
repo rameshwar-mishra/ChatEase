@@ -202,6 +202,12 @@ class ChatActivity : AppCompatActivity() {
                                     .load(snapshot.child("avatar").getValue(String::class.java))
                                     .placeholder(R.drawable.vector_default_user_avatar)
                                     .into(binding.roundedImageViewDisplayImage)
+                                if(!avatar.isNullOrEmpty()){
+                                    binding.roundedImageViewDisplayImage.setPadding(0,0,0,0)
+                                }
+                                else{
+                                    binding.roundedImageViewDisplayImage.setPadding(20,20,20,20)
+                                }
                             }
                         }
                     }

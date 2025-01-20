@@ -1,10 +1,8 @@
 package com.example.chatease.activities
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
@@ -23,6 +21,8 @@ class WelcomeActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityWelcomePageBinding.inflate(layoutInflater)
+        Thread.sleep(2000)
+//        installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge() // Make the layout span to Whole Screen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -45,6 +45,13 @@ class WelcomeActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
+//
+//        }
+//        else{
+//
+//        }
         if (auth.currentUser != null) {
             startActivity(Intent(this@WelcomeActivity, MainActivity::class.java))
             finish()

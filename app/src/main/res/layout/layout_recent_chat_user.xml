@@ -4,15 +4,14 @@
     android:id="@+id/recentChatUserLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    >
+    android:orientation="horizontal">
 
     <com.google.android.material.card.MaterialCardView
+        style="@style/CustomCardViewDesign"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        style="@style/CustomCardViewDesign"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -21,19 +20,29 @@
             android:layout_height="70dp"
             android:padding="5dp">
 
-            <com.makeramen.roundedimageview.RoundedImageView
-                android:id="@+id/userAvatar"
-                android:layout_width="46dp"
-                android:layout_height="46dp"
+            <FrameLayout
+                android:id="@+id/frameUserAvatar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="4dp"
-                android:scaleType="centerCrop"
-                android:src="@color/black"
+                android:background="@drawable/shape_group_icon"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.5"
-                app:riv_oval="true" />
+                app:layout_constraintVertical_bias="0.5">
+
+                <com.makeramen.roundedimageview.RoundedImageView
+                    android:id="@+id/userAvatar"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:padding="5dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/vector_default_user_avatar"
+                    app:riv_oval="true" />
+
+            </FrameLayout>
+
 
             <TextView
                 android:id="@+id/displayName"
@@ -43,7 +52,7 @@
                 android:layout_marginTop="4dp"
                 android:text="Goku"
                 android:textSize="19sp"
-                app:layout_constraintLeft_toRightOf="@id/userAvatar"
+                app:layout_constraintLeft_toRightOf="@id/frameUserAvatar"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -55,7 +64,7 @@
                 android:text="Last Message"
                 android:textColor="@color/secondaryText"
                 android:textSize="15sp"
-                app:layout_constraintLeft_toRightOf="@id/userAvatar"
+                app:layout_constraintLeft_toRightOf="@id/frameUserAvatar"
                 app:layout_constraintTop_toBottomOf="@id/displayName" />
 
             <TextView

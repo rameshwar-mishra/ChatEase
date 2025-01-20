@@ -1,6 +1,5 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -22,8 +21,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Group Profile"
                 android:fontFamily="sans-serif-black"
+                android:text="Group Profile"
                 android:textSize="@dimen/_16ssp" />
         </com.google.android.material.appbar.MaterialToolbar>
 
@@ -32,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.12" />
+            app:layout_constraintGuide_percent="0.1" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineVerticalStart"
@@ -52,9 +51,8 @@
             android:id="@+id/frameGroupInfo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/shape_group_profile"
-            android:padding="10dp"
             android:layout_marginTop="15dp"
+            android:padding="10dp"
             app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
             app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
             app:layout_constraintTop_toBottomOf="@id/guidelineHorizontalTop">
@@ -100,8 +98,8 @@
 
                 <FrameLayout
                     android:id="@+id/frameGroupIcon"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:background="@drawable/shape_group_icon"
                     app:layout_constraintBottom_toTopOf="@+id/textViewGroupName"
@@ -111,47 +109,15 @@
                     app:layout_constraintStart_toStartOf="@id/guidelineFrameStart"
                     app:layout_constraintTop_toTopOf="@id/guidelineFrameTop">
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <androidx.constraintlayout.widget.Guideline
-                            android:id="@+id/guidelineImageTop"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            app:layout_constraintGuide_percent="0.15" />
-
-                        <androidx.constraintlayout.widget.Guideline
-                            android:id="@+id/guidelineImageStart"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            app:layout_constraintGuide_percent="0.14" />
-
-                        <androidx.constraintlayout.widget.Guideline
-                            android:id="@+id/guidelineImageEnd"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            app:layout_constraintGuide_percent="0.86" />
-
-                        <com.makeramen.roundedimageview.RoundedImageView
-                            android:id="@+id/imageViewGroupIcon"
-                            android:layout_width="0dp"
-                            android:layout_height="0dp"
-                            android:layout_gravity="center"
-                            android:paddingTop="5dp"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/vector_icon_group"
-                            app:layout_constraintDimensionRatio="1:1"
-                            app:layout_constraintEnd_toEndOf="@id/guidelineImageEnd"
-                            app:layout_constraintHorizontal_bias="0.5"
-                            app:layout_constraintStart_toStartOf="@id/guidelineImageStart"
-                            app:layout_constraintTop_toTopOf="@id/guidelineImageTop"
-                            app:riv_oval="true" />
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                    <com.makeramen.roundedimageview.RoundedImageView
+                        android:id="@+id/imageViewGroupIcon"
+                        android:layout_width="@dimen/_75sdp"
+                        android:layout_height="@dimen/_75sdp"
+                        android:layout_gravity="center"
+                        android:padding="6dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/vector_icon_group"
+                        app:riv_oval="true" />
                 </FrameLayout>
 
                 <TextView

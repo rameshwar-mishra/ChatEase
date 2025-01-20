@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -71,10 +72,13 @@ class RecentChatAdapter(
                 .load(recentChatDataList[position].avatar)
                 .placeholder(R.drawable.vector_default_user_avatar)
                 .into(holder.binding.userAvatar)
+            if(!recentChatDataList[position].avatar.isNullOrEmpty()){
+                holder.binding.userAvatar.setPadding(0,0,0,0)
+            }
+            else{
+                holder.binding.userAvatar.setPadding(20,20,20,20)
+            }
 
-//            Picasso.get().load(recentChatDataList[position].avatar).into(holder.binding.userAvatar)
-
-            // Set click listener to open the chat activity with the selected user
             root.setOnClickListener {
                 val intent = Intent(context, ChatActivity::class.java)
                 intent.apply {

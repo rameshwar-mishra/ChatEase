@@ -106,9 +106,9 @@ class SignInActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     rtDB.getReference("users/${auth.currentUser!!.uid}")
                         .updateChildren(mapOf(
-                                "status" to "Online",
+                            "status" to "Online",
 //                                "lastHeartBeat" to FieldValue.serverTimestamp()
-                            )
+                        )
                         )
                         .addOnSuccessListener {
                             isLoading(false)
