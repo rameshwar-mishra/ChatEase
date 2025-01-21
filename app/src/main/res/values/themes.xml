@@ -23,12 +23,6 @@
         <item name="android:textColor">@color/white</item>
     </style>
     <!--  Custom Theme For Welcome Activity-->
-    <style name="Theme.ChatEase.WelcomeActivity" parent="Base.Theme.ChatEase">
-        <item name="android:statusBarColor">#020D1F</item>
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:navigationBarColor">#020D1F</item>
-        <item name="android:windowLightNavigationBar">true</item>
-    </style>
 
     <style name="bottomNavigationView" parent="Widget.Material3.BottomNavigationView">
         <item name="backgroundTint">#FBFBFB</item>
@@ -55,3 +49,11 @@
 
     <style name="Theme.ChatEase" parent="Base.Theme.ChatEase" />
 </resources>
+
+
+    <!--    <style name="Theme.ChatEase.WelcomeActivity" parent="Base.Theme.ChatEase">-->
+    <!--        <item name="android:statusBarColor">#020D1F</item>-->
+    <!--        <item name="android:windowLightStatusBar">true</item>-->
+    <!--        <item name="android:navigationBarColor">#020D1F</item>-->
+    <!--        <item name="android:windowLightNavigationBar">true</item>-->
+    <!--    </style>-->

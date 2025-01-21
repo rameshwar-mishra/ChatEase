@@ -88,5 +88,6 @@ dependencies {
     // Material UI Components
     implementation("com.google.android.material:material:1.9.0")
 
-
+    //For Implementing Splash Screen
+    implementation("androidx.core:core-splashscreen:1.0.1")
 }

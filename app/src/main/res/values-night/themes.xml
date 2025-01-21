@@ -3,7 +3,7 @@
     <style name="Base.Theme.ChatEase" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <item name="android:statusBarColor">#1A1823</item>
-<!--        <item name="android:statusBarColor">@color/accentColor</item>-->
+        <!--        <item name="android:statusBarColor">@color/accentColor</item>-->
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowBackground">#1A1823</item>
         <item name="itemBackground">@color/white</item>
@@ -15,6 +15,7 @@
         <item name="android:navigationBarColor">#1A1823</item>
         <item name="android:fontFamily">@font/roboto</item>
         <item name="materialButtonStyle">@style/MaterialButtonDesign</item>
+
     </style>
     <!--Material Button Default Style-->
     <style name="MaterialButtonDesign" parent="Widget.Material3.Button">
@@ -22,13 +23,7 @@
         <item name="android:background">@drawable/button_design</item>
         <item name="android:textColor">@color/white</item>
     </style>
-    <!--  Custom Theme For Welcome Activity-->
-    <style name="Theme.ChatEase.WelcomeActivity" parent="Base.Theme.ChatEase">
-        <item name="android:statusBarColor">#020D1F</item>
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:navigationBarColor">#020D1F</item>
-        <item name="android:windowLightNavigationBar">true</item>
-    </style>
+
     <!--Bottom Navigation Color-->
     <style name="bottomNavigationView" parent="Widget.Material3.BottomNavigationView">
         <item name="backgroundTint">#1A1823</item>
@@ -52,3 +47,11 @@
     </style>
 
 </resources>
+
+    <!--  Custom Theme For Welcome Activity-->
+    <!--    <style name="Theme.ChatEase.WelcomeActivity" parent="Base.Theme.ChatEase">-->
+    <!--        <item name="android:statusBarColor">#020D1F</item>-->
+    <!--        <item name="android:windowLightStatusBar">true</item>-->
+    <!--        <item name="android:navigationBarColor">#020D1F</item>-->
+    <!--        <item name="android:windowLightNavigationBar">true</item>-->
+    <!--    </style>-->

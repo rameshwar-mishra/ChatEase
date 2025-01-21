@@ -56,8 +56,8 @@
 
                     <com.makeramen.roundedimageview.RoundedImageView
                         android:id="@+id/userAvatar"
-                        android:layout_width="@dimen/_70sdp"
-                        android:layout_height="@dimen/_70sdp"
+                        android:layout_width="@dimen/_75sdp"
+                        android:layout_height="@dimen/_75sdp"
                         android:scaleType="centerCrop"
                         android:src="@color/black"
                         app:riv_oval="true" />

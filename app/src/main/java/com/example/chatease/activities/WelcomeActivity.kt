@@ -4,9 +4,12 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.Window
+import android.view.WindowManager
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -20,9 +23,8 @@ class WelcomeActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         binding = ActivityWelcomePageBinding.inflate(layoutInflater)
-        Thread.sleep(2000)
-//        installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge() // Make the layout span to Whole Screen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -31,7 +33,6 @@ class WelcomeActivity : AppCompatActivity() {
                 isAppearanceLightNavigationBars = false // Set the navigation bar icons to white
             }
         } else {
-//            setTheme(R.style.Theme_ChatEase_WelcomeActivity)
             //For API level Less than 30
             window.decorView.systemUiVisibility = window.decorView.systemUiVisibility and
                     View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()  // Remove the light status bar flag
@@ -46,12 +47,6 @@ class WelcomeActivity : AppCompatActivity() {
             insets
         }
 
-//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
-//
-//        }
-//        else{
-//
-//        }
         if (auth.currentUser != null) {
             startActivity(Intent(this@WelcomeActivity, MainActivity::class.java))
             finish()
