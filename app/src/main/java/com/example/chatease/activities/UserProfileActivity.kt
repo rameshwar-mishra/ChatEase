@@ -5,12 +5,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.example.chatease.R
 import com.example.chatease.databinding.ActivityUserProfileBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -21,6 +23,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -34,7 +39,8 @@ class UserProfileActivity : AppCompatActivity() {
     private lateinit var binding: ActivityUserProfileBinding // View binding for UserProfileActivity layout
     private var addFriendButtonStatus = ""
     override fun onCreate(savedInstanceState: Bundle?) {
-        binding = ActivityUserProfileBinding.inflate(layoutInflater) // Inflate the layout using view binding
+        binding =
+            ActivityUserProfileBinding.inflate(layoutInflater) // Inflate the layout using view binding
         super.onCreate(savedInstanceState)
         setContentView(binding.root) // Set the content view to the root of the binding
 
@@ -51,14 +57,19 @@ class UserProfileActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowTitleEnabled(false) // Disable the title to be visible in the toolbar
 
         otherUserId = intent.getStringExtra("id") ?: "" // Get the user ID from the intent extras
-        fromFriendsFragment = intent.getBooleanExtra("FromAnotherActivity", false) // Get the user ID from the intent extras
+        fromFriendsFragment = intent.getBooleanExtra(
+            "FromAnotherActivity",
+            false
+        ) // Get the user ID from the intent extras
 
-        // Fetch user data from Firestore using the user ID
+        // Fetch user data from Realtime Database using the user ID
 
         fetchOtherUserDetails() // To populate the user profile activity with its data
-
         val userFromChatActivity =
-            intent.getBooleanExtra("userFromChatActivity", false) // Check if user came from ChatActivity
+            intent.getBooleanExtra(
+                "userFromChatActivity",
+                false
+            ) // Check if user came from ChatActivity
 
         // If user came from ChatActivity, hide the message button
         if (userFromChatActivity) {
@@ -74,11 +85,24 @@ class UserProfileActivity : AppCompatActivity() {
         FirebaseAuth.getInstance().currentUser?.let { currentUser ->
             setAddFriendButton(currentUser.uid, otherUserId)
             addFriendStatusListener(currentUser.uid)
+            if (fromFriendsFragment && otherUserId == currentUser.uid) {
+                binding.messageUserButton.visibility = View.VISIBLE
+                binding.cardViewFriendRequest.visibility = View.INVISIBLE
+                val constraintSetChange = ConstraintSet()
+                constraintSetChange.clone(binding.constraintLayoutUserProfile)
+                constraintSetChange.clear(binding.textViewBioHeading.id, ConstraintSet.TOP)
+                constraintSetChange.connect(
+                    binding.textViewBioHeading.id,
+                    ConstraintSet.TOP,
+                    binding.messageUserButton.id,
+                    ConstraintSet.BOTTOM,
+                    10
+                )
+                constraintSetChange.applyTo(binding.constraintLayoutUserProfile)
+            }
+
         }
 
-        if (fromFriendsFragment) {
-            binding.messageUserButton.visibility = View.VISIBLE
-        }
 
         binding.messageUserButton.setOnClickListener {
             val intent = Intent(this@UserProfileActivity, ChatActivity::class.java)
@@ -102,7 +126,10 @@ class UserProfileActivity : AppCompatActivity() {
                         otherUserID = otherUserId
                     )
 
-                    "Friends" -> actionOnPressingTheFriendsButton(currentUserID = currentUser.uid, otherUserID = otherUserId)
+                    "Friends" -> actionOnPressingTheFriendsButton(
+                        currentUserID = currentUser.uid,
+                        otherUserID = otherUserId
+                    )
                 }
             }
         }
@@ -110,7 +137,10 @@ class UserProfileActivity : AppCompatActivity() {
         binding.friendRequestAcceptButton.setOnClickListener {
             FirebaseAuth.getInstance().currentUser?.let { currentUser ->
                 CoroutineScope(Dispatchers.IO).launch {
-                    whenUserAcceptsFriendRequest(currentUserID = currentUser.uid, otherUserID = otherUserId)
+                    whenUserAcceptsFriendRequest(
+                        currentUserID = currentUser.uid,
+                        otherUserID = otherUserId
+                    )
                 }
             }
         }
@@ -118,30 +148,38 @@ class UserProfileActivity : AppCompatActivity() {
         binding.friendRequestDeclineButton.setOnClickListener {
             FirebaseAuth.getInstance().currentUser?.let { currentUser ->
                 CoroutineScope(Dispatchers.IO).launch {
-                    whenUserDeclinesFriendRequest(currentUserID = currentUser.uid, otherUserID = otherUserId)
+                    whenUserDeclinesFriendRequest(
+                        currentUserID = currentUser.uid,
+                        otherUserID = otherUserId
+                    )
                 }
             }
         }
     }
 
-//    override fun onBackPressed() {
-//        super.onBackPressed()
-//        if (fromFriendsFragment) {
-//
-//        }
-//    }
 
     private fun fetchOtherUserDetails() {
         CoroutineScope(Dispatchers.IO).launch {
             rtDb.getReference("users").child(otherUserId).get().addOnCompleteListener { task ->
                 if (task.isSuccessful) { // Check if Firestore data retrieval was successful
-                    val userName = task.result.child("userName").getValue(String::class.java) ?: "" // Get
-                    var displayName = task.result.child("displayName").getValue(String::class.java) ?: ""
-                    val userAvatar = task.result.child("avatar").getValue(String::class.java) ?: "" // Get
-                    val userBio = task.result.child("userBio").getValue(String::class.java)?.ifEmpty {
-                        "Big talks or small talks, ChatEase handles it all."
-                    }
+                    val userName =
+                        task.result.child("userName").getValue(String::class.java) ?: "" // Get
+                    var displayName =
+                        task.result.child("displayName").getValue(String::class.java) ?: ""
+                    val userAvatar =
+                        task.result.child("avatar").getValue(String::class.java) ?: "" // Get
+                    val userBio =
+                        if (task.result.child("userBio").getValue(String::class.java)?.isNotEmpty() == true) {
+                            task.result.child("userBio").getValue(String::class.java)
+                        } else {
+                            "Big talks or small talks, ChatEase handles it all."
+                        }
 
+                    val userPresence =
+                        task.result.child("status").getValue(String::class.java) ?: "Offline"
+                    val userLastHeartBeat =
+                        task.result.child("lastHeartBeat").getValue(Long::class.java) ?: 0L
+                    val userLastSeen = getRelativeTime(Timestamp((userLastHeartBeat / 1000), 0))
                     CoroutineScope(Dispatchers.Main).launch {
                         // Load avatar image into ImageView using Glide, with a default placeholder
                         if (!isDestroyed && !isFinishing) {
@@ -153,8 +191,14 @@ class UserProfileActivity : AppCompatActivity() {
 
                         binding.userName.text = "@$userName" // Set username text in UI
                         binding.displayName.text = displayName // Set display name text in UI
-                        binding.textViewFriendRequestSender.text = "$displayName sent you a friend Request"
+                        binding.textViewFriendRequestSender.text =
+                            "$displayName sent you a friend Request"
                         binding.textViewBioText.text = userBio// Set user bio text in UI
+                        if (userPresence == "Online") {
+                            binding.textViewLastHeartBeat.text = "Online"
+                        } else {
+                            binding.textViewLastHeartBeat.text = "Last Seen $userLastSeen"
+                        }
                     }
                 }
             }
@@ -253,15 +297,28 @@ class UserProfileActivity : AppCompatActivity() {
                 dialog.cancel()
             }
             setPositiveButton("Yes") { _, _ ->
-                updateRequestAcceptedDB(currentUserID = currentUserID, otherUserID = otherUserID, value = null)
+                updateRequestAcceptedDB(
+                    currentUserID = currentUserID,
+                    otherUserID = otherUserID,
+                    value = null
+                )
             }
             show()
         }
     }
 
-    private fun updateRequestAcceptedDB(currentUserID: String, otherUserID: String, value: Boolean?) {
+    private fun updateRequestAcceptedDB(
+        currentUserID: String,
+        otherUserID: String,
+        value: Boolean?
+    ) {
         CoroutineScope(Dispatchers.IO).launch {
-            if (updateFriendFromOtherUserDB(currentUserID = currentUserID, otherUserID = otherUserID, value = value)) {
+            if (updateFriendFromOtherUserDB(
+                    currentUserID = currentUserID,
+                    otherUserID = otherUserID,
+                    value = value
+                )
+            ) {
                 val rtDB = FirebaseDatabase.getInstance()
                 if (value != null) {
                     rtDB.getReference("users/$currentUserID/friends/requestAccepted")
@@ -279,7 +336,11 @@ class UserProfileActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun updateFriendFromOtherUserDB(currentUserID: String, otherUserID: String, value: Boolean?): Boolean {
+    private suspend fun updateFriendFromOtherUserDB(
+        currentUserID: String,
+        otherUserID: String,
+        value: Boolean?
+    ): Boolean {
         return withContext(Dispatchers.IO) {
             suspendCancellableCoroutine { coroutine ->
                 val rtDB = FirebaseDatabase.getInstance()
@@ -324,7 +385,11 @@ class UserProfileActivity : AppCompatActivity() {
     }
 
     private fun whenUserAcceptsFriendRequest(currentUserID: String, otherUserID: String) {
-        updateRequestAcceptedDB(currentUserID = currentUserID, otherUserID = otherUserID, value = true)
+        updateRequestAcceptedDB(
+            currentUserID = currentUserID,
+            otherUserID = otherUserID,
+            value = true
+        )
         updateFriendRequest(
             currentUserID = currentUserID,
             otherUserID = otherUserID,
@@ -486,7 +551,11 @@ class UserProfileActivity : AppCompatActivity() {
         return checkIfUserExistInTheMap("requestAccepted", currentUserID, otherUserID)
     }
 
-    private suspend fun checkIfUserExistInTheMap(mapType: String, currentUserID: String, otherUserID: String): Boolean {
+    private suspend fun checkIfUserExistInTheMap(
+        mapType: String,
+        currentUserID: String,
+        otherUserID: String
+    ): Boolean {
         return withContext(Dispatchers.IO) {
             suspendCancellableCoroutine { coroutine ->
                 val rtDB = FirebaseDatabase.getInstance()
@@ -512,5 +581,33 @@ class UserProfileActivity : AppCompatActivity() {
         }
         setResult(RESULT_OK, intent) // Set result for the activity to pass back data
         finish() // Close the current activity
+    }
+
+    private fun getRelativeTime(timestamp: Timestamp): String {
+        // Create calendar instance from the timestamp
+        val calendar = Calendar.getInstance().apply { timeInMillis = timestamp.seconds * 1000 }
+        val today = Calendar.getInstance() // Get current date
+
+        // Formatters for time display
+        val dateFormatter = SimpleDateFormat("dd/MM", Locale.getDefault())
+        val dateFormatterYear = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val timeFormatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
+
+        return when {
+            calendar.get(Calendar.YEAR) != today.get(Calendar.YEAR) -> {
+                // Not in the current year
+                "on ${dateFormatterYear.format(calendar.time)}"
+            }
+
+            calendar.get(Calendar.DAY_OF_YEAR) != today.get(Calendar.DAY_OF_YEAR) -> {
+                // Earlier this year
+                "on ${dateFormatter.format(calendar.time)}"
+            }
+
+            else -> {
+                // Today
+                "at ${timeFormatter.format(calendar.time)}"
+            }
+        }
     }
 }

@@ -71,10 +71,12 @@ class RecentChatFragment : Fragment() {
         val currentFCMUserToken = requireContext().getSharedPreferences("CurrentUserMetaData", MODE_PRIVATE).getString(
             "FCMUserToken", null
         )
-
+        Log.d("token", currentFCMUserToken.toString())
         CoroutineScope(Dispatchers.IO).launch {
             FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+                    Log.w("token1", currentFCMUserToken.toString())
+                    Log.w("token1", task.result.toString())
                     if (currentFCMUserToken != task.result && task.result.isNotEmpty()) {
                         auth.currentUser?.let { currentUser ->
                             rtDB.getReference("users").child(currentUser.uid).updateChildren(

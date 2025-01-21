@@ -46,7 +46,7 @@ class FriendsUserAdapter(
         holder.binding.searchUserLinearLayout.setOnClickListener {
             val intent = Intent(context, UserProfileActivity::class.java)
             intent.apply {
-                putExtra("id", userData[position].userID)
+                putExtra("id", userData[holder.adapterPosition].userID)
                 putExtra("FromAnotherActivity", true)
             }
             context.startActivity(intent)

@@ -8,7 +8,7 @@
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_40sdp"
+        android:layout_height="wrap_content"
         app:strokeWidth="0dp"
         android:backgroundTint="@android:color/transparent">
 
@@ -18,7 +18,9 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:padding="5dp"
+                >
 
                 <com.makeramen.roundedimageview.RoundedImageView
                     android:id="@+id/roundedImageView"
@@ -37,7 +39,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="15dp"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginTop="2dp"
                     android:text="Display Name"
                     android:textSize="16sp"
                     android:fontFamily="sans-serif"
@@ -48,20 +50,23 @@
                     android:id="@+id/textViewHierarchy"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp"
                     android:layout_marginTop="6dp"
+                    android:layout_marginEnd="19dp"
+                    android:padding="4dp"
                     android:text="Owner"
+                    android:textColor="@color/textColors"
                     android:visibility="gone"
                     android:textSize="16sp"
                     android:fontFamily="sans-serif"
-                    app:layout_constraintStart_toEndOf="@+id/textViewDisplayName"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/textViewUserName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="17dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="3dp"
                     android:text="username"
                     android:textColor="#969393"
                     android:textSize="14sp"

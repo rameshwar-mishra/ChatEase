@@ -3,13 +3,16 @@ package com.example.chatease.activities
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,10 +23,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.example.chatease.R
-import com.example.chatease.databinding.ActivityGroupCreationBinding
-import com.google.firebase.auth.FirebaseAuth
+import com.example.chatease.databinding.ActivityGroupSettingsBinding
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ServerValue
 import com.google.firebase.storage.FirebaseStorage
 import com.yalantis.ucrop.UCrop
 import kotlinx.coroutines.CoroutineScope
@@ -31,134 +32,224 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
-class GroupCreationActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityGroupCreationBinding
-    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
+class GroupSettingsActivity : AppCompatActivity() {
+    lateinit var binding: ActivityGroupSettingsBinding
+    private val rtDB =
+        FirebaseDatabase.getInstance() // Firebase Realtime Database database reference
+    private val storage = FirebaseStorage.getInstance().reference // Firebase Storage reference
+    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent> // Activity result launcher for image picking
     private var imageUri: Uri? = null // Uri for the selected image
-    private lateinit var destinationUri: Uri
     private lateinit var bitmap: Bitmap // Bitmap representation of the image
     private var compressedImageAsByteArray: ByteArray? =
         null // Compressed image as byte array for upload
-    private val rtDB = FirebaseDatabase.getInstance()
-    private var isGroupCreationInProcess = false
-    private val auth = FirebaseAuth.getInstance()
-    private var currentUserID: String = ""
-
-    // Firebase Storage reference for storing images
-    private val storage = FirebaseStorage.getInstance().reference
+    private lateinit var destinationUri: Uri // Destination URI for cropped image
+    private var isGroupSettingDataGettingSaved = false
+    private var groupIcon: String? = ""
+    private var groupName: String = ""
+    private var groupDesc: String? = ""
+    private var groupId: String = ""
+    private var modifiedGroupName: Boolean = false
+    private var modifiedGroupDesc: Boolean = false
+    private var modifiedGroupIcon: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val drawable = ContextCompat.getDrawable(
-            this@GroupCreationActivity,
-            R.drawable.vector_icon_single_tick
-        )
-        drawable?.setTint(Color.WHITE)
         super.onCreate(savedInstanceState)
-        binding = ActivityGroupCreationBinding.inflate(layoutInflater)
+        registerActivityResultLauncher() // Registering activity result launcher for image picking
+        binding = ActivityGroupSettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
         setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowTitleEnabled(false)
-        val selectedParticipantsList =
-            intent.getStringArrayListExtra("selectedParticipants") ?: arrayListOf<String>()
-        var selectedParticipantsMap = mapOf<String, Map<String, String>>()
-        auth.currentUser?.let { currentUser ->
-            selectedParticipantsMap = selectedParticipantsList.associateWith {
-                currentUserID = currentUser.uid
-                if (it == currentUserID) {
-                    mapOf(
-                        "role" to "owner"
-                    )
-                } else {
-                    mapOf(
-                        "role" to "member"
-                    )
-                }
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        groupIcon = intent.getStringExtra("groupIcon") ?: ""
+        groupName = intent.getStringExtra("groupName") ?: ""
+        groupDesc = intent.getStringExtra("groupDesc") ?: ""
+        groupId = intent.getStringExtra("groupID") ?: ""
+        if (!groupIcon.isNullOrEmpty()) {
+            if (!isFinishing && !isDestroyed) {
+                Glide.with(this)
+                    .load(groupIcon)
+                    .placeholder(R.drawable.vector_icon_group)
+                    .into(binding.groupIcon)
             }
         }
 
-//        val userDataList = intent.getSerializableExtra("userDataList") as ArrayList<UserData>
+        binding.editTextGroupName.setText(groupName)
+        binding.editTextGroupDescription.setText(groupDesc)
 
-        destinationUri = Uri.fromFile(File(cacheDir, "temp_cropped_image.webp"))
-
-        registerActivityResultLauncher()
-
-        binding.frameGroupIcon.setOnClickListener {
-            chooseImage()
-        }
-        binding.floatingActionButtonCreateGroup.setOnClickListener {
-            if (!isGroupCreationInProcess) {
-                isGroupCreationInProcess = true
-                createGroup(participantsMap = selectedParticipantsMap)
-            }
+        binding.applyChangesButton.setOnClickListener {
+            editGroupData()
         }
     }
 
-    private fun createGroup(participantsMap: Map<String, Map<String, String>>) {
-        if (binding.groupName.text.isNullOrEmpty()) {
-            binding.groupName.error = "Need a group name"
-            binding.groupName.requestFocus()
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_edit_info, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    private var isEditButtonClicked = false
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+
+            R.id.editInfoIcon -> {
+                if (isEditButtonClicked) {
+                    elementsClickabilityToggler(false)
+                    isEditButtonClicked = false
+                } else {
+                    elementsClickabilityToggler(true)
+                    isEditButtonClicked = true
+                }
+                return true
+            }
+
+            android.R.id.home -> {
+                val intent = Intent()
+                if (modifiedGroupIcon) {
+                    intent.putExtra("modifiedGroupIcon", groupIcon)
+                }
+                if (modifiedGroupName) {
+                    intent.putExtra("modifiedGroupName", groupName)
+                }
+                if (modifiedGroupDesc) {
+                    intent.putExtra("modifiedGroupDesc", groupDesc)
+                }
+                setResult(RESULT_OK, intent)
+                finish()
+                return true
+            }
+
+            else -> return super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun elementsClickabilityToggler(state: Boolean) {
+        val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+
+        binding.editTextGroupName.apply {
+            isFocusable = state
+            isFocusableInTouchMode = state
+        }
+        binding.editTextGroupDescription.apply {
+            isFocusable = state
+            isFocusableInTouchMode = state
+        }
+
+        if (state) {
+            binding.editTextGroupName.requestFocus() // Request focus programmatically
+            inputMethodManager.showSoftInput(binding.editTextGroupName, InputMethodManager.SHOW_IMPLICIT) // Show the keyboard
+            binding.frameLayoutApplyButton.visibility = View.VISIBLE
+            binding.frameChangeAvatarIcon.visibility = View.VISIBLE
+
+            // Setting onClickListener for avatar frame to choose an image
+            binding.groupIcon.setOnClickListener {
+                chooseImage() // Call to choose image from gallery
+            }
+        } else {
+            binding.groupIcon.setOnClickListener(null)
+            binding.editTextGroupName.clearFocus()
+            binding.editTextGroupDescription.clearFocus()
+            inputMethodManager.hideSoftInputFromWindow(binding.editTextGroupName.windowToken, 0) // Hide the keyboard
+
+            binding.frameLayoutApplyButton.visibility = View.INVISIBLE
+            binding.frameChangeAvatarIcon.visibility = View.INVISIBLE
+
+            if (!isFinishing && !isDestroyed) {
+                Glide.with(this@GroupSettingsActivity)
+                    .load(groupIcon)
+                    .placeholder(R.drawable.vector_icon_group) // Placeholder image while loading
+                    .into(binding.groupIcon)
+            }
+            // Setting text fields with user data
+            binding.editTextGroupName.setText(groupName)
+            binding.editTextGroupDescription.setText(groupDesc)
+        }
+    }
+
+    private fun editGroupData() {
+        if (binding.editTextGroupName.text.isNullOrEmpty()) {
+            binding.editTextGroupName.error = "Need a group name"
+            binding.editTextGroupName.requestFocus()
             return
         } else {
             // Reference to the group collection
-            val groupRef = rtDB.getReference("groups")
             // Generating a new group ID
-            val groupId = groupRef.push().key // Firebase generates a random ID
-            if (groupId != null) {
-                uploadImage(groupID = groupId, participantsMap = participantsMap)
-            } else {
-                isGroupCreationInProcess = false
-                Toast.makeText(
-                    this@GroupCreationActivity,
-                    "Failed to generate Group ID, try again",
-                    Toast.LENGTH_LONG
-                ).show()
+
+            if (!isGroupSettingDataGettingSaved) {
+                isGroupSettingDataGettingSaved = true
+                applyingChanges(true)
+                if (groupId != null) {
+                    uploadImage(groupID = groupId)
+                } else {
+                    isGroupSettingDataGettingSaved = false
+                    Toast.makeText(
+                        this@GroupSettingsActivity,
+                        "Failed to generate Group ID, try again",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         }
     }
 
-    private fun uploadImage(groupID: String, participantsMap: Map<String, Map<String, String>>) {
+    private fun applyingChanges(buttonState: Boolean) {
+        if (buttonState) {
+            binding.applyChangesButton.visibility = ViewGroup.GONE
+            binding.applyButtonProgressBar.visibility = ViewGroup.VISIBLE
+        } else {
+            binding.applyChangesButton.visibility = ViewGroup.VISIBLE
+            binding.applyButtonProgressBar.visibility = ViewGroup.GONE
+        }
+    }
+
+    private fun uploadImage(groupID: String) {
         CoroutineScope(Dispatchers.IO).launch {
             if (compressedImageAsByteArray != null) {
                 val imageRef = storage.child("groupIcon/$groupID")
                 imageRef.putBytes(compressedImageAsByteArray!!)
-                    .addOnSuccessListener { snapshot ->
+                    .addOnSuccessListener {
                         imageRef.downloadUrl.addOnCompleteListener { urlTask ->
                             if (urlTask.isSuccessful) {
                                 uploadGroupData(
                                     groupID = groupID,
                                     iconURL = urlTask.result.toString(),
-                                    participantsMap = participantsMap
                                 )
                             } else {
                                 Toast.makeText(
-                                    this@GroupCreationActivity,
+                                    this@GroupSettingsActivity,
                                     "Failed to upload the image, using the default icon instead",
                                     Toast.LENGTH_LONG
-                                )
-                                    .show()
+                                ).show()
+
                                 uploadGroupData(
                                     groupID = groupID,
                                     iconURL = null,
-                                    participantsMap = participantsMap
                                 )
                             }
                         }
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(
+                            this@GroupSettingsActivity,
+                            "Failed to upload the image, using the default icon instead",
+                            Toast.LENGTH_LONG
+                        ).show()
+
+                        uploadGroupData(
+                            groupID = groupID,
+                            iconURL = null,
+                        )
                     }
             } else {
                 uploadGroupData(
                     groupID = groupID,
                     iconURL = null,
-                    participantsMap = participantsMap
                 )
             }
         }
@@ -167,51 +258,55 @@ class GroupCreationActivity : AppCompatActivity() {
     private fun uploadGroupData(
         groupID: String,
         iconURL: String?,
-        participantsMap: Map<String, Map<String, String>>
     ) {
         CoroutineScope(Dispatchers.IO).launch {
-            val groupDesc = if (binding.groupDesc.text.toString().isEmpty()) {
+            val groupDescption = binding.editTextGroupDescription.text.toString().ifEmpty {
                 null
-            } else {
-                binding.groupDesc.text.toString()
             }
 
-            rtDB.getReference("groups/${groupID}/metadata").setValue(
+            rtDB.getReference("groups/${groupID}/metadata").updateChildren(
                 mapOf(
-                    "groupName" to binding.groupName.text.toString(),
-                    "groupDesc" to groupDesc,
-                    "createdAt" to ServerValue.TIMESTAMP,
+                    "groupName" to binding.editTextGroupName.text.toString(),
+                    "groupDesc" to groupDescption,
                     "groupIcon" to iconURL,
-                    "groupOwner" to fetchCurrentUserDisplayName(),
-                    "participants" to participantsMap
                 )
             )
                 .addOnSuccessListener {
-                    val intent =
-                        Intent(this@GroupCreationActivity, GroupChatActivity::class.java)
-                    intent.putExtra("groupID", groupID)
-                    intent.putExtra("fromGroupCreation", true)
-                    startActivity(intent)
-                    finish()
-                }
-                .addOnFailureListener {
-                    isGroupCreationInProcess = false
+                    if (groupIcon != iconURL) {
+                        modifiedGroupIcon = true
+                        groupIcon = iconURL
+                    }
+
+                    if (groupName != binding.editTextGroupName.text.toString().trim()) {
+                        modifiedGroupName = true
+                        groupName = binding.editTextGroupName.text.toString().trim()
+                    }
+
+                    if (groupDesc != groupDescption) {
+                        modifiedGroupDesc = true
+                        groupDesc = groupDescption
+                    }
+
+                    applyingChanges(false)
+                    isGroupSettingDataGettingSaved = false
+
+                    elementsClickabilityToggler(false)
+                    isEditButtonClicked = false
+
                     Toast.makeText(
-                        this@GroupCreationActivity,
-                        "Failed to create the group, try again",
+                        this@GroupSettingsActivity,
+                        "Successfully saved the group data",
                         Toast.LENGTH_LONG
                     ).show()
                 }
-        }
-    }
-
-    //using suspend fun to stop the coroutine(uploadGroupData) and get the group owner name from firebase rtDB
-    private suspend fun fetchCurrentUserDisplayName(): String {
-        return suspendCoroutine { continuation ->
-            rtDB.getReference("users/$currentUserID/displayName").get()
-                .addOnSuccessListener { snapshot ->
-                    var currentUserDisplayName = snapshot.value as? String ?: ""
-                    continuation.resume(currentUserDisplayName)
+                .addOnFailureListener {
+                    applyingChanges(false)
+                    isGroupSettingDataGettingSaved = false
+                    Toast.makeText(
+                        this@GroupSettingsActivity,
+                        "Failed to saved the group data, try again",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
         }
     }
@@ -355,4 +450,5 @@ class GroupCreationActivity : AppCompatActivity() {
 
         return outputStream.toByteArray()
     }
+
 }

@@ -19,9 +19,14 @@
         android:theme="@style/Theme.ChatEase"
         tools:targetApi="31">
         <activity
+            android:name=".activities.GroupSettingsActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.GroupProfileActivity"
+            />
+        <activity
             android:name=".activities.GroupProfileActivity"
             android:exported="false"
-            android:parentActivityName=".activities.GroupChatActivity"/>
+            android:parentActivityName=".activities.GroupChatActivity" />
         <activity
             android:name=".activities.GroupChatActivity"
             android:exported="false"
@@ -58,7 +63,11 @@
         <activity
             android:name=".activities.Settings_AccountActivity"
             android:exported="false"
-            android:parentActivityName=".activities.MainActivity" />
+            android:parentActivityName=".activities.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity" />
+        </activity>
         <activity
             android:name=".activities.UpdatePasswordActivity"
             android:exported="false"

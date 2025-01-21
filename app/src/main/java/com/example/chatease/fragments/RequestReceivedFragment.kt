@@ -1,5 +1,6 @@
 package com.example.chatease.fragments
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -43,9 +44,9 @@ class RequestReceivedFragment : Fragment() {
         binding.recyclerViewReceived.layoutManager = LinearLayoutManager(requireContext())
 
         adapter = FrndRequestResponseAdapter(context = requireContext(), userDataList = userDataList, usage = "Received")
-
         binding.recyclerViewReceived.adapter = adapter
-
+        val drawable = ContextCompat.getDrawable(requireContext(),R.drawable.vector_icon_single_tick)
+        drawable?.setTint(Color.WHITE)
         var addedBackground = false
 
         adapterDataObserver = object : AdapterDataObserver() {

@@ -23,6 +23,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="Group Profile"
+                android:fontFamily="sans-serif-black"
                 android:textSize="@dimen/_16ssp" />
         </com.google.android.material.appbar.MaterialToolbar>
 
@@ -31,21 +32,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.11" />
+            app:layout_constraintGuide_percent="0.12" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineVerticalStart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.03" />
+            app:layout_constraintGuide_percent="0.04" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineVerticalEnd"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.97" />
+            app:layout_constraintGuide_percent="0.96" />
 
         <FrameLayout
             android:id="@+id/frameGroupInfo"
@@ -53,6 +54,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/shape_group_profile"
             android:padding="10dp"
+            android:layout_marginTop="15dp"
             app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
             app:layout_constraintStart_toStartOf="@id/guidelineVerticalStart"
             app:layout_constraintTop_toBottomOf="@id/guidelineHorizontalTop">
@@ -186,7 +188,7 @@
             android:id="@+id/textViewAboutGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="15dp"
             android:fontFamily="@font/roboto"
             android:text="About Group"
             android:textColor="@color/textColors"
@@ -198,7 +200,7 @@
             android:id="@+id/frameGroupBio"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="15dp"
             android:background="@drawable/shape_group_profile"
             android:padding="20dp"
             app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
@@ -217,7 +219,7 @@
             android:id="@+id/frameAddParticipants"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="15dp"
             android:background="@drawable/shape_group_profile"
             android:padding="20dp"
             app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
@@ -228,11 +230,11 @@
                 android:id="@+id/textVieAddParticipants"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableStart="@drawable/vector_icon_add"
+                android:drawableStart="@drawable/vector_icon_add_group_profile"
                 android:drawablePadding="10dp"
                 android:gravity="center_horizontal"
                 android:text="Add Participants"
-                android:textColor="@color/green"
+                android:textColor="#16B116"
                 android:textSize="@dimen/_13ssp" />
         </FrameLayout>
 
@@ -240,7 +242,7 @@
             android:id="@+id/textViewParticipantsCounter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="15dp"
             android:fontFamily="@font/roboto"
             android:text="Participants - 0"
             android:textColor="@color/textColors"
@@ -252,7 +254,7 @@
             android:id="@+id/frameRecyclerViewParticipantsList"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="15dp"
             android:background="@drawable/shape_group_profile"
             android:padding="5dp"
             app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
@@ -284,7 +286,7 @@
                 android:drawablePadding="10dp"
                 android:gravity="center_horizontal"
                 android:text="Leave Group"
-                android:textColor="@color/light_red"
+                android:textColor="#D81919"
                 android:textSize="@dimen/_13ssp" />
         </FrameLayout>
 

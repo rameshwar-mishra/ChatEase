@@ -55,7 +55,6 @@ class SignInActivity : AppCompatActivity() {
         }
     }
 
-
     private fun showToast(message: String) {
         Toast.makeText(this@SignInActivity, message, Toast.LENGTH_SHORT).show()
     }
@@ -66,7 +65,7 @@ class SignInActivity : AppCompatActivity() {
             isLoading(false)
             binding.editLayoutEmail.error = "Please fill the email field"
             return false
-        } else if (!Patterns.EMAIL_ADDRESS.matcher(binding.editTextEmail.text.toString()).matches()) {
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(binding.editTextEmail.text.toString().lowercase().trim()).matches()) {
             //if Email is not valid
             isLoading(false)
             binding.editLayoutEmail.error = "Not a valid email"
@@ -77,7 +76,7 @@ class SignInActivity : AppCompatActivity() {
             binding.editLayoutEmail.error = null
             binding.editLayoutPassword.error = "Please fill the password field"
             return false
-        } else if (binding.editTextPassword.text.toString().length < 6) {
+        } else if (binding.editTextPassword.text.toString().trim().length < 6) {
             //if password is less than 6 letters, forced by Firebase Authentication Service
             isLoading(false)
             binding.editLayoutEmail.error = null
@@ -100,7 +99,7 @@ class SignInActivity : AppCompatActivity() {
     private fun signIn() {
         //Trying to Authenticate the user by creating the id
         auth.signInWithEmailAndPassword(
-            binding.editTextEmail.text.toString().trim(),
+            binding.editTextEmail.text.toString().lowercase().trim(),
             binding.editTextPassword.text.toString().trim()
         )
             .addOnCompleteListener { task ->

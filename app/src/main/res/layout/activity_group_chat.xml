@@ -72,7 +72,6 @@
                     android:textSize="@dimen/_8ssp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/frameGroupIcon"
-                    app:layout_constraintTop_toBottomOf="@+id/textViewDisplayName"
                     app:layout_constraintVertical_bias="0.5" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </FrameLayout>
@@ -94,12 +93,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         tools:layout_editor_absoluteX="0dp"
         app:strokeWidth="0dp"
-        app:cardCornerRadius="0dp">
+        app:cardCornerRadius="0dp"
+        app:cardElevation="5dp"
+        style="@style/CustomCardViewDesign"
+        >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:background="@drawable/top_border_layout"
-            android:layout_height="match_parent">
+            >
 
             <EditText
                 android:id="@+id/editTextMessage"

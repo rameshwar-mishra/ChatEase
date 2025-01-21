@@ -45,7 +45,14 @@ class FrndRequestResponseAdapter(
 
     override fun onBindViewHolder(holder: UserDataViewHolder, position: Int) {
         holder.binding.apply {
-            displayName.text = userDataList[position].displayName
+            if(userDataList[position].displayName.length > 18){
+                val subStr = userDataList[position].displayName.substring(0,18) + "..."
+                displayName.text = subStr
+            }
+            else{
+                displayName.text = userDataList[position].displayName
+            }
+
             userName.text = "@${userDataList[position].userName}"
 
             Glide.with(context)

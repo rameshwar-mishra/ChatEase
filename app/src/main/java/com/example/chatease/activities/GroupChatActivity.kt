@@ -97,8 +97,8 @@ class GroupChatActivity : AppCompatActivity() {
 
         binding.toolbar.setOnClickListener {
             val intent = Intent(this@GroupChatActivity, GroupProfileActivity::class.java)
-            intent.putExtra("groupID",groupID)
-            startActivity(intent)
+            intent.putExtra("groupID", groupID)
+            startActivityForResult(intent, 4)
         }
 
 //        typingListener = object : ChildEventListener {
@@ -182,6 +182,22 @@ class GroupChatActivity : AppCompatActivity() {
             finish()
         }
         super.onBackPressed()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 4 && resultCode == RESULT_OK) {
+            val modifiedGroupIcon = data?.getStringExtra("modifiedGroupIcon")
+            val modifiedGroupName = data?.getStringExtra("modifiedGroupName")
+
+            binding.textViewGroupName.text = modifiedGroupName
+            if (!isFinishing && !isDestroyed) {
+                Glide.with(this)
+                    .load(modifiedGroupIcon)
+                    .placeholder(R.drawable.vector_icon_group)
+                    .into(binding.groupIcon)
+            }
+        }
     }
 
     private fun sendMessage(groupID: String, currentUserID: String) {

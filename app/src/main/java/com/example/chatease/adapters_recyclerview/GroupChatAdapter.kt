@@ -1,8 +1,11 @@
 package com.example.chatease.adapters_recyclerview
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chatease.databinding.LayoutGroupReceiverMessageBinding
 import com.example.chatease.databinding.LayoutSenderMessageBinding
@@ -82,6 +85,36 @@ class GroupChatAdapter(
             holder.binding.textViewTimeStamp.text = messageList[position].formattedTimestamp
         } else if (holder is ReceiverViewHolder) {
             // Bind data for receiver messages
+            //Checking to ensure that Timestamp is getting correctly constraint to right Textview Based on the length
+            if (messageList[position].senderName.length > messageList[position].content.length) {
+                val constraintLayoutReceiver = ConstraintSet()
+                constraintLayoutReceiver.clone(holder.binding.constraintLayoutGroupReceiver)
+                // Clear previous constraints for timestamp
+                constraintLayoutReceiver.clear(holder.binding.textViewTimeStamp.id, ConstraintSet.START)
+                // Align timestamp with the end of sender name
+                constraintLayoutReceiver.connect(
+                    holder.binding.textViewTimeStamp.id,
+                    ConstraintSet.START,
+                    holder.binding.textViewSenderName.id,
+                    ConstraintSet.END,
+                    8 // Add spacing between sender name and timestamp
+                )
+                constraintLayoutReceiver.applyTo(holder.binding.constraintLayoutGroupReceiver)
+            } else {
+                val constraintLayoutReceiver = ConstraintSet()
+                constraintLayoutReceiver.clone(holder.binding.constraintLayoutGroupReceiver)
+                // Clear previous constraints for timestamp
+                constraintLayoutReceiver.clear(holder.binding.textViewTimeStamp.id, ConstraintSet.START)
+                // Align timestamp with the end of the message
+                constraintLayoutReceiver.connect(
+                    holder.binding.textViewTimeStamp.id,
+                    ConstraintSet.START,
+                    holder.binding.textViewReceiverMessage.id,
+                    ConstraintSet.END,
+                    8 // Add spacing between message and timestamp
+                )
+                constraintLayoutReceiver.applyTo(holder.binding.constraintLayoutGroupReceiver)
+            }
             holder.binding.textViewSenderName.text = messageList[position].senderName
             holder.binding.textViewReceiverMessage.text = messageList[position].content
             holder.binding.textViewTimeStamp.text = messageList[position].formattedTimestamp

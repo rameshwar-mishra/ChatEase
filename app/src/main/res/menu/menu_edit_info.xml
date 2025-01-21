@@ -3,8 +3,8 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
 xmlns:android="http://schemas.android.com/apk/res/android">
 <item
-    android:id="@+id/settingsIcon"
-    android:icon="@drawable/vector_icon_sign_out"
-    android:title="Sign Out"
+    android:id="@+id/editInfoIcon"
+    android:icon="@drawable/vector_icon_edit_info"
+    android:title="Change Account Details"
     app:showAsAction="always" />
 </menu>

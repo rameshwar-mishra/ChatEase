@@ -96,7 +96,7 @@
         android:autoSizeTextType="uniform"
         android:fontFamily="@font/welcome_activity_heading_font"
         android:gravity="center"
-        android:text="Connect easily with your family and friends over countries!"
+        android:text="Connect easily with your friends and family over countries!"
         android:textColor="#D4D2D2"
         app:layout_constraintBottom_toTopOf="@id/guidelineHorizontalButtonTop"
         app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"

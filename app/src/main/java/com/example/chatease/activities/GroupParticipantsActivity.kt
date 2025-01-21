@@ -1,6 +1,7 @@
 package com.example.chatease.activities
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -37,7 +38,11 @@ class GroupParticipantsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityGroupParticipantsBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        val drawable = ContextCompat.getDrawable(
+            this@GroupParticipantsActivity,
+            R.drawable.vector_icon_forward_arrow
+        )
+        drawable?.setTint(Color.WHITE)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -46,14 +51,13 @@ class GroupParticipantsActivity : AppCompatActivity() {
 
         groupID = intent.getStringExtra("groupID")
         participantStringArrayList = intent.getStringArrayListExtra("participantStringArrayList")
-
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowTitleEnabled(false)
-
         binding.toolbar.setNavigationOnClickListener {
             if (participantStringArrayList != null) {
-                val intent = Intent(this@GroupParticipantsActivity, GroupProfileActivity::class.java)
+                val intent =
+                    Intent(this@GroupParticipantsActivity, GroupProfileActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 startActivity(intent)
                 finish()
@@ -65,7 +69,10 @@ class GroupParticipantsActivity : AppCompatActivity() {
             }
         }
 
-        adapter = SelectGroupParticipantsAdapter(context = this@GroupParticipantsActivity, userDataList = userDataList)
+        adapter = SelectGroupParticipantsAdapter(
+            context = this@GroupParticipantsActivity,
+            userDataList = userDataList
+        )
         binding.recyclerView.layoutManager = LinearLayoutManager(this@GroupParticipantsActivity)
         binding.recyclerView.adapter = adapter
 
@@ -79,7 +86,10 @@ class GroupParticipantsActivity : AppCompatActivity() {
                     binding.recyclerView.layoutParams = params
                     binding.textViewFriend.visibility = View.VISIBLE
                     binding.recyclerView.background =
-                        ContextCompat.getDrawable(this@GroupParticipantsActivity, R.drawable.shape_recyclerview_background)
+                        ContextCompat.getDrawable(
+                            this@GroupParticipantsActivity,
+                            R.drawable.shape_recyclerview_background
+                        )
                 }
             }
         }
@@ -91,7 +101,7 @@ class GroupParticipantsActivity : AppCompatActivity() {
 
         binding.floatingActionButtonNext.setOnClickListener {
 
-            if (adapter.getSelectedParticipantsSet().isNotEmpty()) {
+            if (adapter.getSelectedParticipantsSet().size > 1) {
 
                 if (participantStringArrayList != null) {
                     CoroutineScope(Dispatchers.IO).launch {
@@ -102,7 +112,8 @@ class GroupParticipantsActivity : AppCompatActivity() {
                                 participantsMap[participant] = true
                             }
 
-                            rtDB.getReference("groups/$groupId/metadata/participants").updateChildren(participantsMap)
+                            rtDB.getReference("groups/$groupId/metadata/participants")
+                                .updateChildren(participantsMap)
                                 .addOnSuccessListener {
 
                                     if (adapter.getSelectedParticipantsSet().size > 1) {
@@ -119,26 +130,45 @@ class GroupParticipantsActivity : AppCompatActivity() {
                                         ).show()
                                     }
 
-                                    val intent = Intent() // Create a new Intent for sending back data
+                                    val intent =
+                                        Intent() // Create a new Intent for sending back data
                                     intent.apply {
-                                        putExtra("updateParticipantList", true) // Add user ID to the intent
+                                        putExtra(
+                                            "updateParticipantList",
+                                            true
+                                        ) // Add user ID to the intent
                                     }
-                                    setResult(RESULT_OK, intent) // Set result for the activity to pass back data
+                                    setResult(
+                                        RESULT_OK,
+                                        intent
+                                    ) // Set result for the activity to pass back data
                                     finish() // Close the current activity
                                 }
                                 .addOnFailureListener {
-                                    Toast.makeText(this@GroupParticipantsActivity, "Something went wrong, please try again", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(
+                                        this@GroupParticipantsActivity,
+                                        "Something went wrong, please try again",
+                                        Toast.LENGTH_LONG
+                                    ).show()
                                 }
                         }
                     }
                 } else {
                     Log.v("participant", adapter.getSelectedParticipantsSet().toString())
-                    val intent = Intent(this@GroupParticipantsActivity, GroupCreationActivity::class.java)
-                    intent.putStringArrayListExtra("selectedParticipants", ArrayList(adapter.getSelectedParticipantsSet()))
+                    val intent =
+                        Intent(this@GroupParticipantsActivity, GroupCreationActivity::class.java)
+                    intent.putStringArrayListExtra(
+                        "selectedParticipants",
+                        ArrayList(adapter.getSelectedParticipantsSet())
+                    )
                     startActivity(intent)
                 }
             } else {
-                Toast.makeText(this@GroupParticipantsActivity, "You need to select atleast 1 participant", Toast.LENGTH_LONG)
+                Toast.makeText(
+                    this@GroupParticipantsActivity,
+                    "You need to select atleast 1 participant",
+                    Toast.LENGTH_LONG
+                )
                     .show()
             }
         }
@@ -189,20 +219,23 @@ class GroupParticipantsActivity : AppCompatActivity() {
                 .addOnSuccessListener { snapshot ->
                     if (snapshot.exists()) {
                         val userData = UserData(
-                            userName = snapshot.child("userName").getValue(String::class.java) ?: "",
-                            displayName = snapshot.child("displayName").getValue(String::class.java) ?: "",
+                            userName = snapshot.child("userName").getValue(String::class.java)
+                                ?: "",
+                            displayName = snapshot.child("displayName").getValue(String::class.java)
+                                ?: "",
                             userID = userID,
                             userAvatar = snapshot.child("avatar").getValue(String::class.java) ?: ""
                         )
 
-                        val insertIndex = userDataList.binarySearch { it.displayName.compareTo(userData.displayName) }
-                            .let { returnValue ->
-                                if (returnValue < 0) {
-                                    -returnValue - 1
-                                } else {
-                                    returnValue + 1
+                        val insertIndex =
+                            userDataList.binarySearch { it.displayName.compareTo(userData.displayName) }
+                                .let { returnValue ->
+                                    if (returnValue < 0) {
+                                        -returnValue - 1
+                                    } else {
+                                        returnValue + 1
+                                    }
                                 }
-                            }
 
                         userDataList.add(insertIndex, userData)
                         CoroutineScope(Dispatchers.Main).launch {
@@ -212,7 +245,10 @@ class GroupParticipantsActivity : AppCompatActivity() {
 
                                 if (userDataList.size > 0) {
                                     binding.recyclerView.background =
-                                        ContextCompat.getDrawable(this@GroupParticipantsActivity, R.drawable.card_view_design)
+                                        ContextCompat.getDrawable(
+                                            this@GroupParticipantsActivity,
+                                            R.drawable.card_view_design
+                                        )
                                     adapter.notifyDataSetChanged()
                                 }
                             }, 100L)

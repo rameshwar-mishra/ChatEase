@@ -10,6 +10,7 @@
     tools:context=".activities.UserProfileActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayoutUserProfile"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -35,12 +36,12 @@
 
         <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/userProfilePic"
-            android:layout_width="@dimen/_100sdp"
-            android:layout_height="@dimen/_100sdp"
-            android:layout_marginTop="32dp"
-            android:src="#8B4343"
+            android:layout_width="@dimen/_75sdp"
+            android:layout_height="@dimen/_75sdp"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/vector_default_user_avatar"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/userProfileActivityToolbar"
             app:riv_oval="true" />
@@ -49,7 +50,7 @@
             android:id="@+id/displayName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_12sdp"
+            android:layout_marginTop="5dp"
             android:text="DisplayName"
             android:textSize="@dimen/_15ssp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -59,23 +60,23 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/messageUserButton"
-            android:layout_width="@dimen/_100sdp"
+            android:layout_width="@dimen/_120sdp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="15dp"
             android:text="Message"
             android:textAllCaps="false"
             android:visibility="gone"
             app:layout_constraintEnd_toStartOf="@+id/addFriendButton"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/userName" />
+            app:layout_constraintTop_toBottomOf="@+id/textViewLastHeartBeat" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/addFriendButton"
-            android:layout_width="@dimen/_100sdp"
+            android:layout_width="@dimen/_120sdp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Add Friend"
+            android:layout_marginTop="15dp"
+            android:text="Request Sent"
             android:textAllCaps="false"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
@@ -89,7 +90,7 @@
             android:layout_height="wrap_content"
             android:text="username"
             android:textColor="@color/secondaryText"
-            android:textSize="@dimen/_12ssp"
+            android:textSize="@dimen/_10ssp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
@@ -99,7 +100,7 @@
             android:id="@+id/textViewLastHeartBeat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_18sdp"
+            android:layout_marginTop="20dp"
             android:gravity="center"
             android:text="Last Seen at 10:03"
             android:textSize="@dimen/_10ssp"
@@ -113,20 +114,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="17dp"
             android:layout_marginEnd="20dp"
             android:visibility="gone"
-            app:cardBackgroundColor="@color/cardViewColor"
             app:cardCornerRadius="10dp"
+            app:cardElevation="3dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/addFriendButton"
             app:strokeColor="@color/toolbarBorderColor"
-            app:strokeWidth="3dp">
+           >
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="@dimen/_5sdp">
+                android:padding="@dimen/_8sdp"
+                android:background="@drawable/card_view_design"
+                >
 
                 <TextView
                     android:id="@+id/textViewFriendRequestSender"
@@ -145,7 +148,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/_13sdp"
                     android:layout_marginTop="10dp"
-                    android:backgroundTint="#9EFA9A17"
                     android:text="Accept"
                     android:textColor="@color/white"
                     android:textSize="@dimen/_10ssp"
@@ -173,10 +175,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="30dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="15dp"
             android:layout_marginBottom="5dp"
             android:text="Bio"
             android:textSize="19dp"
+            android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@id/cardViewBio"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/cardViewFriendRequest" />
@@ -186,31 +189,36 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="15dp"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="10dp"
-            android:backgroundTint="@color/cardViewColor"
-            app:cardCornerRadius="10dp"
+            android:background="@drawable/card_view_design"
+            app:cardElevation="3dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textViewBioHeading"
             app:strokeColor="@color/toolbarBorderColor"
-            app:strokeWidth="3dp"
             tools:ignore="UnusedAttribute">
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/card_view_design"
+                >
+                <TextView
+                    android:id="@+id/textViewBioText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:layout_marginTop="@dimen/_15sdp"
+                    android:layout_marginBottom="@dimen/_15sdp"
+                    android:text="Big talks or small talks, ChatEase handles it all"
+                    android:textSize="@dimen/_12ssp"
+                    tools:layout_editor_absoluteX="35dp"
+                    tools:layout_editor_absoluteY="292dp" />
+            </FrameLayout>
 
-            <TextView
-                android:id="@+id/textViewBioText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:layout_marginTop="@dimen/_15sdp"
-                android:layout_marginBottom="@dimen/_15sdp"
-                android:text="Big talks or small talks, ChatEase handles it all."
-                android:textSize="@dimen/_12ssp"
-                tools:layout_editor_absoluteX="35dp"
-                tools:layout_editor_absoluteY="292dp" />
         </com.google.android.material.card.MaterialCardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

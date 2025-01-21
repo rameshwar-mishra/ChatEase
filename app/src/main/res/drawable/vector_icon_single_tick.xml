@@ -2,12 +2,13 @@
     xmlns:aapt="http://schemas.android.com/aapt"
     android:width="24dp"
     android:height="24dp"
+    android:tint="@color/textColors"
     android:viewportWidth="24"
     android:viewportHeight="24">
     <path
         android:pathData="M6 13l3 3 9 -9.5"
         android:strokeWidth="1.4"
-        android:strokeColor="?attr/itemBackground"
+        android:strokeColor="@color/textColors"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
 </vector>

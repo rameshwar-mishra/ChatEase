@@ -53,7 +53,11 @@ class SearchUserAdapter(
             UserProfileViewHolder(view)
         } else {
             // Inflate layout for "No Match Found" message if no results were found
-            val view = LayoutSearchContentNotFoundBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            val view = LayoutSearchContentNotFoundBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
             UserNotFoundHolder(view)
         }
     }
@@ -84,7 +88,13 @@ class SearchUserAdapter(
             // If holder is UserProfileViewHolder, bind user data
             // Load profile image
             holder.binding.textViewUserName.text = "@${userData[position].userName}"
-            holder.binding.textViewDisplayName.text = userData[position].displayName
+            if (userData[position].displayName.length > 20) {
+                val subStr = userData[position].displayName.substring(0, 20) + "..."
+                holder.binding.textViewDisplayName.text = subStr
+            } else {
+                holder.binding.textViewDisplayName.text = userData[position].displayName
+            }
+
 
             Glide.with(context)
                 .load(userData[position].userAvatar)

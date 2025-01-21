@@ -2,6 +2,9 @@ package com.example.chatease.fragments
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -44,31 +47,31 @@ class FriendsFragment : Fragment() {
         val toolbar = binding.toolbar
         (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
         (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
-
+        Log.w("friendsList",userDataList.toString())
         adapter = FriendsUserAdapter(context = requireContext(), userData = userDataList)
         binding.recyclerViewFriends.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewFriends.adapter = adapter
         var addedBackground = false
         adapterDataObserver = object : AdapterDataObserver() {
-            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                updateBackground()
+            override fun onChanged() {
+//                updateBackground()
             }
 
             override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
-                updateBackground()
+//                updateBackground()
             }
 
-            private fun updateBackground() {
-                val hasItems = adapter.itemCount > 0
-                if (hasItems && !addedBackground) {
-                    addedBackground = true
-                    binding.recyclerViewFriends.background =
-                        ContextCompat.getDrawable(requireContext(), R.drawable.card_view_design)
-                } else if (!hasItems) {
-                    addedBackground = false
-                    binding.recyclerViewFriends.background = null
-                }
-            }
+//            private fun updateBackground() {
+//                val hasItems = adapter.itemCount > 0
+//                if (hasItems && !addedBackground) {
+//                    addedBackground = true
+//                    binding.recyclerViewFriends.background =
+//                        ContextCompat.getDrawable(requireContext(), R.drawable.card_view_design)
+//                } else if (!hasItems) {
+//                    addedBackground = false
+//                    binding.recyclerViewFriends.background = null
+//                }
+//            }
         }
 
         adapter.registerAdapterDataObserver(adapterDataObserver)
@@ -151,7 +154,7 @@ class FriendsFragment : Fragment() {
             }
         }
     }
-
+    private val delayHandler = Handler(Looper.getMainLooper())
     private fun fetchUserProfileData(userID: String) {
         rtDB.getReference("users/$userID").get().addOnSuccessListener { snapshot ->
             val userProfile = UserData(
@@ -172,9 +175,16 @@ class FriendsFragment : Fragment() {
 
             userDataList.add(insertIndex, userProfile)
             userIdSet.add(userID)
-            binding.textViewFriendsCounter.visibility = View.VISIBLE
-            binding.textViewFriendsCounter.text = "All Friends - ${userDataList.size}"
-            adapter.notifyItemInserted(insertIndex)
+            delayHandler.removeCallbacksAndMessages(null)
+            delayHandler.postDelayed({
+                CoroutineScope(Dispatchers.Main).launch {
+                    binding.textViewFriendsCounter.visibility = View.VISIBLE
+                    binding.textViewFriendsCounter.text = "All Friends - ${userDataList.size}"
+                    adapter.notifyDataSetChanged()
+                }
+            },500L)
+
+
         }
     }
 }

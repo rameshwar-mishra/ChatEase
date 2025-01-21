@@ -20,7 +20,7 @@
 
 
         <FrameLayout
-            android:layout_width="250dp"
+            android:layout_width="match_parent"
             android:id="@+id/frameUserProfile"
             android:layout_height="match_parent">
 
@@ -49,6 +49,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="9dp"
+                    android:maxLength="27"
                     android:text="Display Name"
                     android:textSize="@dimen/_14ssp"
                     app:layout_constraintBottom_toTopOf="@+id/textViewUserPresenceStatus"
@@ -87,6 +88,7 @@
     </androidx.appcompat.widget.Toolbar>
 
 
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewCurrentChat"
         android:layout_width="match_parent"
@@ -105,6 +107,7 @@
         tools:layout_editor_absoluteX="0dp"
         app:strokeWidth="0dp"
         app:cardCornerRadius="0dp"
+        app:cardElevation="5dp"
         >
 
         <androidx.constraintlayout.widget.ConstraintLayout

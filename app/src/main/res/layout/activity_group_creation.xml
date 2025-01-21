@@ -56,6 +56,21 @@
                     android:scaleType="centerCrop"
                     android:src="@drawable/vector_icon_group"
                     app:riv_oval="true" />
+                <FrameLayout
+                    android:id="@+id/frameChangeAvatarIcon"
+                    android:layout_width="@dimen/_20sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:layout_gravity="bottom|end"
+                    android:background="@drawable/shape_circle"
+                    android:padding="4dp">
+
+                    <com.makeramen.roundedimageview.RoundedImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/vector_icon_change_avatar"
+                        app:riv_oval="true" />
+                </FrameLayout>
             </FrameLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -104,14 +119,18 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <ImageView
         android:id="@+id/floatingActionButtonCreateGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/_15sdp"
-        android:contentDescription="next"
-        android:src="@drawable/vector_icon_single_tick"
+        android:layout_marginEnd="@dimen/_15sdp"
+        android:layout_marginBottom="@dimen/_15sdp"
+        android:clickable="true"
+        android:padding="13dp"
+        android:scaleType="centerInside"
+        android:background="@drawable/shape_floating_button"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:src="@drawable/vector_icon_single_tick"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
