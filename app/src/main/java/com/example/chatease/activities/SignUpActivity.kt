@@ -85,9 +85,9 @@ class SignUpActivity : AppCompatActivity() {
         registerActivityResultLauncher()
         binding.editTextUserName.setOnFocusChangeListener { v, hasFocus ->
             if (!hasFocus) {
-                if (binding.editTextUserName.text.isNotEmpty()) {
+                if (binding.editTextUserName.text!!.isNotEmpty()) {
                     if (!binding.editTextUserName.text.toString().matches(Regex("^[a-z0-9._]+$"))) {
-                        binding.editLayoutUserName.error = "Username only contains a-z,0-9, . and _"
+                        binding.editLayoutUserName.error = "Username only contains a-z (lowercase),0 - 9, . and _"
                     } else {
                         isUsernameUnique(binding.editTextUserName.text.toString().trim()) { task ->
                             if (!task) {
@@ -277,13 +277,11 @@ class SignUpActivity : AppCompatActivity() {
                         .into(binding.avatar) // Set the image to avatar view
 
                     // Hide the "Add Image" text
-                    binding.avatarAddImageText.visibility = View.GONE
+                    binding.defaultImageViewIcon.visibility = View.INVISIBLE
                 }
             }
         } else if (resultCode == UCrop.RESULT_ERROR) {
             showToast("Cropping failed, Choose any other image")
-//            val cropError = UCrop.getError(data!!)
-//            Log.e("UCrop Error", "Cropping failed: ${cropError?.message}")
         }
     }
 
@@ -311,7 +309,7 @@ class SignUpActivity : AppCompatActivity() {
             isLoading(false)
             binding.editLayoutEmail.error = "Please fill the email field"
             return false
-        } else if (!Patterns.EMAIL_ADDRESS.matcher(binding.editTextEmail.text.toString())
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(binding.editTextEmail.text.toString().lowercase().trim())
                 .matches()
         ) {
             //if Email is not valid
@@ -358,13 +356,12 @@ class SignUpActivity : AppCompatActivity() {
             binding.progressBar.visibility = View.INVISIBLE
             binding.buttonSignUp.visibility = View.VISIBLE
         }
-
     }
 
     private fun signUp() {
         //Trying to Authenticate the user by creating the id
         auth.createUserWithEmailAndPassword(
-            binding.editTextEmail.text.toString().trim(),
+            binding.editTextEmail.text.toString().lowercase().trim(),
             binding.editTextPassword.text.toString().trim()
         )
             .addOnCompleteListener { authTask ->
@@ -387,7 +384,8 @@ class SignUpActivity : AppCompatActivity() {
                                                 "avatar" to urlTask.result.toString(),
                                                 "typing" to false,
                                                 "status" to "Offline",
-                                                "lastHeartBeat" to ""
+                                                "lastHeartBeat" to "",
+                                                "lastSeenAndOnlineSetting" to true
                                             )
 
                                             //Trying to store the userdata in the Firebase Firestore
@@ -433,11 +431,12 @@ class SignUpActivity : AppCompatActivity() {
                         val userDetails = hashMapOf(
                             "userName" to binding.editTextUserName.text.toString(),
                             "displayName" to binding.editTextDisplayName.text.toString(),
-                            "email" to binding.editTextEmail.text.toString(),
+                            "email" to binding.editTextEmail.text.toString().lowercase().trim(),
                             "avatar" to "",
                             "typing" to false,
                             "status" to "offline",
-                            "lastHeartBeat" to ""
+                            "lastHeartBeat" to "",
+                            "lastSeenAndOnlineSetting" to true
                         )
 
                         //Trying to store the userdata in the Firebase Firestore
@@ -459,11 +458,7 @@ class SignUpActivity : AppCompatActivity() {
                                 } else {
                                     isLoading(false)
                                     showToast("Failed to save user data")
-<<<<<<< HEAD
                                     Log.e("SignUpError", databaseTask.exception.toString())
-=======
-                                    Log.d("SignUpError", databaseTask.exception.toString())
->>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
                                 }
                             }
                     }

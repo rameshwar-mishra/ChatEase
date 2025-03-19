@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" /> <!-- For accessing storage in API 29 and below -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- For accessing images from storage in API 33 and above -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".trackers.AppStatusTracker"
@@ -18,14 +19,63 @@
         android:theme="@style/Theme.ChatEase"
         tools:targetApi="31">
         <activity
+            android:name=".activities.GroupSettingsActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.GroupProfileActivity"
+            />
+        <activity
+            android:name=".activities.GroupProfileActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.GroupChatActivity" />
+        <activity
+            android:name=".activities.GroupChatActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity
+            android:name=".activities.GroupCreationActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.GroupParticipantsActivity" />
+        <activity
+            android:name=".activities.GroupParticipantsActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity
+            android:name=".activities.WelcomeActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activities.FriendRequestsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.Settings_PrivacyActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity
+            android:name=".activities.Settings_ChatActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity
+            android:name=".activities.Settings_AccountActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity" />
+        </activity>
+        <activity
             android:name=".activities.UpdatePasswordActivity"
             android:exported="false"
-            android:parentActivityName=".activities.SettingsActivity"/>
+            android:parentActivityName=".activities.Settings_AccountActivity" />
         <activity
             android:name=".activities.ForgetPasswordActivity"
             android:exported="false"
-            android:parentActivityName=".activities.SignInActivity"
-            />
+            android:parentActivityName=".activities.SignInActivity" />
         <activity
             android:name=".activities.UserProfileActivity"
             android:exported="false" />
@@ -33,10 +83,6 @@
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity
-            android:name=".activities.SettingsActivity"
-            android:exported="false"
-            android:parentActivityName=".activities.MainActivity" />
         <activity
             android:name=".activities.ChatActivity"
             android:exported="false"
@@ -49,21 +95,38 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activities.MainActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleTask" />
         <activity
             android:name=".activities.SignUpActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activities.SignInActivity"
-            android:exported="true"
-            android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
+        <service
+            android:name=".trackers.NotificationService"
+            android:enabled="true"
+            android:exported="false" />
+        <service
+            android:name=".trackers.FCMMessageService"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </activity>
+        </service>
+
+        <receiver
+            android:name=".trackers.NotificationClearReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 
 </manifest>

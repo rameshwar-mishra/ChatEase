@@ -12,10 +12,6 @@ import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 
 class UpdatePasswordActivity : AppCompatActivity() {
-<<<<<<< HEAD
-=======
-    val auth = FirebaseAuth.getInstance()
->>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
     lateinit var binding: ActivityUpdatePasswordBinding
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -30,7 +26,7 @@ class UpdatePasswordActivity : AppCompatActivity() {
         val toolbar = binding.updatePasswordActivityToolbar
         setSupportActionBar(toolbar) // Set custom toolbar
         supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enable back button on toolbar
-        supportActionBar?.title = ""
+        supportActionBar?.setDisplayShowTitleEnabled(false)
         val user = FirebaseAuth.getInstance().currentUser
         binding.submitButton.setOnClickListener {
             binding.submitButton.visibility = View.INVISIBLE
@@ -42,11 +38,7 @@ class UpdatePasswordActivity : AppCompatActivity() {
                 if (binding.currentPassword.text.toString().length >= 6
                     && binding.newPassword.text.toString().length >= 6
                 ) {
-<<<<<<< HEAD
                     //Getting User Email from EmailAuthProvider and current Password By User
-=======
-//Getting User Email from EmailAuthProvider and current Password By User
->>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
                     val userDetails = EmailAuthProvider.getCredential(
                         user?.email!!,
                         binding.currentPassword.text.toString()
@@ -86,12 +78,7 @@ class UpdatePasswordActivity : AppCompatActivity() {
                     if (binding.currentPassword.text.toString().length <= 6) {
                         binding.currentPasswordLayout.error =
                             "Password should contain atleast 6 letters"
-<<<<<<< HEAD
                     } else if (binding.newPassword.text.toString().length <= 6) {
-=======
-                    }
-                    else if (binding.newPassword.text.toString().length <= 6) {
->>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
                         binding.currentPassword.error = null
                         binding.newPasswordLayout.error = "Password should contain atleast 6 letters"
                     }
@@ -102,14 +89,8 @@ class UpdatePasswordActivity : AppCompatActivity() {
             } else {
                 if (binding.currentPassword.text.toString().isEmpty()) {
                     binding.currentPasswordLayout.error = "Cannot Be Empty"
-<<<<<<< HEAD
                 } else if (binding.newPassword.text.toString().isEmpty()) {
                     binding.currentPassword.error = null
-=======
-                }
-               else if (binding.newPassword.text.toString().isEmpty()) {
-                   binding.currentPassword.error = null
->>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
                     binding.newPasswordLayout.error = "Cannot Be Empty"
                 }
                 binding.progressBar.visibility = View.GONE

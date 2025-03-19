@@ -1,10 +1,14 @@
 package com.example.chatease.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
+import android.view.View
 import android.widget.Toast
+import android.window.OnBackInvokedDispatcher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.chatease.R
 import com.example.chatease.databinding.ActivityForgetPasswordBinding
@@ -22,25 +26,27 @@ class ForgetPasswordActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        val toolbar = binding.forgetPasswordToolbar
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
         binding.forgetPasswordButton.setOnClickListener {
+            binding.progressBar.visibility = View.VISIBLE
+            binding.forgetPasswordButton.visibility = View.INVISIBLE
             if (binding.textInputEmail.text.toString().trim() != null) {
                 if(Patterns.EMAIL_ADDRESS.matcher(binding.textInputEmail.text.toString()).matches()){
                     forgotPassword()
                 }
                 else{
                     binding.textInputLayoutEmail.error = "Enter Valid Email"
+                    binding.progressBar.visibility = View.GONE
+                    binding.forgetPasswordButton.visibility = View.VISIBLE
                 }
-<<<<<<< HEAD
             }
         }
-=======
-
-            }
 
 
-        }
-
->>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
     }
 
     private fun forgotPassword() {
@@ -48,7 +54,8 @@ class ForgetPasswordActivity : AppCompatActivity() {
             .addOnCompleteListener { task ->
 
                 if (task.isSuccessful) {
-
+                    binding.progressBar.visibility = View.INVISIBLE
+                    binding.forgetPasswordButton.visibility = View.VISIBLE
                     Toast.makeText(
                         this,
                         "Successfully Sent Password Reset Mail",
@@ -61,4 +68,3 @@ class ForgetPasswordActivity : AppCompatActivity() {
             }
     }
 }
-

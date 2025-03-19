@@ -11,27 +11,15 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.chatease.R
 import com.example.chatease.databinding.ActivitySignInBinding
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
-<<<<<<< HEAD
 
 class SignInActivity : AppCompatActivity() {
     lateinit var binding: ActivitySignInBinding
     private val auth = FirebaseAuth.getInstance()
-=======
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.firestore
-
-class SignInActivity : AppCompatActivity() {
-    lateinit var binding: ActivitySignInBinding
-    val auth = FirebaseAuth.getInstance()
-    val db = Firebase.firestore
->>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
     private val rtDB = FirebaseDatabase.getInstance()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
         binding = ActivitySignInBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -46,11 +34,6 @@ class SignInActivity : AppCompatActivity() {
 
         //Checking if the user is already logged in AND is not coming from the SignUpActivity
         //Open the MainActivity and close the SignInActivity
-        if (auth.currentUser != null && !fromSignUp) {
-            startActivity(Intent(this@SignInActivity, MainActivity::class.java))
-            finish()
-        }
-
         //SignIn Button
         binding.buttonSignIn.setOnClickListener {
             isLoading(true)
@@ -60,18 +43,17 @@ class SignInActivity : AppCompatActivity() {
             signIn()
         }
 
+        binding.textViewForgetPassword.setOnClickListener {
+            startActivity(Intent(this,ForgetPasswordActivity::class.java))
+        }
+
         //A textView of "Don't have an Account? Sign Up" using as a Button
         binding.textViewSignUp.setOnClickListener {
-<<<<<<< HEAD
-=======
-            Log.d("test", "test")
->>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
             val intent = Intent(this@SignInActivity, SignUpActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
             startActivity(intent)
         }
     }
-
 
     private fun showToast(message: String) {
         Toast.makeText(this@SignInActivity, message, Toast.LENGTH_SHORT).show()
@@ -83,7 +65,7 @@ class SignInActivity : AppCompatActivity() {
             isLoading(false)
             binding.editLayoutEmail.error = "Please fill the email field"
             return false
-        } else if (!Patterns.EMAIL_ADDRESS.matcher(binding.editTextEmail.text.toString()).matches()) {
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(binding.editTextEmail.text.toString().lowercase().trim()).matches()) {
             //if Email is not valid
             isLoading(false)
             binding.editLayoutEmail.error = "Not a valid email"
@@ -94,7 +76,7 @@ class SignInActivity : AppCompatActivity() {
             binding.editLayoutEmail.error = null
             binding.editLayoutPassword.error = "Please fill the password field"
             return false
-        } else if (binding.editTextPassword.text.toString().length < 6) {
+        } else if (binding.editTextPassword.text.toString().trim().length < 6) {
             //if password is less than 6 letters, forced by Firebase Authentication Service
             isLoading(false)
             binding.editLayoutEmail.error = null
@@ -117,7 +99,7 @@ class SignInActivity : AppCompatActivity() {
     private fun signIn() {
         //Trying to Authenticate the user by creating the id
         auth.signInWithEmailAndPassword(
-            binding.editTextEmail.text.toString().trim(),
+            binding.editTextEmail.text.toString().lowercase().trim(),
             binding.editTextPassword.text.toString().trim()
         )
             .addOnCompleteListener { task ->
@@ -130,7 +112,10 @@ class SignInActivity : AppCompatActivity() {
                         )
                         .addOnSuccessListener {
                             isLoading(false)
-                            startActivity(Intent(this@SignInActivity, MainActivity::class.java))
+                            val intent = Intent(this@SignInActivity, MainActivity::class.java).apply {
+                                flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                            startActivity(intent)
                             finish()
                         }
                         .addOnFailureListener { e ->
@@ -142,11 +127,7 @@ class SignInActivity : AppCompatActivity() {
                 } else {
                     isLoading(false)
                     showToast("Login failed")
-<<<<<<< HEAD
                     Log.e("SignIpError", task.exception.toString())
-=======
-                    Log.d("SignIpError", task.exception.toString())
->>>>>>> 0745b7177c06f55aac6c8a9ab7f4ddce1fbeaeb3
                 }
             }
     }
