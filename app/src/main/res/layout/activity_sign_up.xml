@@ -14,14 +14,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
+       android:layout_gravity="center"
         android:orientation="vertical"
         tools:context=".activities.MainActivity">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="50dp"
             android:fontFamily="@font/welcome_activity_heading_font"
             android:text="Create New Account"
             android:textAlignment="center"
@@ -34,18 +34,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/_35sdp"
-            android:background="@drawable/shape_group_icon"
-            >
+            android:layout_marginTop="@dimen/_35sdp">
 
             <com.makeramen.roundedimageview.RoundedImageView
                 android:id="@+id/avatar"
-                android:layout_width="@dimen/_75sdp"
-                android:layout_height="@dimen/_75sdp"
+                android:layout_width="@dimen/_80sdp"
+                android:layout_height="@dimen/_80sdp"
+                android:background="@drawable/shape_group_icon"
                 android:scaleType="centerCrop"
-                android:src="@drawable/vector_default_user_avatar"
-                app:riv_oval="true"
-                android:padding="6dp"
+                app:riv_oval="true" />
+
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/defaultImageViewIcon"
+                android:layout_width="@dimen/_50sdp"
+                android:layout_height="@dimen/_50sdp"
+                android:layout_gravity="center"
+                android:src="@drawable/vector_icon_group"
                 />
             <FrameLayout
                 android:id="@+id/frameChangeAvatarIcon"
@@ -80,6 +84,10 @@
                 app:boxStrokeErrorColor="@color/red"
                 app:endIconMode="clear_text"
                 app:errorEnabled="false"
+                app:boxCornerRadiusTopStart="@dimen/inputFieldCornerRadius"
+                app:boxCornerRadiusBottomEnd="@dimen/inputFieldCornerRadius"
+                app:boxCornerRadiusBottomStart="@dimen/inputFieldCornerRadius"
+                app:boxCornerRadiusTopEnd="@dimen/inputFieldCornerRadius"
                 app:errorTextAppearance="@dimen/_100ssp">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -99,6 +107,10 @@
                 android:layout_height="match_parent"
                 android:layout_marginTop="@dimen/_15sdp"
                 app:boxStrokeErrorColor="@color/red"
+                app:boxCornerRadiusTopStart="@dimen/inputFieldCornerRadius"
+                app:boxCornerRadiusBottomEnd="@dimen/inputFieldCornerRadius"
+                app:boxCornerRadiusBottomStart="@dimen/inputFieldCornerRadius"
+                app:boxCornerRadiusTopEnd="@dimen/inputFieldCornerRadius"
                 app:endIconMode="clear_text"
                 app:errorEnabled="false">
 
@@ -117,6 +129,10 @@
                 android:id="@+id/editLayoutEmail"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                app:boxCornerRadiusTopStart="@dimen/inputFieldCornerRadius"
+                app:boxCornerRadiusBottomEnd="@dimen/inputFieldCornerRadius"
+                app:boxCornerRadiusBottomStart="@dimen/inputFieldCornerRadius"
+                app:boxCornerRadiusTopEnd="@dimen/inputFieldCornerRadius"
                 android:layout_marginTop="@dimen/_10sdp"
                 app:boxStrokeErrorColor="@color/red"
                 app:endIconMode="clear_text"
@@ -142,6 +158,10 @@
                 android:layout_height="match_parent"
                 android:layout_marginTop="@dimen/_10sdp"
                 app:boxStrokeErrorColor="@color/red"
+                app:boxCornerRadiusTopStart="@dimen/inputFieldCornerRadius"
+                app:boxCornerRadiusBottomEnd="@dimen/inputFieldCornerRadius"
+                app:boxCornerRadiusBottomStart="@dimen/inputFieldCornerRadius"
+                app:boxCornerRadiusTopEnd="@dimen/inputFieldCornerRadius"
                 app:endIconMode="password_toggle">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -163,7 +183,10 @@
                 android:layout_height="match_parent"
                 android:layout_marginTop="@dimen/_10sdp"
                 app:boxStrokeErrorColor="@color/red"
-
+                app:boxCornerRadiusTopStart="@dimen/inputFieldCornerRadius"
+                app:boxCornerRadiusBottomEnd="@dimen/inputFieldCornerRadius"
+                app:boxCornerRadiusBottomStart="@dimen/inputFieldCornerRadius"
+                app:boxCornerRadiusTopEnd="@dimen/inputFieldCornerRadius"
                 app:endIconMode="password_toggle">
 
                 <com.google.android.material.textfield.TextInputEditText

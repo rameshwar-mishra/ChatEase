@@ -45,6 +45,10 @@
             android:layout_marginTop="@dimen/_16sdp"
             app:boxStrokeErrorColor="@color/red"
             app:endIconMode="clear_text"
+            app:boxCornerRadiusTopStart="@dimen/inputFieldCornerRadius"
+            app:boxCornerRadiusBottomEnd="@dimen/inputFieldCornerRadius"
+            app:boxCornerRadiusBottomStart="@dimen/inputFieldCornerRadius"
+            app:boxCornerRadiusTopEnd="@dimen/inputFieldCornerRadius"
             app:errorEnabled="false">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -64,6 +68,10 @@
             android:layout_height="match_parent"
             android:layout_marginTop="@dimen/_16sdp"
             app:boxStrokeErrorColor="@color/red"
+            app:boxCornerRadiusTopStart="@dimen/inputFieldCornerRadius"
+            app:boxCornerRadiusBottomEnd="@dimen/inputFieldCornerRadius"
+            app:boxCornerRadiusBottomStart="@dimen/inputFieldCornerRadius"
+            app:boxCornerRadiusTopEnd="@dimen/inputFieldCornerRadius"
             app:endIconMode="password_toggle">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -79,7 +87,8 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_20sdp">
+            android:layout_marginTop="@dimen/_20sdp"
+            >
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonSignIn"
