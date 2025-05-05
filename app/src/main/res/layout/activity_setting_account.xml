@@ -103,6 +103,7 @@
                         android:layout_height="match_parent"
                         android:drawableStart="@drawable/vector_default_user_avatar"
                         android:drawablePadding="10dp"
+                        android:singleLine="true"
                         android:focusable="false"
                         android:textSize="@dimen/_13sdp"
 
@@ -134,6 +135,7 @@
                         android:layout_height="match_parent"
                         android:drawableStart="@drawable/vector_default_user_avatar"
                         android:drawablePadding="10dp"
+                        android:singleLine="true"
                         android:focusable="false"
                         android:textSize="@dimen/_13sdp" />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -163,15 +165,16 @@
                         android:drawableStart="@drawable/vector_icon_bio_description"
                         android:drawablePadding="10dp"
                         android:focusable="false"
+                        android:singleLine="true"
                         android:textSize="@dimen/_13sdp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <FrameLayout
                     android:id="@+id/frameLayoutApplyButton"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_margin="@dimen/_20sdp"
+                    android:layout_margin="@dimen/_16sdp"
                     android:visibility="gone">
 
                     <com.google.android.material.button.MaterialButton

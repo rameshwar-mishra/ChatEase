@@ -40,7 +40,7 @@
                 android:layout_marginTop="3dp"
                 android:fontFamily="sans-serif"
                 android:text="Display Name"
-                android:textSize="16dp"
+                android:textSize="@dimen/fragmentHeading"
                 app:layout_constraintStart_toEndOf="@id/avatar"
                 app:layout_constraintTop_toTopOf="parent" />
 

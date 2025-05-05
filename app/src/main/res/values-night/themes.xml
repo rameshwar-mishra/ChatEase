@@ -2,18 +2,19 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.ChatEase" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
-        <item name="android:statusBarColor">#1A1823</item>
+        <item name="android:statusBarColor">@color/backgroundColor</item>
         <!--        <item name="android:statusBarColor">@color/accentColor</item>-->
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowBackground">#1A1823</item>
+        <item name="android:windowBackground">@color/backgroundColor</item>
         <item name="itemBackground">@color/white</item>
         <item name="icon_background">@color/icon_color</item>
         <item name="textColors">@color/textColors</item>
         <item name="colorCard">@color/signUpCardView</item>
         <item name="textAppearanceCaption">@style/TextInputErrorMessage</item>
         <item name="bottomNavigationStyle">@style/bottomNavigationView</item>
-        <item name="android:navigationBarColor">#1A1823</item>
-        <item name="android:fontFamily">@font/roboto</item>
+        <item name="android:navigationBarColor">@color/backgroundColor</item>
+        <item name="android:fontFamily">@font/inter_variable</item>
+        <item name="fontFamily">@font/inter_variable</item>
         <item name="materialButtonStyle">@style/MaterialButtonDesign</item>
 
     </style>
@@ -26,7 +27,7 @@
 
     <!--Bottom Navigation Color-->
     <style name="bottomNavigationView" parent="Widget.Material3.BottomNavigationView">
-        <item name="backgroundTint">#1A1823</item>
+        <item name="backgroundTint">@color/backgroundColor</item>
         <item name="indicatorColor">@color/accentColor</item>
     </style>
     <!-- Adjusting HelperText and Hint Text Style for TextInputLayout-->
@@ -43,9 +44,11 @@
         <item name="cardCornerRadius">0dp</item>
         <item name="strokeWidth">0dp</item>
         <item name="strokeColor">@android:color/transparent</item>
-        <item name="cardBackgroundColor">#1A1823</item>
+        <item name="cardBackgroundColor">@color/backgroundColor</item>
     </style>
-
+    <style name="CustomFontTextAppearance" parent="TextAppearance.Material3.BodyMedium">
+        <item name="fontFamily">@font/welcome_activity_heading_font</item>
+    </style>
 </resources>
 
     <!--  Custom Theme For Welcome Activity-->

@@ -34,6 +34,7 @@
                     android:layout_gravity="center"
                     android:fontFamily="sans-serif-black"
                     android:text="Group Creation"
+                    android:singleLine="true"
                     android:textSize="@dimen/_16ssp" />
             </androidx.appcompat.widget.Toolbar>
 
@@ -95,7 +96,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Group Name"
-                    android:maxLines="1"
                     android:scrollHorizontally="true"
                     android:singleLine="true" />
             </com.google.android.material.textfield.TextInputLayout>

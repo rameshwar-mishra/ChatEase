@@ -275,7 +275,7 @@ class SignUpActivity : AppCompatActivity() {
                         .load(compressedImageAsByteArray)
                         .placeholder(R.drawable.vector_default_user_avatar) // Placeholder while loading
                         .into(binding.avatar) // Set the image to avatar view
-
+                    binding.defaultImageViewIcon.visibility = View.INVISIBLE
                 }
             }
         } else if (resultCode == UCrop.RESULT_ERROR) {

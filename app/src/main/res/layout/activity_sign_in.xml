@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_15sdp"
             android:textColor="@color/textColors"
-            android:fontFamily="@font/welcome_activity_heading_font"
+            style="@style/CustomFontTextAppearance"
             android:gravity="center"
             android:text="Welcome Back!"
             android:textSize="@dimen/_25ssp">
@@ -59,7 +59,7 @@
                 android:drawableStart="@drawable/vector_icon_email"
                 android:drawablePadding="8dp"
                 android:hint="Email"
-                android:maxLines="1" />
+                android:singleLine="true" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -82,6 +82,7 @@
                 android:drawableStart="@drawable/vector_icon_password"
                 android:drawablePadding="8dp"
                 android:hint="Password"
+                android:singleLine="true"
                 android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
         <FrameLayout

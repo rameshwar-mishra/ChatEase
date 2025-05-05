@@ -102,6 +102,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:background="@drawable/shape_group_icon"
+                    android:padding="7dp"
                     app:layout_constraintBottom_toTopOf="@+id/textViewGroupName"
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintEnd_toEndOf="@id/guidelineFrameEnd"
@@ -111,8 +112,8 @@
 
                     <com.makeramen.roundedimageview.RoundedImageView
                         android:id="@+id/imageViewGroupIcon"
-                        android:layout_width="@dimen/_75sdp"
-                        android:layout_height="@dimen/_75sdp"
+                        android:layout_width="75dp"
+                        android:layout_height="75dp"
                         android:layout_gravity="center"
                         android:padding="6dp"
                         android:scaleType="centerCrop"

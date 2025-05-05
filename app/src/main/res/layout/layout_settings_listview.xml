@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/constraint"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="3dp">
+    android:padding="7dp"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    >
 
     <!-- Left Guideline (for padding) -->
     <androidx.constraintlayout.widget.Guideline
@@ -30,6 +33,7 @@
         android:id="@+id/settingsCategoryIcon"
         android:layout_width="27dp"
         android:layout_height="27dp"
+        android:contentDescription="none"
         android:src="@drawable/vector_icon_privacy"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guidelineStart"
@@ -45,8 +49,7 @@
         android:layout_marginStart="4dp"
         android:layout_marginTop="4dp"
         android:text="Test"
-        android:textSize="19sp"
-        android:textStyle="bold"
+        android:textSize="@dimen/fragmentHeading"
         android:textColor="@color/textColors"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
         app:layout_constraintTop_toTopOf="parent" />
@@ -74,14 +77,5 @@
         app:layout_constraintStart_toEndOf="@+id/guidelineEnd"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.5" />
-
-    <View
-        android:id="@+id/views"
-        android:layout_width="0dp"
-        android:layout_height="0.5dp"
-        android:layout_marginTop="10dp"
-        android:background="@color/secondaryText"
-        app:layout_constraintStart_toStartOf="@id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@id/textViewSettingsMetaData" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -13,7 +13,8 @@
         <item name="bottomNavigationStyle">@style/bottomNavigationView</item>
         <item name="android:navigationBarColor">#FBFBFB</item>
         <item name="android:windowLightNavigationBar">true</item>
-        <item name="android:fontFamily">@font/roboto</item>
+        <item name="android:fontFamily">@font/inter_variable</item>
+        <item name="fontFamily">@font/inter_variable</item>
         <item name="materialButtonStyle">@style/MaterialButtonDesign</item>
     </style>
     <!--Material Button Default Style-->
@@ -46,7 +47,9 @@
     <style name="HintTextStyle" parent="TextAppearance.AppCompat.Body1">
         <item name="android:textSize">14sp</item>
     </style>
-
+    <style name="CustomFontTextAppearance" parent="TextAppearance.Material3.BodyMedium">
+        <item name="fontFamily">@font/welcome_activity_heading_font</item>
+    </style>
     <style name="Theme.ChatEase" parent="Base.Theme.ChatEase" />
 </resources>
 

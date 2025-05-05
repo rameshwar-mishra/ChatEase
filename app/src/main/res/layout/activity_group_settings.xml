@@ -45,23 +45,25 @@
 
                 <FrameLayout
                     android:id="@+id/frameGroupIcon"
-                    android:layout_width="@dimen/_70sdp"
-                    android:layout_height="@dimen/_70sdp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginTop="20dp"
                     android:background="@drawable/shape_group_icon"
                     app:layout_constraintEnd_toEndOf="parent"
+                    android:padding="8dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/toolbar">
 
                     <com.makeramen.roundedimageview.RoundedImageView
                         android:id="@+id/groupIcon"
-                        android:layout_width="@dimen/_45sdp"
-                        android:layout_height="@dimen/_45sdp"
+                        android:layout_width="85dp"
+                        android:layout_height="85dp"
                         android:layout_gravity="center"
                         android:scaleType="centerCrop"
                         android:src="@drawable/vector_icon_group"
-                        app:riv_oval="true" />
+                        app:riv_oval="true"
+                        />
                     <FrameLayout
                         android:id="@+id/frameChangeAvatarIcon"
                         android:layout_width="@dimen/_20sdp"

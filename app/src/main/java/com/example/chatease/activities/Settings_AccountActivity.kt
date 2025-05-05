@@ -520,9 +520,9 @@ class Settings_AccountActivity : AppCompatActivity() {
                 }
 
                 // Setting text fields with user data
-                binding.editTextUserName.setText(userName)
-                binding.editTextDisplayName.setText(userDisplayName)
-                binding.editTextUserBio.setText(userBio)
+                binding.editTextUserName.setText(userDataObject.userName)
+                binding.editTextDisplayName.setText(userDataObject.displayName)
+                binding.editTextUserBio.setText(userDataObject.userBio)
             }.addOnFailureListener { e ->
                 // Handle failure to update Firestore
                 Toast.makeText(this, "Update failed: ${e.message}", Toast.LENGTH_SHORT).show()

@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
-            android:fontFamily="@font/welcome_activity_heading_font"
+            style="@style/CustomFontTextAppearance"
             android:text="Create New Account"
             android:textAlignment="center"
             android:textColor="@color/textColors"
@@ -97,6 +97,7 @@
                     android:drawableStart="@drawable/vector_default_user_avatar"
                     android:drawablePadding="8dp"
                     android:hint="Username"
+                    android:singleLine="true"
                     android:padding="8dp"
                     android:textColor="@color/textColors" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -120,6 +121,7 @@
                     android:layout_height="50dp"
                     android:drawableStart="@drawable/vector_default_user_avatar"
                     android:drawablePadding="8dp"
+                    android:singleLine="true"
                     android:hint="Display Name"
                     android:padding="8dp"
                     android:textColor="@color/textColors" />
@@ -146,6 +148,7 @@
                     android:layout_marginTop="40dp"
                     android:drawableStart="@drawable/vector_icon_email"
                     android:drawablePadding="8dp"
+                    android:singleLine="true"
                     android:hint="Email"
                     android:padding="8dp"
                     android:textColor="@color/textColors" />
@@ -173,6 +176,7 @@
                     android:drawablePadding="8dp"
                     android:hint="Password"
                     android:inputType="textPassword"
+                    android:singleLine="true"
                     android:padding="8dp"
                     android:textColor="@color/textColors" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -197,6 +201,7 @@
                     android:drawableStart="@drawable/vector_icon_password"
                     android:drawablePadding="8dp"
                     android:hint="Confirm Password"
+                    android:singleLine="true"
                     android:inputType="textPassword"
                     android:padding="8dp"
                     android:textColor="@color/textColors" />

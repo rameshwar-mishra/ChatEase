@@ -31,7 +31,7 @@
                 android:maxWidth="260dp"
                 android:text="1"
                 android:textColor="@color/textColors"
-                android:textSize="15sp"
+                android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 />

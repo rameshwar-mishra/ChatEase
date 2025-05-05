@@ -27,7 +27,7 @@ class Notification() {
         senderID: String,
         messageID: String,
         notificationMode: String
-        ) {
+    ) {
         val channel = NotificationChannel("1", "Message Notifications", NotificationManager.IMPORTANCE_HIGH)
         val manager: NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.createNotificationChannel(channel)

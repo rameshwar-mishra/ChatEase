@@ -8,48 +8,49 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
 import com.example.chatease.R
 import com.example.chatease.databinding.LayoutSettingsListviewBinding
 
-class SettingsAdapter(
+class SettingsRecyclerAdapter(
     private val context: Context,
     private val itemList: List<String>,
-    private val itemListMetaDataText : List<String>,
-    private val itemListIcons : List<Int>
-) : BaseAdapter() {
+    private val itemListMetaDataText: List<String>,
+    private val itemListIcons: List<Int>,
+    private val onItemClick: (position: Int) -> Unit
+) : RecyclerView.Adapter<SettingsRecyclerAdapter.SettingsViewHolder>() {
 
-    override fun getCount(): Int = itemList.size
+    inner class SettingsViewHolder(val binding: LayoutSettingsListviewBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(position: Int) {
+            binding.textViewSettingsCategoryName.text = itemList[position]
+            binding.textViewSettingsMetaData.text = itemListMetaDataText[position]
+            binding.settingsCategoryIcon.setImageResource(itemListIcons[position])
 
-    override fun getItem(position: Int): String = itemList[position]
-
-    override fun getItemId(position: Int): Long = position.toLong()
-//Attaching Data to ListView Components
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val binding = if(convertView == null){ //Using ViewBinding to access layouts Elements, convertView is recycled view from previous item of ListView which was scrolled out of area
-            LayoutSettingsListviewBinding.inflate(LayoutInflater.from(context),parent,false).apply { //inflating the layout if convertView is null that means it is inflating for first time and storing it in the root.tag
-                root.tag = this
+            // Special formatting for the "Logout" item
+            if (position == itemList.size - 1) {
+                val color = ContextCompat.getColor(context, R.color.red)
+                binding.textViewSettingsCategoryName.setTextColor(color)
+                binding.imageViewForwardArrow.visibility = View.GONE
+            } else {
+                val color = ContextCompat.getColor(context, R.color.textColors)
+                binding.textViewSettingsCategoryName.setTextColor(color)
+                binding.imageViewForwardArrow.visibility = View.VISIBLE
             }
 
+            binding.root.setOnClickListener {
+                onItemClick(position)
+            }
         }
-        else{
-            //if the convertView had something it will simply get typecast to ViewBinding and now we can set the data to it
-          convertView.tag as LayoutSettingsListviewBinding
-        }
-        if(position == itemList.size -1){
-            binding.views.visibility = View.GONE
-            val color = ContextCompat.getColor(context, R.color.red)
-            binding.textViewSettingsCategoryName.setTextColor(color)
-            binding.imageViewForwardArrow.visibility = View.GONE
-        }
-        else{
-            binding.views.visibility = View.VISIBLE
-            val color = ContextCompat.getColor(context,R.color.textColors)
-            binding.textViewSettingsCategoryName.setTextColor(color)
-            binding.imageViewForwardArrow.visibility = View.VISIBLE
-        }
-        binding.textViewSettingsCategoryName.text = itemList[position]
-        binding.textViewSettingsMetaData.text = itemListMetaDataText[position]
-        binding.settingsCategoryIcon.setImageResource(itemListIcons[position])
-        return binding.root
     }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SettingsViewHolder {
+        val binding = LayoutSettingsListviewBinding.inflate(LayoutInflater.from(context), parent, false)
+        return SettingsViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: SettingsViewHolder, position: Int) {
+        holder.bind(position)
+    }
+
+    override fun getItemCount(): Int = itemList.size
 }
