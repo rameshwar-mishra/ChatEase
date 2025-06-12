@@ -18,7 +18,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.chatease"
-        minSdk = 27 // Android 8.0
+        minSdk = 27 // Android 8.1
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"

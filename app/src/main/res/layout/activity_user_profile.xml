@@ -144,8 +144,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/_13sdp"
                     android:layout_marginTop="@dimen/_2sdp"
-                    android:text="Goku sent you a friend Request"
-                    android:textSize="@dimen/_14ssp"
+                    android:text="Gokurrrrrrrrrrrrrrrrrr sent you a friend request"
+                    android:textSize="@dimen/_12ssp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 

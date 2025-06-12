@@ -48,9 +48,9 @@ class SettingsFragment : Fragment() {
             "Logout"
         )
         val itemListMetaDataText = listOf(
-            "Change Account Information",
-            "Change Privacy Settings for Users",
-            "Change Your Password",
+            "Change account information",
+            "Change privacy settings for users",
+            "Change your password",
             "Logout from the device"
         )
         val itemListIcons = listOf(
@@ -80,8 +80,8 @@ class SettingsFragment : Fragment() {
 
     private fun showLogoutDialog() {
         val alertDialog = MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Sign Out")
-            .setMessage("Do you want to Sign Out From the App?")
+            .setTitle("Log Out")
+            .setMessage("Do you want to Log Out From the App?")
             .setIcon(R.drawable.vector_icon_warning)
             .setNegativeButton("No") { dialog, _ -> dialog.cancel() }
             .setPositiveButton("Yes") { _, _ ->
