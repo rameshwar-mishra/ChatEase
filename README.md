@@ -49,6 +49,5 @@ ChatEase allows users to engage in **real-time 1-on-1 and group messaging**, man
 
 ## 🖼 Screenshots
 > <img src="screenshots/welcome_screen.png" width="200"/> <img src="screenshots/login_screen.png" width="200"/> <img src="screenshots/chat_screen.png" width="200"/> <img src="screenshots/groups_screen.png" width="200"/> 
----
 
 
