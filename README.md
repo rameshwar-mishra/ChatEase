@@ -42,7 +42,7 @@ ChatEase allows users to engage in **real-time 1-on-1 and group messaging**, man
 
 | Member         | Role                                       |
 |----------------|--------------------------------------------|
-| **Rameshwar Mishra** | Frontend development, UI/UX, Firebase integration (UI-side), friend management |
+| **Rameshwar Mishra** | Frontend development, UI/UX, Firebase integration (UI-side)|
 | **Souvick Sen**       | Complete backend logic – chat flow, group messaging, database structure, authentication flow, FCM integration |
 
 ---
