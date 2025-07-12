@@ -9,7 +9,7 @@ ChatEase allows users to engage in **real-time 1-on-1 and group messaging**, man
 
 ## 🚀 Features
 
-- 🔐 **Secure Authentication** with Firebase (email/phone)
+- 🔐 **Secure Authentication** with Firebase (email)
 - 💬 **1-on-1 and Group Messaging** in real time
 - 🧑‍🤝‍🧑 **Friend Management** (add, view, and remove friends)
 - 🖼 **Profile Customization** (image upload, crop with Ucrop, compression)
