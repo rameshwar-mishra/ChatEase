@@ -5,7 +5,7 @@ A real-time chat application built using **Kotlin** and **XML**, with full integ
 
 ## 📱 Overview
 
-ChatEase allows users to engage in **real-time 1-on-1 and group messaging**, manage friend connections, customize profiles, and receive smart notifications — all while leveraging a clean and modern UI built with Material Design.
+ChatEase allows users to engage in **real-time 1-on-1 and group messaging**, manage friend connections, customize profiles, and receive smart notifications - all while leveraging a clean and modern UI built with Material Design.
 
 ## 🚀 Features
 
